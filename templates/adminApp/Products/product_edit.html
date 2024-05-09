@@ -1,0 +1,232 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+			<!-- CONTENT WRAPPER -->
+    <div class="ec-content-wrapper">
+        <div class="content">
+            <div class="breadcrumb-wrapper breadcrumb-wrapper-2 breadcrumb-contacts">
+                    <h1>Products</h1>
+                    <p class="breadcrumbs"><span><a href="{%  url 'admin_dashboard' %}">Home</a></span>
+                        <span><i class="mdi mdi-chevron-right"></i></span>Products</p>
+            </div>
+            <div class="row">
+                <div class="col-xl-4 col-lg-12">
+                    <div class="ec-cat-list card card-default mb-24px">
+                        <div class="card-body">
+                            <div class="ec-cat-form">
+                                <h4>Edit Product (<b> {{product_editing}} </b>)</h4>
+
+                                <form method="POST" enctype="multipart/form-data" >
+                                    {% csrf_token %}
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Name</label> 
+                                        <div class="col-12">
+                                             {{edit_form.product_name}}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="slug" class="col-12 col-form-label">Slug</label> 
+                                        <div class="col-12">
+                                            {{edit_form.slug}}
+                                            <small>The slug is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Main Category</label> 
+                                        <div class="col-12">
+                                             {{edit_form.Category_Main}}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Sub Category </label> 
+                                        <div class="col-12">
+                                             {{edit_form.sub_category }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Mrp Price</label> 
+                                        <div class="col-12">
+                                             {{edit_form.mrp_price }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Selling Price</label> 
+                                        <div class="col-12">
+                                             {{edit_form.price}}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Short Description</label> 
+                                        <div class="col-12">
+                                             {{edit_form.short_desp}}
+
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Is Available</label> 
+                                        <div class="col-12">
+                                             {{edit_form.is_available}}
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Stock </label> 
+                                        <div class="col-12">
+                                             {{edit_form.stock}}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Product Image</label> 
+                                        <div class="col-12">
+                                             {{edit_form.images}}
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Description</label> 
+                                        <div class="col-12">
+                                             {{edit_form.description}}
+
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+
+                                    {% comment %} <div class="form-group row">
+                                        <div class="col-12">
+                                            {% comment %} {{edit_form.description|as_crispy_field}} 
+                                        </div>
+                                    </div> 
+                                    <div class="form-group row" >
+                                        <label class="col-12 col-form-label">Category Image</label> 
+                                        <div class="col-12" >
+                                            {{edit_form.cat_main_img}}
+                                        </div>
+                                    </div> 
+
+                                    
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div> {% endcomment %}
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-8 col-lg-12">
+                    <div class="ec-cat-list card card-default">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="responsive-data-table" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sl no</th>
+                                            <th>Thumb</th>
+                                            <th>Product Name</th>
+                                            <th>Category</th>
+                                            <th>Available</th> 
+                                             {% comment %} <th>Mrp</th> {% endcomment %}
+                                             <th>Offer Price</th>
+                                            <th>Stock</th>
+                                            <th>Short Description</th> 
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                     {% for prodt in product %}
+                            <tr>
+                                <td><span class="ec-sub-cat-count" title="Total Sub Categories">{{ forloop.counter }}</span></td>
+
+                                {% if prodt.images %}
+                                <td><img class="cat-thumb" src="{{prodt.images.url}}" alt="Product Image" /></td>
+                                {% else %}
+                                <td><img class="vendor-thumb" src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png" alt="user profile" height=40 width=40 /></td>
+                                {% endif %}
+
+
+
+                                <td><a href="../..{{prodt.Category_Main.get_url}}{{prodt.sub_category.slug}}/{{prodt.slug}}">{{prodt.product_name}}</a></td>
+                                
+                                <td>
+                                    <span class="ec-sub-cat-list">
+                                    {% comment %} {% for subc in sub %}
+                                    {% if subc.category == category %}
+                                       <span class="ec-sub-cat-tag">{{subc}}</span>
+                                    {% endif %}
+                                    {% endfor %} {% endcomment %}
+                                    <span class="ec-sub-cat-tag">
+                                    Main: {{prodt.Category_Main.category_name}}
+                                    </span>
+                                    <span class="ec-sub-cat-tag">
+                                        Sub: {{prodt.sub_category.sub_category_name}}
+                                        </span>
+                                    </span>
+                                    
+                                </td>
+                                <td>
+                                    {% if prodt.stock > 0 %}
+                                    <span class="badge badge-success">Available</span>
+                                    {% else %}
+                                    <span class="badge badge-danger">Not Available</span>
+                                    {% endif %}
+                                </td>
+                                
+                                {% comment %} <td>{{prodt.mrp_price}}$</td> {% endcomment %}
+                                <td><b>{{prodt.price}}$</b></td>
+                                <td>{{prodt.stock}}</td>
+                                <td> {{prodt.short_desp }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button type="button"
+                                            class="btn btn-outline-success">Info</button>
+                                        <button type="button"
+                                            class="btn btn-outline-success dropdown-toggle dropdown-toggle-split"
+                                            data-bs-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false" data-display="static">
+                                            <span class="sr-only">Info</span>
+                                        </button>
+
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="../product_edit/{{prodt.id}}">Edit</a>
+                                            <a class="dropdown-item" href="../product_delete/{{prodt.id}}">Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% endfor %}	
+                                    </tbody>
+                                </table>
+                               
+                            </tr>
+                            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End Content -->
+    </div> <!-- End Content Wrapper -->
+{% endblock %}

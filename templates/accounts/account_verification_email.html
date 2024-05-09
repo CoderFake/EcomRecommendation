@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body, table, td, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+        table {
+            border-collapse: collapse !important;
+        }
+        body {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        .externalClass {
+            width: 100%;
+        }
+        .externalClass,
+        .externalClass p,
+        .externalClass span,
+        .externalClass font,
+        .externalClass td,
+        .externalClass div {
+            line-height: 100%;
+        }
+        .apple-link a {
+            color: inherit !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+            text-decoration: none !important;
+        }
+        .btn-primary table td:hover {
+            background-color: #34495e !important;
+        }
+        .btn-primary a:hover {
+            background-color: #34495e !important;
+            border-color: #34495e !important;
+        }
+    </style>
+</head>
+<body style="background-color: #f4f8fb; margin: 0; padding: 0;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td bgcolor="#f4f8fb" align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
+                            <a href="{{ domain }}/index" target="_blank">
+                                <img alt="Logo" src="{% static 'webapp/assets/images/logo/logo.png' %}" width="200" height="50" style="display: block; width: 200px; max-width: 200px; min-width: 200px; font-family: 'Helvetica', 'Arial', sans-serif; color: #ffffff; font-size: 18px;" border="0">
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#f4f8fb" align="center" style="padding: 0px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" valign="top" style="padding: 40px 30px 20px 30px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Helvetica', 'Arial', sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">Hi {{ user.full_name }},</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Helvetica', 'Arial', sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">Thank you for registering with us. Please click the button below to verify your email address and complete your registration:</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 20px 30px;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center" style="padding: 25px 0 25px 0;">
+                                        <table border="0" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td align="center" style="border-radius: 6px;" bgcolor="#1a82e2">
+                                                    <a href="{{ domain }}/accounts/activate/{{ uid }}/{{token}}" target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 6px; border: 1px solid #1a82e2; display: inline-block;">Confirm Email</a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 6px 6px; color: #666666; font-family: 'Helvetica', 'Arial', sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">If you did not request this verification, please ignore this email.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

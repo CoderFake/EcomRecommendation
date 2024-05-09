@@ -1,0 +1,448 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% load rating_tags %}
+{% block extra_head %}
+    <link rel="stylesheet" id="bg-switcher-css" href="{% static 'webapp/assets/css/backgrounds/bg-4.css' %}">
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}" />
+{% endblock %}
+
+{% block content %}
+    <div id="ec-overlay"><span class="loader_img"></span></div>
+    
+    <!-- Ekka Cart Start -->
+    <div class="ec-side-cart-overlay"></div>
+    <div id="ec-side-cart" class="ec-side-cart">
+        <div class="ec-cart-inner">
+            <div class="ec-cart-top">
+                <div class="ec-cart-title">
+                    <span class="cart_title">My Cart</span>
+                    <button class=" rounded-3 ec-close">x</button>
+                </div>
+                <ul class="eccart-pro-items">
+                    <li>
+                        <a href="product-left-sidebar.html" class="sidecart_pro_img"><img
+                                src="{% static 'webapp/assets/images/product-image/93_1.jpg' %}" alt="product"></a>
+                        <div class="ec-pro-content">
+                            <a href="single-product-left-sidebar.html" class="cart_pro_title">Mens Winter Leathers
+                                Jackets</a>
+                            <span class="cart-price"><span>49$</span> x 1</span>
+                            <div class="qty-plus-minus">
+                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
+                            </div>
+                            <a href="#" class="remove">x</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="product-left-sidebar.html" class="sidecart_pro_img"><img
+                                src="{% static 'webapp/assets/images/product-image/96_1.jpg' %}" alt="product"></a>
+                        <div class="ec-pro-content">
+                            <a href="product-left-sidebar.html" class="cart_pro_title">Running & Trekking Shoes -
+                                White</a>
+                            <span class="cart-price"><span>150$</span> x 1</span>
+                            <div class="qty-plus-minus">
+                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
+                            </div>
+                            <a href="#" class="remove">x</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="product-left-sidebar.html" class="sidecart_pro_img"><img
+                                src="{% static 'webapp/assets/images/product-image/111_1.jpg' %}" alt="product"></a>
+                        <div class="ec-pro-content">
+                            <a href="product-left-sidebar.html" class="cart_pro_title">Rose Gold Peacock Earrings</a>
+                            <span class="cart-price"><span>950$</span> x 1</span>
+                            <div class="qty-plus-minus">
+                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
+                            </div>
+                            <a href="#" class="remove">x</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="ec-cart-bottom">
+                <div class="cart-sub-total">
+                    <table class="table cart-table">
+                        <tbody>
+                        <tr>
+                            <td class="text-left">Sub-Total :</td>
+                            <td class="text-right">300$</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">VAT (20%) :</td>
+                            <td class="text-right">60$</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Total :</td>
+                            <td class="text-right primary-color">360$</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="cart_btn">
+                    <a href="cart.html" class="btn btn-primary rounded-3">View Cart</a>
+                    <a href="checkout.html" class="btn  btn-secondary rounded-3 ">Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Ekka Cart End -->
+
+    <!-- Main Slider Start -->
+    <div class="ec-main-slider section section-space-pb">
+        <div class="container">
+            <div class="ec-slider swiper-container main-slider-nav main-slider-dot">
+                <!-- Main slider -->
+                <div class="swiper-wrapper">
+                    <div class="ec-slide-item swiper-slide d-flex slide-1">
+                        <div class="container align-self-center">
+                            <div class="row">
+                                <div class="col-sm-12 align-self-center">
+                                    <div class="ec-slide-content slider-animation">
+                                        <h2 class="ec-slide-stitle">Sale offer</h2>
+                                        <h1 class="ec-slide-title">New Fashion Summer Sale</h1>
+                                        <div class="ec-slide-desc">
+                                            <p>starting at <b>299</b>$</p>
+                                            <a href="/store" class="btn btn-lg btn-primary rounded-3">Shop Now <i
+                                                    class="ecicon eci-angle-double-right" aria-hidden="true"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec-slide-item swiper-slide d-flex slide-2">
+                        <div class="container align-self-center">
+                            <div class="row">
+                                <div class="col-sm-12 align-self-center">
+                                    <div class="ec-slide-content slider-animation">
+                                        <h2 class="ec-slide-stitle">Trending item</h2>
+                                        <h1 class="ec-slide-title">Women's latest fashion sale</h1>
+                                        <div class="ec-slide-desc">
+                                            <p>starting at <b>499</b>99$</p>
+                                            <a href="/store" class="btn btn-lg btn-primary rounded-3">Shop Now <i
+                                                    class="ecicon eci-angle-double-right" aria-hidden="true"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec-slide-item swiper-slide d-flex slide-3">
+                        <div class="container align-self-center">
+                            <div class="row">
+                                <div class="col-sm-12 align-self-center">
+                                    <div class="ec-slide-content slider-animation">
+                                        <h2 class="ec-slide-stitle">Trending accessories</h2>
+                                        <h1 class="ec-slide-title">Modern Sunglasses</h1>
+                                        <div class="ec-slide-desc">
+                                            <p>starting at <b>1599</b>$</p>
+                                            <a href="/store" class="btn btn-lg btn-primary rounded-3">Shop Now <i
+                                                    class="ecicon eci-angle-double-right" aria-hidden="true"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination swiper-pagination-white"></div>
+                <div class="swiper-buttons">
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Slider End -->
+
+    <!--  category Section Start -->
+    <section class="section ec-category-section section-space-p">
+        <div class="container">
+            <div class="row d-none">
+                <div class="col-md-12">
+                    <div class="section-title">
+                        <h2 class="ec-title">Top Category</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row margin-minus-b-15 margin-minus-t-15">
+                <div id="ec-cat-slider" class="ec-cat-slider owl-carousel">
+                    <div class="ec_cat_content ec_cat_content_1">
+                        <div class="ec_cat_inner ec_cat_inner-1">
+                            <div class="ec-category-image">
+                                <img src="{% static 'webapp/assets/images/icons/dress-8.svg' %}" class="svg_img"
+                                     alt="drink"/>
+                            </div>
+                            <div class="ec-category-desc">
+                                <h3>dress & frock <span title="Category Items">(53)</span></h3>
+                                <a href="shop-left-sidebar-col-3.html" class="cat-show-all">Show All <i
+                                        class="ecicon eci-angle-double-right"
+                                        aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec_cat_content ec_cat_content_2">
+                        <div class="ec_cat_inner ec_cat_inner-2">
+                            <div class="ec-category-image">
+                                <img src="{% static 'webapp/assets/images/icons/coat-8.svg' %}" class="svg_img"
+                                     alt="drink"/>
+                            </div>
+                            <div class="ec-category-desc">
+                                <h3>Winter wear <span title="Category Items">(58)</span></h3>
+                                <a href="shop-left-sidebar-col-3.html" class="cat-show-all">Show All <i
+                                        class="ecicon eci-angle-double-right"
+                                        aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec_cat_content ec_cat_content_3">
+                        <div class="ec_cat_inner ec_cat_inner-3">
+                            <div class="ec-category-image">
+                                <img src="{% static 'webapp/assets/images/icons/glasses-8.svg' %}" class="svg_img"
+                                     alt="drink"/>
+                            </div>
+                            <div class="ec-category-desc">
+                                <h3>glasses & lens <span title="Category Items">(76)</span></h3>
+                                <a href="shop-left-sidebar-col-3.html" class="cat-show-all">Show All <i
+                                        class="ecicon eci-angle-double-right"
+                                        aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec_cat_content ec_cat_content_4">
+                        <div class="ec_cat_inner ec_cat_inner-4">
+                            <div class="ec-category-image">
+                                <img src="{% static 'webapp/assets/images/icons/shorts-8.svg' %}" class="svg_img"
+                                     alt="drink"/>
+                            </div>
+                            <div class="ec-category-desc">
+                                <h3>shorts & jeans<span title="Category Items">(49)</span></h3>
+                                <a href="shop-left-sidebar-col-3.html" class="cat-show-all">Show All <i
+                                        class="ecicon eci-angle-double-right"
+                                        aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec_cat_content ec_cat_content_5">
+                        <div class="ec_cat_inner ec_cat_inner-5">
+                            <div class="ec-category-image">
+                                <img src="{% static 'webapp/assets/images/icons/tee-8.svg' %}" class="svg_img"
+                                     alt="drink"/>
+                            </div>
+                            <div class="ec-category-desc">
+                                <h3>T-shirts<span title="Category Items">(25)</span></h3>
+                                <a href="shop-left-sidebar-col-3.html" class="cat-show-all">Show All <i
+                                        class="ecicon eci-angle-double-right"
+                                        aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec_cat_content ec_cat_content_6">
+                        <div class="ec_cat_inner ec_cat_inner-6">
+                            <div class="ec-category-image">
+                                <img src="{% static 'webapp/assets/images/icons/jacket-8.svg' %}" class="svg_img"
+                                     alt="drink"/>
+                            </div>
+                            <div class="ec-category-desc">
+                                <h3>jacket<span title="Category Items">(35)</span></h3>
+                                <a href="shop-left-sidebar-col-3.html" class="cat-show-all">Show All <i
+                                        class="ecicon eci-angle-double-right"
+                                        aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec_cat_content ec_cat_content_7">
+                        <div class="ec_cat_inner ec_cat_inner-7">
+                            <div class="ec-category-image">
+                                <img src="{% static 'webapp/assets/images/icons/watch-8.svg' %}" class="svg_img"
+                                     alt="drink"/>
+                            </div>
+                            <div class="ec-category-desc">
+                                <h3>watch<span title="Category Items">(89)</span></h3>
+                                <a href="shop-left-sidebar-col-3.html" class="cat-show-all">Show All <i
+                                        class="ecicon eci-angle-double-right"
+                                        aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ec_cat_content ec_cat_content_8">
+                        <div class="ec_cat_inner ec_cat_inner-8">
+                            <div class="ec-category-image">
+                                <img src="{% static 'webapp/assets/images/icons/hat-8.svg' %}" class="svg_img"
+                                     alt="drink"/>
+                            </div>
+                            <div class="ec-category-desc">
+                                <h3>hat & caps <span title="Category Items">(65)</span></h3>
+                                <a href="shop-left-sidebar-col-3.html" class="cat-show-all">Show All <i
+                                        class="ecicon eci-angle-double-right"
+                                        aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--category Section End -->
+
+    <!-- START Product Transparent Style -->
+    <section class="sec-tp el-prod section-space-p">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="section-title">
+                        <h2 class="ec-bg-title">All Products</h2>
+                        <h2 class="ec-title">All Products</h2>
+                        <p class="sub-title">Browse The Collection of Top Categories</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                {% for product in page_obj %}
+
+                    <!-- START single card -->
+                    <div class="col-lg-3 col-md-6 col-sm-6 my-4">
+                        <div class="ec-product-tp">
+                            <div class="ec-product-image">
+                                <a href="
+                                        {{ product.category_main.get_url }}{{ product.sub_category.slug }}/{{ product.slug }}" class="product-session">
+                                    {% for image in product.images.all %}
+                                        {% if image.image_type == 'default' %}
+                                            <img src="{{ image.image_url }}" class="img-center" alt="">
+                                        {% endif %}
+                                    {% endfor %}
+                                </a>
+                                {% if product.is_available %}
+                                    <span class="ec-product-ribbon">In Stock</span>
+                                {% else %}
+                                    <span class="ec-product-ribbon">Out of Stock</span>
+                                {% endif %}
+                                <div class="ec-link-icon">
+                                    <a href="#" data-tip="Add to Wishlist"><img
+                                            src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
+                                            class="svg_img header_svg pro_svg" alt="wishlist"/></a>
+                                    <a href="#" data-tip="Compare"><img
+                                            src="{% static 'webapp/assets/images/icons/compare.svg' %}"
+                                            class="svg_img pro_svg" alt="compare"/></a>
+                                    <a href="#" data-tip="Quick View"><img
+                                            src="{% static 'webapp/assets/images/icons/quickview.svg' %}"
+                                            class="svg_img pro_svg" alt="quick view"/></a>
+                                </div>
+                            </div>
+                            <div class="ec-product-body">
+
+                                <h3 class="ec-title"><a href="#">{{ product.product_name }}</a></h3>
+                                {{ product.category_main }} - {{ product.sub_category }}
+                                <p class="ec-description">
+                                    {{ product.short_desp }}
+                                </p>
+                                <ul class="ec-rating">
+                                    {% render_stars product.rating %}
+                                </ul>
+                                <div class="ec-price"><span> {{ product.mrp_price }}$</span> {{ product.price }}$</div>
+                                <div class="ec-link-btn">
+
+                                    <a class=" ec-add-to-cart" href="
+                                            {{ product.category_main.get_url }}{{ product.sub_category.slug }}/{{ product.slug }}">View
+                                        Details</a>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END single card -->
+                {% endfor %}
+                <div class="mt-4 row">
+                    {% if page_obj.has_other_pages %}
+                        <div class="col-lg-12">
+                            <ul class="pagination justify-content-center" style="height:45px;">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item"><a href="" data-page="1"
+                                                             class="btn btn-outline-secondary mb-4 post-link"
+                                                             style="border-radius:2px; border: 1px solid #d3d3d3;overflow: hidden; text-overflow: ellipsis;">
+                                        <div class="text-nowrap">Trang đầu</div>
+                                    </a>
+                                    </li>
+                                    <li class="page-item"><a class="page-link post-link h-100" href=""
+                                                             data-page="{{ page_obj.previous_page_number }}"><i
+                                            style="margin-right:0px;" class="fas fa-angle-double-left"></i></a></li>
+                                {% else %}
+                                    <li class="page-item disabled"></li>
+                                {% endif %}
+                                {% if page_obj.number|add:'-2' > 1 %}
+                                    <li><a class="page-link post-link h-100" href=""
+                                           data-page="{{ page_obj.number|add:'-2' }}">&hellip;</a></li>
+                                {% endif %}
+                                {% for i in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == i %}
+                                        <li class="page-item active"><span class="page-link h-100">{{ i }}<span
+                                                class="sr-only"></span></span></li>
+                                    {% elif i > page_obj.number|add:'-2' and  i < page_obj.number|add:'2' %}
+                                        <li class="page-item"><a class="page-link post-link h-100" href=""
+                                                                 data-page="{{ i }}">{{ i }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if page_obj.paginator.num_pages > page_obj.number|add:'2' %}
+                                    <li><a class="page-link post-link h-100" href=""
+                                           data-page="{{ page_obj.number|add:'-2' }}">&hellip;</a></li>
+                                    <li><a class="post-link h-100" href="" data-page="{{ i }}">{{ i }}</a></li>
+                                    <li><a class="page-link post-link h-100" href=""
+                                           data-page="{{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+                                    </li>
+                                {% endif %}
+                                {% if page_obj.has_next %}
+                                    <li class="page-item"><a class="page-link post-link h-100" href=""
+                                                             data-page="{{ page_obj.next_page_number }}"><i
+                                            style="margin-right:0px;" class="fas fa-angle-double-right"></i></a></li>
+                                    <li class="page-item"><a href="" data-page="{{ page_obj.paginator.num_pages }}"
+                                                             class="btn btn-outline-secondary mb-4 post-link"
+                                                             style="border-radius:2px; border: 1px solid #d3d3d3;overflow: hidden; text-overflow: ellipsis;">
+                                        <div class="text-nowrap">Trang cuối</div>
+                                    </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!--/END Product Default Style -->
+
+{% endblock %}
+{% block jsblock %}
+    <script>
+        $(document).ready(function () {
+            $('.post-link').click(function (e) {
+                e.preventDefault();  // Ngăn không cho liên kết mở theo cách thông thường
+                var page = $(this).data('page');  // Lấy giá trị data-page
+                if (page) {
+                    window.location.href = '?page=' + page;  // Thay đổi URL hiện tại
+                }
+            });
+        });
+
+        var swiper = new Swiper('.swiper-container', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        loop: true,
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        });
+    </script>
+
+{% endblock %}
+

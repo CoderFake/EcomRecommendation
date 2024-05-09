@@ -1,0 +1,151 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="ec-content-wrapper">
+        <div class="content">
+            <div class="breadcrumb-wrapper breadcrumb-wrapper-2 breadcrumb-contacts">
+                <h1>Main Category</h1>
+                <p class="breadcrumbs"><span><a href="{%  url 'admin_dashboard' %}">Home</a></span>
+                    <span><i class="mdi mdi-chevron-right"></i></span>Sub Category</p>
+            </div>
+            <div class="row">
+                <div class="col-xl-4 col-lg-12">
+                    <div class="ec-cat-list card card-default mb-24px">
+                        <div class="card-body">
+                            <div class="ec-cat-form">
+                                <h4>Add New Sub Category</h4>
+
+                                <form method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Name</label>
+                                        <div class="col-12">
+
+                                            {{ form.sub_category_name }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Choose Main Category</label>
+                                        <div class="col-12">
+
+                                            {{ form.category }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="slug" class="col-12 col-form-label">Slug</label>
+                                        <div class="col-12">
+                                             {{ form.slug }}
+                                            <small>The slug is the URL-friendly version of the name. It is usually all
+                                                lowercase and contains only letters, numbers, and hyphens.</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-12">
+                                            {{ form.description|as_crispy_field }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-12 col-form-label">Category Image</label>
+                                        <div class="col-12">
+                                            {{ form.cat_sub_img }}
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-8 col-lg-12">
+                    <div class="ec-cat-list card card-default">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="responsive-data-table" class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Sl no</th>
+                                        <th>Thumb</th>
+                                        <th>Sub Categories</th>
+                                        <th>Main Category</th>
+                                        <th>Description</th>
+                                        {% comment %}  
+													<th>Total Sell</th> {% endcomment %}
+
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {% for category in sub %}
+                                        <tr>
+                                        <td><span class="ec-sub-cat-count"
+                                                  title="Total Sub Categories">{{ forloop.counter }}</span></td>
+
+                                        {% if category.cat_sub_img %}
+                                            <td><img class="cat-thumb" src="{{ category.cat_sub_img.url }}"
+                                                     alt="Product Image"/></td>
+                                        {% else %}
+                                            <td><img class="vendor-thumb"
+                                                     src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+                                                     alt="user profile" height=40 width=40/></td>
+                                        {% endif %}
+
+
+                                        <td>
+                                            <span class="ec-sub-cat-list">
+
+                                               <span class="ec-sub-cat-tag">{{ category }}</span>
+                                            </span>
+
+                                        </td>
+                                        <td>{{ category.category.category_name }}</td>
+                                        <td>{{ category.description }}</td>
+
+                                        <td>
+                                            <div class="btn-group">
+                                                <button type="button"
+                                                        class="btn btn-outline-success">Info
+                                                </button>
+                                                <button type="button"
+                                                        class="btn btn-outline-success dropdown-toggle dropdown-toggle-split"
+                                                        data-bs-toggle="dropdown" aria-haspopup="true"
+                                                        aria-expanded="false" data-display="static">
+                                                    <span class="sr-only">Info</span>
+                                                </button>
+
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item"
+                                                       href="./sub_category_edit/{{ category.id }}">Edit</a>
+                                                    <a class="dropdown-item"
+                                                       href="./sub_category_delete/{{ category.id }}">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+                                </tr>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End Content -->
+    </div> <!-- End Content Wrapper -->
+{% endblock %}

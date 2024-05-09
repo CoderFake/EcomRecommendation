@@ -1,0 +1,278 @@
+{% load static%}
+<!-- Header start  -->
+<header class="ec-header">
+    <!--Ec Header Top Start -->
+    <div class="header-top">
+        <div class="container">
+            <div class="row align-items-center">
+                
+                <!-- Header Top Language Currency -->
+                <!-- Header Top responsive Action -->
+                <div class="col d-lg-none ">
+                    <div class="ec-header-bottons">
+                        <!-- Header User Start -->
+                        <div class="ec-header-user dropdown">
+                            <button class=" rounded-3 dropdown-toggle" data-bs-toggle="dropdown"><img
+                                    src="{% static 'webapp/assets/images/icons/user.svg' %}" class="svg_img header_svg" alt="" /></button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                {% if user.is_authenticated %}
+                                    <li><a class="dropdown-item" href="{% url 'edit_profile' %}">
+                                         {% if not user.full_name  and request.user.is_admin %}
+                                            Hello, ADMIN</a>
+                                         {% else %}
+                                              {{user.full_name}}
+                                         {% endif %}
+                                    </li>
+                                    <li><a class="dropdown-item" href={% url 'changePassword' %}>Change Password</a></li>
+                                    <li><a class="dropdown-item" href={% url 'logout' %}>Logout</a></li>
+                                    {% if request.user and request.user.is_admin %}
+                                        <li><a class="dropdown-item" href={% url 'admin_dashboard' %}>Admin Panel</a></li>
+                                    {% endif %}
+                                {% else %}
+                                    <li><a class="dropdown-item" href={% url 'register' %}>Register</a></li>
+                                    <li><a class="dropdown-item" href={% url 'login' %}>Login</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <!-- Header User End -->
+                        <!-- Header Cart Start -->
+                        <a href="wishlist.html" class="ec-header-btn ec-header-wishlist">
+                            <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
+                                    class="svg_img header_svg" alt="" /></div>
+                            <span class="ec-header-count">4</span>
+                        </a>
+                        <!-- Header Cart End -->
+                        <!-- Header Cart Start -->
+                        <a href="/cart/" class="ec-header-btn ">
+                            <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/cart.svg' %}"
+                                    class="svg_img header_svg" alt="" /></div>
+                            <span class="ec-header-count ec-cart-count cart-count-lable">{{cart_count}}</span>
+                        </a>
+                        <!-- Header Cart End -->
+                        <!-- Header menu Start -->
+                        <a href="#ec-mobile-menu" class="ec-header-btn ec-side-toggle d-lg-none">
+                            <img src="{% static 'webapp/assets/images/icons/menu.svg' %}" class="svg_img header_svg" alt="icon" />
+                        </a>
+                        <!-- Header menu End -->
+                    </div>
+                </div>
+                <!-- Header Top responsive Action -->
+            </div>
+        </div>
+    </div>
+    <!-- Ec Header Top  End -->
+    <!-- Ec Header Bottom  Start -->
+    <div class="ec-header-bottom d-none d-lg-block">
+        <div class="container position-relative">
+            <div class="row">
+                <div class="ec-flex">
+                    <!-- Ec Header Logo Start -->
+                    <div class="align-self-center">
+                        <div class="header-logo">
+                            <a href="/"><img src="{% static 'webapp/assets/images/logo/logo-8.png' %}" alt="Site Logo" /><img
+                                    class="dark-logo" src="{% static 'webapp/assets/images/logo/dark-logo-8.png' %}" alt="Site Logo"
+                                    style="display: none;" /></a>
+                        </div>
+                    </div>
+                    <!-- Ec Header Logo End -->
+
+                    <!-- Ec Header Search Start -->
+                    <div class="align-self-center">
+                        <div class="header-search">
+                            <form class="ec-btn-group-form" action="{% url 'search' %}" method = "GET" >
+                                <input class="form-control" placeholder="Enter Your Product Name..." type="text" name="keyword">
+                                <button class=" rounded-3 submit" type="submit"><img src="{% static 'webapp/assets/images/icons/search.svg' %}"
+                                        class="svg_img header_svg" alt="" /></button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Ec Header Search End -->
+
+                    <!-- Ec Header Button Start -->
+                    <div class="align-self-center">
+                        <div class="ec-header-bottons">
+
+                            <!-- Header User Start -->
+                            <div class="ec-header-user dropdown">
+                                <button class=" rounded-3 dropdown-toggle" data-bs-toggle="dropdown"><img
+                                        src="{% static 'webapp/assets/images/icons/user.svg' %}" class="svg_img header_svg" alt="" /></button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    {% if user.is_authenticated %}
+                                        <li><a class="dropdown-item" href="{% url 'edit_profile' %}">
+                                             {% if not user.full_name  and request.user.is_admin %}
+                                                Hello, ADMIN</a>
+                                             {% else %}
+                                                  {{user.full_name}}
+                                             {% endif %}
+                                        </li>
+                                        <li><a class="dropdown-item" href={% url 'changePassword' %}>Change Password</a></li>
+                                        <li><a class="dropdown-item" href={% url 'logout' %}>Logout</a></li>
+                                        {% if request.user and request.user.is_admin %}
+                                            <li><a class="dropdown-item" href={% url 'admin_dashboard' %}>Admin Panel</a></li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li><a class="dropdown-item" href={% url 'register' %}>Register</a></li>
+                                        <li><a class="dropdown-item" href={% url 'login' %}>Login</a></li>
+                                    {% endif %}
+                                    
+                                </ul>
+                            </div>
+                            <!-- Header User End -->
+                            <!-- Header wishlist Start -->
+                            <a href="wishlist" class="ec-header-btn ec-header-wishlist">
+                                <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
+                                        class="svg_img header_svg" alt="" /></div>
+                                <span class="ec-header-count">4</span>
+                            </a>
+                            <!-- Header wishlist End -->
+                            {% comment %} <!-- Header Cart Start --> ( #ec-side-cart ) to view side cart ) {% endcomment %}
+                            <a href="/cart/" class="ec-header-btn ">
+                                <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/cart.svg' %}"
+                                        class="svg_img header_svg" alt="" /></div>
+                                <span class="ec-header-count ec-cart-count cart-count-lable">{{cart_count}}</span>
+                            </a>
+                            <!-- Header Cart End -->
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Ec Header Button End -->
+    <!-- Header responsive Bottom  Start -->
+    <div class="ec-header-bottom d-lg-none">
+        <div class="container position-relative">
+            <div class="row ">
+
+                <!-- Ec Header Logo Start -->
+                <div class="col">
+                    <div class="header-logo">
+                        <a href="/"><img src="{% static 'webapp/assets/images/logo/logo-8.png' %}" alt="Site Logo" /><img
+                                class="dark-logo" src="{% static 'webapp/assets/images/logo/dark-logo-8.png' %}" alt="Site Logo"
+                                style="display: none;" /></a>
+                    </div>
+                </div>
+                <!-- Ec Header Logo End -->
+                <!-- Ec Header Search Start -->
+                <div class="col">
+                    <div class="header-search">
+                        <form class="ec-btn-group-form" action="{% url 'search' %}" method = "POST" >
+                            <input class="form-control" type="text" placeholder="Enter Your Product Name..." name="keyword" >
+                            <button class=" rounded-3 submit" type="submit" ><img src="{% static 'webapp/assets/images/icons/search.svg' %}"
+                                    class="svg_img header_svg" alt="icon" /></button>
+                        </form>
+                    </div>
+                </div>
+                <!-- Ec Header Search End -->
+            </div>
+        </div>
+    </div>
+    <!-- Header responsive Bottom  End -->
+    <!-- EC Main Menu Start -->
+    <div id="ec-main-menu-desk" class="d-none d-lg-block sticky-nav">
+        <div class="container position-relative">
+            <div class="row">
+                <div class="col-md-12 align-self-center">
+                    <div class="ec-main-menu">
+                        <ul>
+                            <li><a href="/">Home</a></li>
+                            <li class="dropdown position-static"><a href="javascript:void(0)">Categories</a>
+                                <ul class="mega-menu d-block">
+                                    <li class="d-flex">
+                                        <ul class="d-block">
+                                            <li class="menu_title"><a href="javascript:void(0)">Ladies Fashion</a></li>
+                                            {% comment %} {% for cat in cat_main_links%}
+                                            <li><a href="{{cat.get_url}}">{{cat.category_name}}   </a>
+                                            </li>
+                                            {% endfor %}      {% endcomment %}
+                                            
+                                        </ul>
+                                        <ul class="d-block">
+                                            <li class="menu_title"><a href="javascript:void(0)">Girls Store</a></li>
+                                            {% comment %} {% for cat in cat_sub_links %}
+                                            <li><a href="{{cat.category.get_url}}{{cat.slug}}">{{cat.sub_category_name}} </a></li>
+                                            {% endfor %} {% endcomment %}
+                                            
+                                        </ul>
+                                        <ul class="d-block">
+                                            <li class="menu_title"><a href="javascript:void(0)">Boys Store</a></li>
+                                            {% comment %} {% for cat in cat_main_links%}
+                                            <li><a href="{{cat.get_url}}">{{cat.category_name}}</a>
+                                            </li>
+                                            {% endfor %} {% endcomment %}
+                                            
+                                        </ul>
+                                        <ul class="d-block">
+                                            <li class="menu_title"><a href="javascript:void(0)">Kids Store</a></li>
+                                            {% comment %} {% for cat in cat_sub_links %}
+                                            <li><a href="{{cat.category.get_url}}{{cat.slug}}">{{cat.sub_category_name}}</a></li>
+                                            {% endfor %} {% endcomment %}
+                                            
+                                        </ul>
+                                        
+                                        
+                                    </li>
+                                    <li>
+                                        <ul class="ec-main-banner w-100">
+                                            <li><a class="p-0" href="{{cat.get_url}}"><img
+                                                        class="img-responsive" src="{% static 'webapp/assets/images/menu-banner/1.jpg' %}"
+                                                        alt=""></a></li>
+                                            <li><a class="p-0" href="{{cat.get_url}}"><img
+                                                        class="img-responsive" src="{% static 'webapp/assets/images/menu-banner/2.jpg' %}"
+                                                        alt=""></a></li>
+                                            <li><a class="p-0" href="{{cat.get_url}}"><img
+                                                        class="img-responsive" src="{% static 'webapp/assets/images/menu-banner/3.jpg' %}"
+                                                        alt=""></a></li>
+                                            <li><a class="p-0" href="{{cat.get_url}}"><img
+                                                        class="img-responsive" src="{% static 'webapp/assets/images/menu-banner/4.jpg' %}"
+                                                        alt=""></a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a href="/store/">Products</a></li>
+                            <li><a href="/accounts/user_profile">Profile</a></li>
+                            <li><a href="/accounts/dashboard">Orders</a></li>
+                            <li><a href="/accounts/dashboard">Hot Offers</a></li>
+                            
+                            
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Ec Main Menu End -->
+    <!-- ekka Mobile Menu Start -->
+    <div id="ec-mobile-menu" class="ec-side-cart ec-mobile-menu">
+        <div class="ec-menu-title">
+            <span class="menu_title">Ekka Menu</span>
+            <button class=" rounded-3 ec-close">x</button>
+        </div>
+        <div class="ec-menu-inner">
+            <div class="ec-menu-content">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="javascript:void(0)">Categories</a>
+                        <ul class="sub-menu">
+                            <li><a href="/store/">Ladies Store</a></li>
+                            <li><a href="/store/">Girls Store</a></li>
+                            <li><a href="/store/">Boys Store</a></li>
+                            <li><a href="/store/">Kids Store</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{% url 'index' %}">Products</a></li>
+                    <li><a href="{% url 'edit_profile' %}">Profile</a></li>
+                    <li><a href="{% url 'dashboard' %}">Orders</a></li>
+                    <li><a href="{% url 'dashboard' %}">Hot Offers</a></li>
+                    
+                    
+                    
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+    <!-- ekka mobile Menu End -->
+</header>
+<!-- Header End  -->

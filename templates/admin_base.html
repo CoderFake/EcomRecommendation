@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+{% include 'includes/admin_header.html' %}
+<body class="ec-sidebar-fixed ec-header-light ec-sidebar-light right-sidebar-toggoler-out ec-header-static sidebar-mobile-out" id="body">
+<div class="wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    <div class="ec-page-wrapper">
+        {% include 'includes/headbar.html' %}
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>
+{% include 'includes/admin_footer.html' %}
+{% block jsblock %}
+{% endblock %}
+</body>
+</html>
+
+
+
+

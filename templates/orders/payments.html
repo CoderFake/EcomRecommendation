@@ -1,0 +1,431 @@
+{% extends 'base.html' %}
+{% load static%}
+
+
+{% block extra_head %}
+<link rel="stylesheet" id="bg-switcher-css" href="{% static 'webapp/assets/css/backgrounds/bg-4.css' %}">
+<link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}" />
+<link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}" />
+
+{% comment %} alert box {% endcomment %}
+
+
+
+      
+{% endblock %}
+
+{% block content %}
+<!-- ekka Cart Start -->
+<div class="ec-side-cart-overlay"></div>
+<div id="ec-side-cart" class="ec-side-cart">
+    <div class="ec-cart-inner">
+        <div class="ec-cart-top">
+            <div class="ec-cart-title">
+                <span class="cart_title">My Cart</span>
+                <button class=" rounded-3 ec-close">×</button>
+            </div>
+            <ul class="eccart-pro-items">
+                <li>
+                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                            src={% static 'webapp/assets/images/product-image/6_1.jpg' %} alt="product"></a>
+                    <div class="ec-pro-content">
+                        <a href="product-left-sidebar.html" class="cart_pro_title">T-shirt For Women</a>
+                        <span class="cart-price"><span>$76.00</span> x 1</span>
+                        <div class="qty-plus-minus">
+                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
+                        </div>
+                        <a href="javascript:void(0)" class="remove">x</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                            src={% static 'webapp/assets/images/product-image/12_1.jpg' %} alt="product"></a>
+                    <div class="ec-pro-content">
+                        <a href="product-left-sidebar.html" class="cart_pro_title">Women Leather Shoes</a>
+                        <span class="cart-price"><span>$64.00</span> x 1</span>
+                        <div class="qty-plus-minus">
+                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
+                        </div>
+                        <a href="javascript:void(0)" class="remove">x</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                            src={% static 'webapp/assets/images/product-image/3_1.jpg' %} alt="product"></a>
+                    <div class="ec-pro-content">
+                        <a href="product-left-sidebar.html" class="cart_pro_title">Girls Nylon Purse</a>
+                        <span class="cart-price"><span>$59.00</span> x 1</span>
+                        <div class="qty-plus-minus">
+                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
+                        </div>
+                        <a href="javascript:void(0)" class="remove">x</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="ec-cart-bottom">
+            <div class="cart-sub-total">
+                <table class="table cart-table">
+                    <tbody>
+                        <tr>
+                            <td class="text-left">Sub-Total :</td>
+                            <td class="text-right">$300.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">VAT (20%) :</td>
+                            <td class="text-right">$60.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Total :</td>
+                            <td class="text-right primary-color">$360.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="cart_btn">
+                <a href="cart.html" class="btn btn-primary rounded-3">View Cart</a>
+                <a href="checkout.html" class="btn  btn-secondary rounded-3 ">Checkout</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ekka Cart End -->
+
+<!-- Ec breadcrumb start -->
+<div class="sticky-header-next-sec  ec-breadcrumb section-space-mb">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="row ec_breadcrumb_inner">
+                    <div class="col-md-6 col-sm-12">
+                        <h2 class="ec-breadcrumb-title">Cart</h2>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <!-- ec-breadcrumb-list start -->
+                        <ul class="ec-breadcrumb-list">
+                            <li class="ec-breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                            <li class="ec-breadcrumb-item active">Cart</li>
+                        </ul>
+                        <!-- ec-breadcrumb-list end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Ec breadcrumb end -->
+
+<!-- Ec cart page -->
+<section class="ec-page-content section-space-p" style="font-family: 'Nunito';">
+    <div class="container">
+        <div class="row">
+            <div class="ec-cart-leftside col-lg-8 col-md-12 ">
+                
+                <!-- cart content Start -->
+                <div class="ec-cart-content">
+                    <div class="ec-cart-inner">
+                        <div class="row">
+                            <form action="#">
+                                <div class="table-content cart-table-content">
+                                    <div class="card">
+                                        <h5 class="card-header">Billing Address</h5>
+                                        <div class="card-body">
+                                          <pre class="card-text" style="font-family: 'Nunito';">
+                                                <b>    Name         :</b>  {{order.full_name }}
+                                                <b>    Address      :</b>  {{order.address }}
+                                                <b>    Phone         :</b>  {{order.phone }}
+                                                <b>    Email          :</b>  {{order.email  }}
+                                                <b>    Road             :</b>  {{order.road }}
+                                                <b>    Ward           :</b>  {{order.ward }}
+                                                <b>    District      :</b>  {{order.district }} 
+                                                <b>    City      :</b>  {{order.city }}{% if order.order_note %}
+                                                <b>    Order Note :</b>  " {{order.order_note }} "{% endif %}
+                                        </pre>
+                                            
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="card">
+                                        <h5 class="card-header">Billing Method</h5>
+                                        <div class="card-body">
+                                            {% if order.payment_method == 'Paypal' %}
+                                          <pre class="card-text">   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1200px-PayPal.svg.png" height="30px"></pre>
+                                            {% else %}
+                                            <pre class="card-text">   <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/89/Razorpay_logo.svg/1896px-Razorpay_logo.svg.png" height="30px"></pre>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <br>
+                                    
+                                    <div class="card">
+                                        <h5 class="card-header">Billing Amount</h5>
+                                        <div class="card-body">
+                                            <div class="ec-sb-block-content">
+                                                <div class="ec-cart-summary-bottom">
+                                                    <div class="ec-cart-summary">
+                                                        <div>
+                                                            <span class="text-left">Sub-Total</span>
+                                                            <span class="text-right">{{total}}$</span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-left">Taxs Charge ( 2 % )</span>
+                                                            <span class="text-right">{{tax }}$</span>
+                                                        </div>
+
+                                                    
+                                                        <div class="ec-cart-coupan-content">
+                                                            <form class="ec-cart-coupan-form" name="ec-cart-coupan-form" method="post"
+                                                                action="#">
+                                                                <input class="ec-coupan" type="text" required=""
+                                                                    placeholder="Enter Your Coupan Code" name="ec-coupan" value="">
+                                                                <button class=" rounded-3 ec-coupan-btn button btn-primary" type="submit"
+                                                                    name="subscribe" value="">Apply</button>
+                                                            </form>
+                                                        </div>
+                                                        <div class="ec-cart-summary-total">
+                                                            <span class="text-left">Total Amount</span>
+                                                            <span class="text-right"><b>{{grand_total}}</b>$</span>
+                                                        </div>
+                                                    </div>
+                                                
+                                                </div>
+                                            </div>  
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="payment-link">
+                                            <br>
+                                            <img src="{% static 'webapp/assets/images/icons/payment.png' %}" alt="">
+                                        </div>
+                                        <div class="ec-cart-update-bottom">
+                                            <div id="paypal-button-container">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Area Start -->
+            <div class="ec-cart-rightside col-lg-4 col-md-12">
+                <h5 class="card-header">Ordered Products</h5>
+                <div class="ec-sidebar-wrap">
+                    <div class="ec-checkout-pro">
+                        <div class="ec-checkout-pro">
+                            {% for  cart_item in cart_items %}
+                               <div class="col-sm-12 mb-6">
+                                   <div class="ec-product-inner p-4">
+                                       <div class="ec-pro-image-outer">
+                                           
+                                               <a href="product-left-sidebar.html" class="image">
+                                                   <img class="main-image"
+                                                       src={{cart_item.product.images.url }}
+                                                       alt="Product"  style="float:right; height:120px; width:120px; border-radius:15px;"/>
+                                                   {% comment %} <img class="hover-image"
+                                                       src="{% static 'webapp/assets/images/product-image/1_2.jpg' %}"
+                                                       alt="Product" /> {% endcomment %}
+                                               </a>
+                                          
+                                       </div>
+                                       <div class="ec-pro-content">
+                                           <h5 class="ec-pro-title"><a href="product-left-sidebar.html"><b>{{cart_item.product.product_name }}</b></a></h5>
+                                           <div>
+                                           <b>Quantity</b>: {{cart_item.quantity }}
+                                           </div>
+                                           {% if cart_item.variations.all  %}
+                                            {% for item in cart_item.variations.all%}
+                                            <div>
+                                           <b>{{item.Variation_category}}</b> : {{item.Variation_value}}<br>
+                                           
+                                            </div>
+                                           {% endfor %}
+                                           {% endif %}
+                                       
+                                     
+                                       <div class="ec-price">
+                                        
+                                           <span class="old-price">{{cart_item.product.mrp_price}}$</span> 
+                                           <span class="new-price">{{cart_item.product.price }}$</span>
+                                           
+                                       </div>
+                                   </div>
+                               </div>
+                                {% endfor %}
+                               </div>
+                    <!-- Sidebar Summary Block -->
+                    <div class="ec-sidebar-block">
+                        <div class="ec-sb-title">
+                            <h3 class="ec-sidebar-title">Summary</h3>
+                        </div>
+                        
+
+                        <div class="ec-sb-block-content">
+                            <div class="ec-cart-summary-bottom">
+                                <div class="ec-cart-summary">
+                                    <div>
+                                        <span class="text-left">Sub-Total</span>
+                                        <span class="text-right">{{total}}$</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-left">Taxs Charge ( 2 % )</span>
+                                        <span class="text-right">{{tax}}$</span>
+                                    </div>
+                                    
+                                   
+                                    <div class="ec-cart-coupan-content">
+                                        <form class="ec-cart-coupan-form" name="ec-cart-coupan-form" method="post"
+                                            action="#">
+                                            <input class="ec-coupan" type="text" required=""
+                                                placeholder="Enter Your Coupan Code" name="ec-coupan" value="">
+                                            <button class=" rounded-3 ec-coupan-btn button btn-primary" type="submit"
+                                                name="subscribe" value="">Apply</button>
+                                        </form>
+                                    </div>
+                                    <div class="ec-cart-summary-total">
+                                        <span class="text-left">Total Amount</span>
+                                        <span class="text-right"><b>{{grand_total}}</b>$</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sidebar Summary Block -->
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</section>
+
+{% if payment_type == 'Paypal' %}
+                <div class="btn-container">
+                  <!-- razorpay button -->
+                  <button class="btn btn-dark col-12" id="pay-btn">Pay with Razorpay</button>
+                </div>
+
+<script src="https://www.paypal.com/sdk/js?client-id=ASHQaVNygDQF-248AqZVNtjAylXuiJaiyEO6VbCzC9bIr8lOCj5Cx0vckCvKK5QZ1RnGx5A9IvQwjYb4&currency=USD"></script>
+<script>
+
+    //csrf token 
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+
+    // setting amount 
+    var amount         = {{grand_total}}
+    var url            = "{% url 'payments' %}"
+    var csrftoken      = getCookie('csrftoken');
+    var orderID        = {{order.order_number}}
+    var payment_method = "Paypal"
+    var redirect_url   = "{% url 'order_complete' %}"
+
+    // Render the PayPal button into #paypal-button-container
+    paypal.Buttons({
+
+        // Set up the transaction 
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: amount,
+                    }
+                }]
+            });
+        },
+
+        // Finalize the transaction
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                // Successful capture! For demo purposes:
+                //console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                // var transaction = orderData.purchase_units[0].payments.captures[0];
+                console.log(details);
+                sendData();
+                function sendData(){
+                    fetch(url, {
+                        method : "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrftoken,
+                        },
+                        body: JSON.stringify({
+                            orderID        : orderID,
+                            transID        : details.id,
+                            payment_method : payment_method,
+                            status         : details.status,
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                        console.log('transaction Completed')
+                        window.location.href = redirect_url + "?order_number=" + data.order_number + '&payment_id='+ data.transID;
+                    });
+                }
+                });
+            }
+    }).render('#paypal-button-container');
+</script>
+
+{% else %}
+
+<div class="btn-container container">
+    <!-- razorpay button -->
+    <button class="btn btn-dark col-2 rounded-3" id="pay-btn">Pay with Razorpay</button>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    var options = {
+       
+      // Enter the Key ID generated from the Dashboard
+      key: "{{rzp_test_JpeLWXukwaEiRw}}",
+       
+      // Amount is in currency subunits.
+      // Default currency is INR. Hence,
+      // 50000 refers to 50000 paise
+      amount: "{{ razorpay_amount }}",
+      currency: "{{ 'INR' }}",
+       
+      // Your/store name.
+      name: "Ekka's Ecommerce",
+       
+      // Pass the `id` obtained in the response of Step 1
+      order_id: "{{ razorpay_order_id }}",
+      callback_url: "{{ callback_url }}",
+    };
+     
+    // initialise razorpay with the options.
+    var rzp1 = new Razorpay(options);
+     
+    // add event listener to the payment button.
+    document.getElementById("pay-btn").onclick = function (e) {
+      rzp1.open();
+      e.preventDefault();
+    };
+  </script>
+
+  {% endif %}
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% load static %}
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="Ekka - Admin Dashboard eCommerce">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+	<title>Ekka - Admin </title>
+
+	<!-- GOOGLE FONTS -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;family=Poppins:wght@300;400;500;600;700;800;900&amp;family=Roboto:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.4.95/css/materialdesignicons.css" rel="stylesheet">
+
+	<!-- PLUGINS CSS STYLE -->
+	<link href="{% static '/adminapp/assets/css/daterangepicker.css' %}" rel="stylesheet">
+	<link href="{% static 'adminapp/assets/css/datatables.bootstrap5.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'adminapp/assets/css/flag-icon.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'adminapp/assets/css/swiper-bundle.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'adminapp/assets/css/responsive.datatables.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'adminapp/assets/css/slick.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'adminapp/assets/css/simplebar.css' %}" rel="stylesheet" />
+	<!-- Ekka CSS -->
+	<link  href="{% static 'adminapp/assets/css/ekka.css' %}" rel="stylesheet" />
+	<!-- FAVICON -->
+	<link href="{% static 'adminapp/assets/img/favicon.png' %}" rel="shortcut icon" />
+
+	{% block extra_head %}
+    
+    {% endblock %}
+
+</head>

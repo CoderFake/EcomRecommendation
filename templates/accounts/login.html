@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static%}
+
+
+{% block extra_head %}
+<link rel="stylesheet" id="bg-switcher-css" href="{% static 'webapp/assets/css/backgrounds/bg-4.css' %}">
+<link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}" />
+<link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}" />
+
+{% comment %} importing boot strap {% endcomment %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+{% endblock %}
+
+
+
+{% block content %}
+
+{% if request.GET.command == 'verification'%}
+
+<div class="card d-flex justify-content-center my-5" style="width: 30rem; background-color:#f7f7ef; border-radius:25px; position: relative;
+    top:20%;
+    bottom: 20%;
+    left: 0%;
+    right: 0%;
+    margin: auto;
+    border: 2px solid #777777;
+    border-style: dotted; ">
+    <div class="card-body">
+      <h5 class="card-title my-3" ><b>Thank you for registering with us</b></h5>
+      <h6 class="card-subtitle  text-muted" >Email Verification Pending</h6>
+      <img class="card-img-top" src="https://cdn.dribbble.com/users/85665/screenshots/1637442/check-your-email.gif" alt="loading" style="width:500px; height:300px; border-radius:25px; ">
+      <p class="card-text"> Please check your email "<b>{{ request.GET.email }}</b>" for verification link.</p>
+      Already verified? <a href="{% url 'login' %}" style="color:#29abe2;">Login here</a>
+    </div>
+  </div>
+
+{% else %}
+
+<!-- ekka Cart Start -->
+<div class="ec-side-cart-overlay"></div>
+<div id="ec-side-cart" class="ec-side-cart">
+    <div class="ec-cart-inner">
+        <div class="ec-cart-top">
+            <div class="ec-cart-title">
+                <span class="cart_title">My Cart</span>
+                <button class=" rounded-3 ec-close">×</button>
+            </div>
+            <ul class="eccart-pro-items">
+                <li>
+                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                            src="assets/images/product-image/6_1.jpg" alt="product"></a>
+                    <div class="ec-pro-content">
+                        <a href="product-left-sidebar.html" class="cart_pro_title">T-shirt For Women</a>
+                        <span class="cart-price"><span>$76.00</span> x 1</span>
+                        <div class="qty-plus-minus">
+                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
+                        </div>
+                        <a href="javascript:void(0)" class="remove">x</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                            src="assets/images/product-image/12_1.jpg" alt="product"></a>
+                    <div class="ec-pro-content">
+                        <a href="product-left-sidebar.html" class="cart_pro_title">Women Leather Shoes</a>
+                        <span class="cart-price"><span>$64.00</span> x 1</span>
+                        <div class="qty-plus-minus">
+                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
+                        </div>
+                        <a href="javascript:void(0)" class="remove">x</a>
+                    </div>
+                </li>
+                <li>
+                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                            src="assets/images/product-image/3_1.jpg" alt="product"></a>
+                    <div class="ec-pro-content">
+                        <a href="product-left-sidebar.html" class="cart_pro_title">Girls Nylon Purse</a>
+                        <span class="cart-price"><span>$59.00</span> x 1</span>
+                        <div class="qty-plus-minus">
+                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
+                        </div>
+                        <a href="javascript:void(0)" class="remove">x</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="ec-cart-bottom">
+            <div class="cart-sub-total">
+                <table class="table cart-table">
+                    <tbody>
+                        <tr>
+                            <td class="text-left">Sub-Total :</td>
+                            <td class="text-right">$300.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">VAT (20%) :</td>
+                            <td class="text-right">$60.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Total :</td>
+                            <td class="text-right primary-color">$360.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="cart_btn">
+                <a href="cart.html" class="btn btn-primary rounded-3">View Cart</a>
+                <a href="checkout.html" class="btn  btn-secondary rounded-3 ">Checkout</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ekka Cart End -->
+
+<!-- Ec breadcrumb start -->
+<div class="sticky-header-next-sec  ec-breadcrumb section-space-mb">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="row ec_breadcrumb_inner">
+                    <div class="col-md-6 col-sm-12">
+                        <h2 class="ec-breadcrumb-title">Login</h2>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <!-- ec-breadcrumb-list start -->
+                        <ul class="ec-breadcrumb-list">
+                            <li class="ec-breadcrumb-item"><a href="index.html">Home</a></li>
+                            <li class="ec-breadcrumb-item active">Login</li>
+                        </ul>
+                        <!-- ec-breadcrumb-list end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Ec breadcrumb end -->
+
+<!-- Ec login page -->
+<section class="ec-page-content section-space-p">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <div class="section-title">
+                    <h2 class="ec-bg-title">Log In</h2>
+                    <h2 class="ec-title">Log In</h2>
+                    <p class="sub-title mb-3">Best place to buy and sell digital products</p>
+                </div>
+            </div>
+            <div class="ec-login-wrapper">
+                <div class="ec-login-container">
+                    <div class="ec-login-form">
+                        {% include 'includes/alerts.html' %}
+                        <form action="#" method="post">
+                            {% csrf_token %}
+                            <span class="ec-login-wrap">
+                                <label>Email Address*</label>
+                                <input type="email" name="email" placeholder="Enter your email add..." required />
+                            </span>
+                            <span class="ec-login-wrap">
+                                <label>Password*</label>
+                                <input type="password" name="password" placeholder="Enter your password" required />
+                            </span>
+                            <span class="ec-login-wrap ec-login-fp">
+                                <label><a href="/accounts/forgotPassword">Forgot Password?</a></label>
+                            </span>
+                            <span class="ec-login-wrap ec-login-btn">
+                                <button class=" rounded-3 btn btn-primary" type="submit">Login</button>
+                                <a href="/accounts/register" class="btn  btn-secondary rounded-3 ">Register</a>
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</section>
+{% endif %}
+
+    
+    
+    {% endblock %}

@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% load rating_tags %}
+{% block extra_head %}
+    <link rel="stylesheet" id="bg-switcher-css" href="{% static 'webapp/assets/css/backgrounds/bg-4.css' %}">
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}"/>
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}"/>
+{% endblock %}
+
+
+
+{% block content %}
+
+    <!-- ekka Cart Start -->
+    <div class="ec-side-cart-overlay"></div>
+    <div id="ec-side-cart" class="ec-side-cart">
+        <div class="ec-cart-inner">
+            <div class="ec-cart-top">
+                <div class="ec-cart-title">
+                    <span class="cart_title">My Cart</span>
+                    <button class=" rounded-3 ec-close">×</button>
+                </div>
+                <ul class="eccart-pro-items">
+                    <li>
+                        <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                                src="assets/images/product-image/6_1.jpg" alt="product"></a>
+                        <div class="ec-pro-content">
+                            <a href="product-left-sidebar.html" class="cart_pro_title">T-shirt For Women</a>
+                            <span class="cart-price"><span>$76.00</span> x 1</span>
+                            <div class="qty-plus-minus">
+                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
+                            </div>
+                            <a href="javascript:void(0)" class="remove">x</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                                src="assets/images/product-image/12_1.jpg" alt="product"></a>
+                        <div class="ec-pro-content">
+                            <a href="product-left-sidebar.html" class="cart_pro_title">Women Leather Shoes</a>
+                            <span class="cart-price"><span>$64.00</span> x 1</span>
+                            <div class="qty-plus-minus">
+                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
+                            </div>
+                            <a href="javascript:void(0)" class="remove">x</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
+                                src="assets/images/product-image/3_1.jpg" alt="product"></a>
+                        <div class="ec-pro-content">
+                            <a href="product-left-sidebar.html" class="cart_pro_title">Girls Nylon Purse</a>
+                            <span class="cart-price"><span>$59.00</span> x 1</span>
+                            <div class="qty-plus-minus">
+                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
+                            </div>
+                            <a href="javascript:void(0)" class="remove">x</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="ec-cart-bottom">
+                <div class="cart-sub-total">
+                    <table class="table cart-table">
+                        <tbody>
+                        <tr>
+                            <td class="text-left">Sub-Total :</td>
+                            <td class="text-right">$300.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">VAT (20%) :</td>
+                            <td class="text-right">$60.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Total :</td>
+                            <td class="text-right primary-color">$360.00</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="cart_btn">
+                    <a href="cart.html" class="btn btn-primary rounded-3">View Cart</a>
+                    <a href="checkout.html" class="btn  btn-secondary rounded-3 ">Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ekka Cart End -->
+
+    <section class="sec-5 section-space-p" style="margin:0px;">
+        <div class="container">
+            <div class="row">
+                <h2 class="ec-title-rbg"><span>All Products</span></h2>
+                {% comment %} <p style="text-align:center;">All Products from Ekka.</p> {% endcomment %}
+            </div>
+        </div>
+    </section>
+    <!-- Page detail section -->
+    <section class="ec-bnr-detail margin-bottom-30 section-space-pt">
+        <div class="ec-page-detail">
+            <div class="container">
+                <div class="ec-main-heading d-none">
+                    <h2>Shop <span>Detail</span></h2>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-12">
+                        <div class="ec-cat-bnr">
+                            <a href="product-left-sidebar.html"><span></span></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <div class="ec-page-description">
+                            <h6>The Best deal on top brands</h6>
+                            <p class="m-0">Lorem Ipsum is simply dummy text of the printing and typesetting
+                                industry. Lorem Ipsum has been the industry's standard dummy text ever
+                                since the 1500s. It has survived not only five centuries, but also the
+                                leap into electronic typesetting, remaining essentially unchanged.
+                            <p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End detail section -->
+    
+
+    <section class="ec-page-content section-space-p" style="margin-top:-50px;">
+        <div class="container">
+            <div class="row">
+                <div class="ec-shop-rightside col-lg-9 col-md-12 order-lg-last order-md-first margin-b-30">
+                    <!-- Shop Top Start -->
+                    <div class="ec-pro-list-top d-flex">
+                        <div class="col-md-6 ec-grid-list">
+                            <div class="ec-gl-btn">
+                                <button class=" rounded-3 btn btn-grid active"><img
+                                        src="{% static 'webapp/assets/images/icons/grid.svg' %}"
+                                        class="svg_img gl_svg" alt=""/></button>
+                                <button class=" rounded-3 btn btn-list"><img
+                                        src="{% static 'webapp/assets/images/icons/list.svg' %}"
+                                        class="svg_img gl_svg" alt=""/></button>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 ec-sort-select">
+                            <b> {{ produ_count }} Products Found</b>
+                            <span class="sort-by">| Sort by</span>
+                            <div class="ec-select-inner">
+                                <select name="ec-select" id="ec-select">
+                                    <option selected disabled>Position</option>
+                                    <option value="1">Relevance</option>
+                                    <option value="2">Name, A to Z</option>
+                                    <option value="3">Name, Z to A</option>
+                                    <option value="4">Price, low to high</option>
+                                    <option value="5">Price, high to low</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Shop Top End -->
+
+                    <!-- Shop content Start -->
+                    <div class="shop-pro-content">
+
+                        <div class="shop-pro-inner">
+                            <div class="row">
+                                {% if page_obj %}
+                                    {% for product in page_obj %}
+                                        <!-- START single card -->
+                                        <div class="col-lg-3 col-md-6 col-sm-6 my-4">
+                                            <div class="ec-product-tp">
+                                                <div class="ec-product-image">
+                                                    <a href="{{ product.category_main.get_url }}{{ product.sub_category.slug }}/{{ product.slug }}" class="product-session">
+                                                        {% for image in product.images.all %}
+                                                            {% if image.image_type == "default" %}
+                                                                <img src="{{ image.image_url }}" class="img-center" alt="">
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </a>
+                                                    {% if product.is_available %}
+                                                        <span class="ec-product-ribbon">In Stock</span>
+                                                    {% else %}
+                                                        <span class="ec-product-ribbon">Out Of Stock</span>
+                                                    {% endif %}
+
+                                                    <div class="ec-link-icon">
+                                                        <a href="#" data-tip="Add to Wishlist"><img
+                                                                src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
+                                                                class="svg_img header_svg pro_svg" alt="wishlist"/></a>
+                                                        <a href="#" data-tip="Compare"><img
+                                                                src="{% static 'webapp/assets/images/icons/compare.svg' %}"
+                                                                class="svg_img pro_svg" alt="compare"/></a>
+                                                        <a href="#" data-tip="Quick View"><img
+                                                                src="{% static 'webapp/assets/images/icons/quickview.svg' %}"
+                                                                class="svg_img pro_svg" alt="quick view"/></a>
+                                                    </div>
+                                                </div>
+                                                <div class="ec-product-body">
+
+                                                    <h3 class="ec-title"><a href="#">{{ product.product_name }}</a></h3>
+                                                    {{ product.Category_Main }} - {{ product.sub_category }}
+                                                    <p class="ec-description">
+                                                        {{ product.short_desp }}
+                                                    </p>
+                                                    <ul class="ec-rating">
+                                                       {% render_stars product.rating %}
+                                                    </ul>
+                                                    <div class="ec-price">
+                                                        <span> {{ product.mrp_price }}$</span> {{ product.price }}$
+                                                    </div>
+                                                    <div class="ec-link-btn">
+                                                        {% if product.is_available %}
+                                                            <a class=" ec-add-to-cart" href="
+                                                                    {{ product.Category_Main.get_url }}{{ product.sub_category.slug }}/{{ product.slug }}">
+                                                                View Product</a>
+                                                        {% else %}
+                                                            <a class=" ec-add-to-cart">Out of Stock</a>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- END single card -->
+                                    {% endfor %}
+                                {% else %}
+                                    <br><br>
+                                    <h3>No Products Found</h3>
+                                    <br><br>
+                                {% endif %}
+
+
+                            </div>
+                        </div>
+                        <!-- Ec Pagination Start -->
+                            <div class="mt-4 row">
+                                {% if page_obj.has_other_pages %}
+                                    <div class="col-lg-6">
+                                        <ul class="pagination justify-content-start" style="height:45px;">
+                                            {% if page_obj.has_previous %}
+                                                <li class="page-item"><a href="" data-page="1"
+                                                                         class="btn btn-outline-secondary mb-4 post-link"
+                                                                         style="border-radius:2px; border: 1px solid #d3d3d3;overflow: hidden; text-overflow: ellipsis;">
+                                                    <div class="text-nowrap">Trang đầu</div>
+                                                </a>
+                                                </li>
+                                                <li class="page-item"><a class="page-link post-link h-100" href=""
+                                                                         data-page="{{ page_obj.previous_page_number }}"><i
+                                                        style="margin-right:0px;" class="fas fa-angle-double-left"></i></a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled"></li>
+                                            {% endif %}
+                                            {% if page_obj.number|add:'-2' > 1 %}
+                                                <li><a class="page-link post-link h-100" href=""
+                                                       data-page="{{ page_obj.number|add:'-2' }}">&hellip;</a></li>
+                                            {% endif %}
+                                            {% for i in page_obj.paginator.page_range %}
+                                                {% if page_obj.number == i %}
+                                                    <li class="page-item active"><span class="page-link h-100">{{ i }}<span
+                                                            class="sr-only"></span></span></li>
+                                                {% elif i > page_obj.number|add:'-2' and  i < page_obj.number|add:'2' %}
+                                                    <li class="page-item"><a class="page-link post-link h-100" href=""
+                                                                             data-page="{{ i }}">{{ i }}</a></li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if page_obj.paginator.num_pages > page_obj.number|add:'2' %}
+                                                <li><a class="page-link post-link h-100" href=""
+                                                       data-page="{{ page_obj.number|add:'-2' }}">&hellip;</a></li>
+                                                <li><a class="post-link h-100" href="" data-page="{{ i }}">{{ i }}</a></li>
+                                                <li><a class="page-link post-link h-100" href=""
+                                                       data-page="{{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+                                                </li>
+                                            {% endif %}
+                                            {% if page_obj.has_next %}
+                                                <li class="page-item"><a class="page-link post-link h-100" href=""
+                                                                         data-page="{{ page_obj.next_page_number }}"><i
+                                                        style="margin-right:0px;" class="fas fa-angle-double-right"></i></a>
+                                                </li>
+                                                <li class="page-item"><a href=""
+                                                                         data-page="{{ page_obj.paginator.num_pages }}"
+                                                                         class="btn btn-outline-secondary mb-4 post-link"
+                                                                         style="border-radius:2px; border: 1px solid #d3d3d3;overflow: hidden; text-overflow: ellipsis;">
+                                                    <div class="text-nowrap">Trang cuối</div>
+                                                </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled"></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                <div class="col-lg-6 d-flex justify-content-end">
+                                    <span class="align-content-center">Showing {{ start }}-{{ end }} of {{ produ_count }} item(s)</span>
+                                </div>
+                            </div>
+                        <!-- Ec Pagination End -->
+
+                    </div>
+                    <!--Shop content End -->
+                </div>
+                <!-- Sidebar Area Start -->
+                <div class="ec-shop-leftside col-lg-3 col-md-12 order-lg-first order-md-last">
+                    <div id="shop_sidebar">
+                        <div class="ec-sidebar-heading">
+                            <h1>Filter Products By</h1>
+                        </div>
+                        <div class="ec-sidebar-wrap">
+                            <!-- Sidebar Category Block -->
+                            <div class="ec-sidebar-block">
+                                <div class="ec-sb-title">
+                                    <h3 class="ec-sidebar-title">Category</h3>
+                                </div>
+                                <div class="ec-sb-block-content">
+                                    <ul>
+                                        <li>
+                                            <div class="ec-sidebar-block-item">
+                                                <a href="{% url 'store' %}">All Products</a>
+                                            </div>
+                                        </li>
+                                        {% for cat in cat_main_links %}
+                                            <li>
+                                                <div class="ec-sidebar-block-item">
+                                                    <a href="{{ cat.get_url }}">{{ cat.category_name }}</a>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+
+                                        <li>
+                                            <div class="ec-sidebar-block-item ec-more-toggle">
+                                               <span id="ec-more-toggle">More
+                                                    Categories</span>
+                                            </div>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Sidebar Size Block -->
+                            <div class="ec-sidebar-block">
+                                <div class="ec-sb-title">
+                                    <h3 class="ec-sidebar-title">Size</h3>
+                                </div>
+                                <div class="ec-sb-block-content">
+                                    <ul>
+                                        <li>
+                                            <div class="ec-sidebar-block-item">
+                                                <input type="checkbox" value="" checked/><a href="#">S</a><span
+                                                    class="checked"></span>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item">
+                                                <input type="checkbox" value=""/><a href="#">M</a><span
+                                                    class="checked"></span>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item">
+                                                <input type="checkbox" value=""/> <a href="#">L</a><span
+                                                    class="checked"></span>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item">
+                                                <input type="checkbox" value=""/><a href="#">XL</a><span
+                                                    class="checked"></span>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item">
+                                                <input type="checkbox" value=""/><a href="#">XXL</a><span
+                                                    class="checked"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Sidebar Color item -->
+                            <div class="ec-sidebar-block ec-sidebar-block-clr">
+                                <div class="ec-sb-title">
+                                    <h3 class="ec-sidebar-title">Color</h3>
+                                </div>
+                                <div class="ec-sb-block-content">
+                                    <ul>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#c4d6f9;"></span></div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#ff748b;"></span></div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#000000;"></span></div>
+                                        </li>
+                                        <li class="active">
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#2bff4a;"></span></div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#ff7c5e;"></span></div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#f155ff;"></span></div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#ffef00;"></span></div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#c89fff;"></span></div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#7bfffa;"></span></div>
+                                        </li>
+                                        <li>
+                                            <div class="ec-sidebar-block-item"><span
+                                                    style="background-color:#56ffc1;"></span></div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Sidebar Price Block -->
+                            <div class="ec-sidebar-block">
+                                <div class="ec-sb-title">
+                                    <h3 class="ec-sidebar-title">Price</h3>
+                                </div>
+                                <div class="ec-sb-block-content es-price-slider">
+                                    <div class="ec-price-filter">
+                                        <div id="ec-sliderPrice" class="filter__slider-price" data-min="0"
+                                             data-max="250" data-step="10"></div>
+                                        <div class="ec-price-input">
+                                            <label class="filter__label"><input type="text"
+                                                                                class="filter__input"></label>
+                                            <span class="ec-price-divider"></span>
+                                            <label class="filter__label"><input type="text"
+                                                                                class="filter__input"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Shop page -->
+{% endblock %}
+{% block jsblock %}
+    <script>
+        $(document).ready(function () {
+            $('.post-link').click(function (e) {
+                e.preventDefault();  // Ngăn không cho liên kết mở theo cách thông thường
+                var page = $(this).data('page');  // Lấy giá trị data-page
+                if (page) {
+                    window.location.href = '?page=' + page;  // Thay đổi URL hiện tại
+                }
+            });
+        });
+        
+    </script>
+
+{% endblock %}

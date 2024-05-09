@@ -1,0 +1,69 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% block content %}
+    <div class="ec-content-wrapper">
+        <div class="content">
+            <div class="breadcrumb-wrapper breadcrumb-wrapper-2">
+                <h1>Orders History</h1>
+                <p class="breadcrumbs"><span><a href="{% url 'admin_dashboard' %}">Home</a></span>
+                    <span><i class="mdi mdi-chevron-right"></i></span>History
+                </p>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-default">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="responsive-data-table" class="table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Order Number</th>
+                                            <th>Date & Time</th>
+                                            <th>Customer</th>
+                                            <th>Email</th>
+                                            <th>Total Amount</th>
+                                            <th>Order Status</th>
+                                            <th>Change to</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+    
+                                    <tbody>
+                                        <tr>
+                                            <td>{{orders.id}}</td>
+                                            <td>{{orders.order_number}}</td>
+                                            <td>{{orders.created_at}}</td>
+                                            <td>{{orders.full_name}}</td>
+                                            <td>{{orders.email}}</td>
+                                            <td>{{orders.order_total}}$</td>
+                                            
+                                            <td><span class="mb-2 mr-2 badge badge-primary">{{orders.order_status}}</span></td>
+                                            <form method='post'>
+                                                <td>
+                                                    <div class="btn-group mb-1">
+                                                            {% csrf_token %}
+                                                            {{form.order_status}}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="btn mb-1">
+                                                        <button type="submit"
+                                                            class="btn btn-danger">Update</button>    
+                                                        
+                                                    </div>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                        
+    
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End Content -->
+    </div> <!-- End Content Wrapper -->
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="ec-content-wrapper">
+        <div class="content">
+            <div class="breadcrumb-wrapper breadcrumb-wrapper-2 breadcrumb-contacts">
+                <h1>Variations</h1>
+                <p class="breadcrumbs"><span><a href="{%  url 'admin_dashboard' %}">Home</a></span>
+                    <span><i class="mdi mdi-chevron-right"></i></span>Variations</p>
+            </div>
+            <div class="row">
+                <div class="col-xl-4 col-lg-12">
+                    <div class="ec-cat-list card card-default mb-24px">
+                        <div class="card-body">
+                            <div class="ec-cat-form">
+                                <h4>Add Variations </h4>
+
+                                <form method="POST" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Choose Product</label>
+                                        <div class="col-12">
+                                            {{ form.Product }}
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Main Category</label>
+                                        <div class="col-12">
+                                            {{ form.Variation_category }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Sub Category </label>
+                                        <div class="col-12">
+                                            {{ form.Variation_value }}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="text" class="col-12 col-form-label">Active</label>
+                                        <div class="col-12 pr-5 pl-5">
+                                            {{ form.is_active }}
+
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-8 col-lg-12">
+                    <div class="ec-cat-list card card-default">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="responsive-data-table" class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Sl no</th>
+
+                                        <th>Product Thumb & Name</th>
+                                        <th>Variation value</th>
+                                        <th>Active</th>
+                                        <th>Action</th>
+
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {% for prodt in existing_variations %}
+                                        <tr>
+                                        <td><span class="ec-sub-cat-count"
+                                                  title="Total Sub Categories">{{ forloop.counter }}</span></td>
+                                        <td><img class="cat-thumb" src="{{ prodt.Product.images.url }}"
+                                                 alt="Product Image"/>
+                                            <a href="../..
+                                                    
+                                                    {{ prodt.Category_Main.get_url }}{{ prodt.sub_category.slug }}/{{ prodt.slug }}">{{ prodt.Product.product_name }}</a>
+                                        </td>
+
+
+                                        <td>
+                                            {{ prodt.Variation_value }}
+                                        <td>
+                                            {% if prodt.is_active  > 0 %}
+                                                <span class="badge badge-success">Active</span>
+                                            {% else %}
+                                                <span class="badge badge-danger">Disabled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button type="button"
+                                                        class="btn btn-outline-success">Info
+                                                </button>
+                                                <button type="button"
+                                                        class="btn btn-outline-success dropdown-toggle dropdown-toggle-split"
+                                                        data-bs-toggle="dropdown" aria-haspopup="true"
+                                                        aria-expanded="false" data-display="static">
+                                                    <span class="sr-only">Info</span>
+                                                </button>
+
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="./edit_variations/{{ prodt.id }}">Edit</a>
+                                                    <a class="dropdown-item" href="./edit_variations/{{ prodt.id }}">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+                                </tr>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End Content -->
+    </div> 
+{% endblock %}

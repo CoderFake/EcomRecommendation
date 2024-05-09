@@ -1,0 +1,58 @@
+{% load static %}
+<footer class="footer mt-auto">
+    <div class="copyright bg-white">
+        <p>
+            Copyright &copy; <span id="ec-year"></span><a class="text-primary"
+            href ="https://coderfake.github.io/hoangdieu22/" target="_blank"> Ekka Admin Dashboard</a>. All Rights Reserved.
+          </p>
+    </div>
+</footer>
+            
+	<!-- Common Javascript -->
+	<script src="{% static 'adminapp/assets/plugins/jquery/jquery-3.5.1.min.js' %}"></script>
+	<script src="{% static 'adminapp/assets/plugins/jquery/jquery.notify.min.js' %}"></script>
+	<script src="{% static 'adminapp/assets/plugins/jquery/jquery.bundle.notify.min.js' %}"></script>
+	<script src="{% static 'adminapp/assets/js/bootstrap.bundle.min.js' %}"></script>
+{#	<script src="{% static 'adminapp/assets/plugins/tags-input/bootstrap-tagsinput.js' %}"></script>#}
+	<script src="{% static 'adminapp/assets/plugins/simplebar/simplebar.min.js' %}"></script>
+	<script src="{% static 'adminapp/assets/plugins/jquery-zoom/jquery.zoom.min.js' %}"></script>
+	<script src="{% static 'adminapp/assets/plugins/slick/slick.min.js' %}"></script>
+
+	<!-- Chart -->
+	<script src="{% static 'adminapp/assets/plugins/charts/Chart.min.js' %}"></script>
+	<script src="{% static 'adminapp/assets/js/chart.js' %}"></script>
+
+
+	<!-- Date Range Picker -->
+	<script src="{% static 'adminapp/assets/plugins/daterangepicker/moment.min.js' %}"></script>
+    <script src="{% static 'adminapp/assets/plugins/daterangepicker/daterangepicker.js' %}"></script>
+	<script src="{% static 'adminapp/assets/js/date-range.js' %}"></script>
+	<!-- Option Switcher -->
+	<script src="{% static 'adminapp/assets/plugins/options-sidebar/optionswitcher.js' %}"></script>
+	<!-- Data Tables -->
+	<script src="https://cdn.datatables.net/2.0.5/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.bootstrap5.min.js"></script>
+	<script src="https://cdn.datatables.net/responsive/3.0.2/js/responsive.bootstrap5.min.js"></script>
+	<!-- Ekka Custom -->
+    <script>
+        function getCSRFToken() {
+            return $('meta[name="csrf-token"]').attr('content');
+        }
+        $(document).ready(function () {
+            $.ajax({
+                type: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                },
+                url: "{% url 'user_infor' %}",
+                success: function (data) {
+                    if(data.profile_picture ==="webapp/assets/images/user/user.png")
+                        $('.UserImage').attr('src', "/static/" + data.profile_picture);
+                    else $('.UserImage').attr('src', data.profile_picture);
+                }
+            });
+        });
+    </script>
+	<script src="{% static 'adminapp/assets/js/ekka.js' %}"></script>
+
+
