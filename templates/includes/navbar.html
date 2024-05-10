@@ -80,6 +80,7 @@
                     <div class="align-self-center">
                         <div class="header-search">
                             <form class="ec-btn-group-form" action="{% url 'search' %}" method = "GET" >
+
                                 <input class="form-control" placeholder="Enter Your Product Name..." type="text" name="keyword">
                                 <button class=" rounded-3 submit" type="submit"><img src="{% static 'webapp/assets/images/icons/search.svg' %}"
                                         class="svg_img header_svg" alt="" /></button>
@@ -157,7 +158,7 @@
                 <!-- Ec Header Search Start -->
                 <div class="col">
                     <div class="header-search">
-                        <form class="ec-btn-group-form" action="{% url 'search' %}" method = "POST" >
+                        <form class="ec-btn-group-form" action="{% url 'search' %}" method = "GET" >
                             <input class="form-control" type="text" placeholder="Enter Your Product Name..." name="keyword" >
                             <button class=" rounded-3 submit" type="submit" ><img src="{% static 'webapp/assets/images/icons/search.svg' %}"
                                     class="svg_img header_svg" alt="icon" /></button>
@@ -265,8 +266,6 @@
                     <li><a href="{% url 'edit_profile' %}">Profile</a></li>
                     <li><a href="{% url 'dashboard' %}">Orders</a></li>
                     <li><a href="{% url 'dashboard' %}">Hot Offers</a></li>
-                    
-                    
                     
                 </ul>
             </div>

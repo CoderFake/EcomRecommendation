@@ -3,91 +3,29 @@
 {% load static %}
 {% load rating_tags %}
 {% block extra_head %}
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/magnific-popup.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/animate.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/swiper-bundle.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/jquery-ui.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/countdownTimer.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/owl.carousel.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/owl.theme.default.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/slick.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/nouislider.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/bootstrap.css' %}" />
+    
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/demo8.css' %}" />
     <link rel="stylesheet" id="bg-switcher-css" href="{% static 'webapp/assets/css/backgrounds/bg-4.css' %}">
-    <link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}" />
-    <link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}" />
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}"/>
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}"/>
+
 {% endblock %}
 
 {% block content %}
     <div id="ec-overlay"><span class="loader_img"></span></div>
     
-    <!-- Ekka Cart Start -->
-    <div class="ec-side-cart-overlay"></div>
-    <div id="ec-side-cart" class="ec-side-cart">
-        <div class="ec-cart-inner">
-            <div class="ec-cart-top">
-                <div class="ec-cart-title">
-                    <span class="cart_title">My Cart</span>
-                    <button class=" rounded-3 ec-close">x</button>
-                </div>
-                <ul class="eccart-pro-items">
-                    <li>
-                        <a href="product-left-sidebar.html" class="sidecart_pro_img"><img
-                                src="{% static 'webapp/assets/images/product-image/93_1.jpg' %}" alt="product"></a>
-                        <div class="ec-pro-content">
-                            <a href="single-product-left-sidebar.html" class="cart_pro_title">Mens Winter Leathers
-                                Jackets</a>
-                            <span class="cart-price"><span>49$</span> x 1</span>
-                            <div class="qty-plus-minus">
-                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
-                            </div>
-                            <a href="#" class="remove">x</a>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="product-left-sidebar.html" class="sidecart_pro_img"><img
-                                src="{% static 'webapp/assets/images/product-image/96_1.jpg' %}" alt="product"></a>
-                        <div class="ec-pro-content">
-                            <a href="product-left-sidebar.html" class="cart_pro_title">Running & Trekking Shoes -
-                                White</a>
-                            <span class="cart-price"><span>150$</span> x 1</span>
-                            <div class="qty-plus-minus">
-                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
-                            </div>
-                            <a href="#" class="remove">x</a>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="product-left-sidebar.html" class="sidecart_pro_img"><img
-                                src="{% static 'webapp/assets/images/product-image/111_1.jpg' %}" alt="product"></a>
-                        <div class="ec-pro-content">
-                            <a href="product-left-sidebar.html" class="cart_pro_title">Rose Gold Peacock Earrings</a>
-                            <span class="cart-price"><span>950$</span> x 1</span>
-                            <div class="qty-plus-minus">
-                                <input class="qty-input" type="text" name="ec_qtybtn" value="1"/>
-                            </div>
-                            <a href="#" class="remove">x</a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="ec-cart-bottom">
-                <div class="cart-sub-total">
-                    <table class="table cart-table">
-                        <tbody>
-                        <tr>
-                            <td class="text-left">Sub-Total :</td>
-                            <td class="text-right">300$</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">VAT (20%) :</td>
-                            <td class="text-right">60$</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">Total :</td>
-                            <td class="text-right primary-color">360$</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="cart_btn">
-                    <a href="cart.html" class="btn btn-primary rounded-3">View Cart</a>
-                    <a href="checkout.html" class="btn  btn-secondary rounded-3 ">Checkout</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Ekka Cart End -->
+
 
     <!-- Main Slider Start -->
     <div class="ec-main-slider section section-space-pb">

@@ -145,17 +145,13 @@
                                         </td>
                                             {% for image in prodt.images.all %}
                                                 {% if image.image_type == "default" %}
-                                                    <td><img class="cat-thumb" src="{{ prodt.image.url }}" alt="Product Image"/>
+                                                    <td><img class="cat-thumb" src="{{ image.image_url }}" alt="Product Image"/>
                                                     </td>
-                                                {% else %}
-                                                    <td><img class="vendor-thumb"
-                                                     src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
-                                                     alt="user profile" height=40 width=40/>
                                                 {% endif %}
                                             {% endfor %}
                                         <td>
     
-                                        <td><a href="../..{{ prodt.Category_Main.get_url }}{{ prodt.sub_category.slug }}/{{ prodt.slug }}">{{ prodt.product_name }}</a>
+                                        <td><a href="{{ prodt.category_main.get_url }}{{ prodt.sub_category.slug }}/{{ prodt.slug }}">{{ prodt.product_name }}</a>
                                         </td>
     
                                         <td>
@@ -166,7 +162,7 @@
                                             {% endif %}
                                             {% endfor %} {% endcomment %}
                                             <span class="ec-sub-cat-tag">
-                                            Main: {{ prodt.Category_Main.category_name }}
+                                            Main: {{ prodt.category_main.category_name }}
                                             </span>
                                             <span class="ec-sub-cat-tag">
                                                 Sub: {{ prodt.sub_category.sub_category_name }}
@@ -205,7 +201,6 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        
                                     </tr>
                                 {% endfor %}
                                 </tbody>
@@ -215,6 +210,6 @@
                 </div>
             </div>
         </div>
-    </div> <!-- End Content -->
-</div> <!-- End Content Wrapper -->
+    </div> 
+</div> 
 {% endblock %}

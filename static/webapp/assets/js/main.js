@@ -98,8 +98,10 @@ function ecCheckCookie() {
         2 === a && b > 52 ? (p = a, $("#ec-main-menu-desk").addClass("menu_fixed_up")) : 1 === a && (p = a, $("#ec-main-menu-desk").addClass("menu_fixed"), $("#ec-main-menu-desk").removeClass("menu_fixed_up"))
     };
     $(window).on("scroll", function () {
-        var a = $(".sticky-header-next-sec").offset().top, b = $(window);
-        b.scrollTop() <= a + 50 ? $("#ec-main-menu-desk").removeClass("menu_fixed") : r()
+        if($(".sticky-header-next-sec")) {
+            var a = $(".sticky-header-next-sec").offset().top, b = $(window);
+            b.scrollTop() <= a + 50 ? $("#ec-main-menu-desk").removeClass("menu_fixed") : r()
+        }
     }), $(document).ready(function () {
         $(".scroll-to ul li a.nav-scroll").bind("click", function (b) {
             $(".scroll-to ul li").removeClass("active"), $(this).parents("li").addClass("active");
@@ -288,7 +290,7 @@ function ecCheckCookie() {
         $(this).parent().toggleClass("active");
         var a = "light";
         $(this).parent().hasClass("ec-change-mode") && $(this).parent().hasClass("active") ? $("link[href='/static/webapp/assets/css/responsive.css']").before(c) : $(this).parent().hasClass("ec-change-mode") && !$(this).parent().hasClass("active") && ($("link.dark").remove(), a = "light"), $(this).parent().hasClass("active") ? ($("#ec-fixedbutton .ec-change-color").css("pointer-events", "none"), $("body").addClass("dark"), ecCreateCookie("darkModeCookie", a = "dark", 1)) : ($("#ec-fixedbutton .ec-change-color").css("pointer-events", "all"), $("body").removeClass("dark"), ecDeleteCookie("darkModeCookie", a))
-    }), $(".ec-tools-sidebar .ec-fullscreen-mode .ec-fullscreen-switch").click(function (a) {
+    }), $(".ec-tools-sidebar .ec-fullscreen-mode .ec-fullscreen-switch").click(function (a){
         a.preventDefault(), $(this).parent().toggleClass("active"), document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement ? document.exitFullscreen ? document.exitFullscreen() : document.msExitFullscreen ? document.msExitFullscreen() : document.mozCancelFullScreen ? document.mozCancelFullScreen() : document.webkitExitFullscreen && document.webkitExitFullscreen() : document.documentElement.requestFullscreen ? document.documentElement.requestFullscreen() : document.documentElement.msRequestFullscreen ? document.documentElement.msRequestFullscreen() : document.documentElement.mozRequestFullScreen ? document.documentElement.mozRequestFullScreen() : document.documentElement.webkitRequestFullscreen && document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT)
     });
     var t = location.href;
@@ -500,8 +502,8 @@ function ecCheckCookie() {
         arrows: !0,
         focusOnSelect: !0
     }), $("#ec-single-countdown").countdowntimer({
-        startDate: "2021/10/01 00:00:00",
-        dateAndTime: "2023/01/01 00:00:00",
+        startDate: "2024/01/01 00:00:00",
+        dateAndTime: "2025/01/01 00:00:00",
         labelsFormat: !0,
         displayFormat: "DHMS"
     }), $(document).ready(function () {
@@ -510,24 +512,36 @@ function ecCheckCookie() {
         })
     });
     let a = document.getElementById("ec-sliderPrice");
-    if (a) {
-        let e = parseInt(a.dataset.min), f = parseInt(a.dataset.max), l = parseInt(a.dataset.step),
-            m = document.querySelectorAll("input.filter__input");
-        noUiSlider.create(a, {
-            start: [e, f],
-            connect: !0,
-            step: l,
-            range: {min: e, max: f},
-            format: {to: a => a, from: a => a}
-        }), a.noUiSlider.on("update", (b, a) => {
-            m[a].value = b[a]
-        }), m.forEach((b, c) => {
-            b.addEventListener("change", () => {
-                a.noUiSlider.setHandle(c, b.value)
-            })
-        })
-    }
 
+    if (a) {
+        if (!a.noUiSlider) {
+            let e = parseInt(a.dataset.min),
+                f = parseInt(a.dataset.max),
+                l = parseInt(a.dataset.step),
+                m = document.querySelectorAll("input.filter__input");
+
+            noUiSlider.create(a, {
+                start: [e, f],
+                connect: true,
+                step: l,
+                range: { min: e, max: f },
+                format: {
+                    to: function(value) { return value; },
+                    from: function(value) { return value; }
+                }
+            });
+
+            a.noUiSlider.on("update", (b, c) => {
+                m[c].value = b[c];
+            });
+
+            m.forEach((b, c) => {
+                b.addEventListener("change", () => {
+                    a.noUiSlider.setHandle(c, b.value);
+                });
+            });
+        }
+    }
     function x(a, b) {
         $("body").removeClass("body-bg-1"), $("body").removeClass("body-bg-2"), $("body").removeClass("body-bg-3"), $("body").removeClass("body-bg-4"), $("body").addClass(b), $("#bg-switcher-css").attr("href", "assets/css/backgrounds/" + a + ".css"), ecCreateCookie("bgImageModeCookie", a + "||" + b, 1)
     }

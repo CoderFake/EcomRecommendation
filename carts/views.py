@@ -189,7 +189,7 @@ def cart(request, total=0, quantity=0, cart_items=None):
     except ObjectDoesNotExist:
         pass  # we can ignore
 
-    tax_percentage = 2  # 15% tax
+    tax_percentage = 2
     tax = (tax_percentage * total) / 100
     grand_total = total + tax
     context = {
@@ -207,7 +207,7 @@ def cart(request, total=0, quantity=0, cart_items=None):
 def checkout(request, total=0, quantity=0, cart_items=None):
     try:
         if request.user.is_authenticated:
-            cart_items = CartItem.objects.filter(user=request.user, is_active=True)
+            cart_items = CartItem.objects.filter(user=request.user, is_active=True).prefetch_related("user")
         else:
             cart = Cart.objects.get(cart_id=_cart_id(request))
             cart_items = CartItem.objects.filter(cart=cart, is_active=True)
@@ -218,7 +218,7 @@ def checkout(request, total=0, quantity=0, cart_items=None):
 
 
     except ObjectDoesNotExist:
-        HttpResponse('You have no items in your cart')  # we can ignore
+        HttpResponse('You have no items in your cart')
 
     tax_percentage = 2  # 15% tax
     tax = (tax_percentage * total) / 100

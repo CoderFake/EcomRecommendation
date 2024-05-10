@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import csrf_exempt
+
 from store.models import Product
 from accounts.models import EventUser
 from category.models import CategoryMain, SubCategory
@@ -347,7 +349,6 @@ def product_detail(request, category_slug=None, sub_category_slug=None, product_
     return render(request, 'store/product_detail.html', context)
 
 
-#function to search products
 def search(request):
     if 'keyword' in request.GET:
         keyword = request.GET['keyword']

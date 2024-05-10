@@ -6,92 +6,10 @@
 <link rel="stylesheet" id="bg-switcher-css" href="{% static 'webapp/assets/css/backgrounds/bg-4.css' %}">
 <link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}" />
 <link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}" />
-
-{% comment %} alert box {% endcomment %}
-
-
-
-      
 {% endblock %}
 
 {% block content %}
-<!-- ekka Cart Start -->
-<div class="ec-side-cart-overlay"></div>
-<div id="ec-side-cart" class="ec-side-cart">
-    <div class="ec-cart-inner">
-        <div class="ec-cart-top">
-            <div class="ec-cart-title">
-                <span class="cart_title">My Cart</span>
-                <button class=" rounded-3 ec-close">×</button>
-            </div>
-            <ul class="eccart-pro-items">
-                <li>
-                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
-                            src={% static 'webapp/assets/images/product-image/6_1.jpg' %} alt="product"></a>
-                    <div class="ec-pro-content">
-                        <a href="product-left-sidebar.html" class="cart_pro_title">T-shirt For Women</a>
-                        <span class="cart-price"><span>$76.00</span> x 1</span>
-                        <div class="qty-plus-minus">
-                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
-                        </div>
-                        <a href="javascript:void(0)" class="remove">x</a>
-                    </div>
-                </li>
-                <li>
-                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
-                            src={% static 'webapp/assets/images/product-image/12_1.jpg' %} alt="product"></a>
-                    <div class="ec-pro-content">
-                        <a href="product-left-sidebar.html" class="cart_pro_title">Women Leather Shoes</a>
-                        <span class="cart-price"><span>$64.00</span> x 1</span>
-                        <div class="qty-plus-minus">
-                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
-                        </div>
-                        <a href="javascript:void(0)" class="remove">x</a>
-                    </div>
-                </li>
-                <li>
-                    <a href="product-left-sidebar.html" class="sidekka_pro_img"><img
-                            src={% static 'webapp/assets/images/product-image/3_1.jpg' %} alt="product"></a>
-                    <div class="ec-pro-content">
-                        <a href="product-left-sidebar.html" class="cart_pro_title">Girls Nylon Purse</a>
-                        <span class="cart-price"><span>$59.00</span> x 1</span>
-                        <div class="qty-plus-minus">
-                            <input class="qty-input" type="text" name="ec_qtybtn" value="1" />
-                        </div>
-                        <a href="javascript:void(0)" class="remove">x</a>
-                    </div>
-                </li>
-            </ul>
-        </div>
-        <div class="ec-cart-bottom">
-            <div class="cart-sub-total">
-                <table class="table cart-table">
-                    <tbody>
-                        <tr>
-                            <td class="text-left">Sub-Total :</td>
-                            <td class="text-right">$300.00</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">VAT (20%) :</td>
-                            <td class="text-right">$60.00</td>
-                        </tr>
-                        <tr>
-                            <td class="text-left">Total :</td>
-                            <td class="text-right primary-color">$360.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="cart_btn">
-                <a href="cart.html" class="btn btn-primary rounded-3">View Cart</a>
-                <a href="checkout.html" class="btn  btn-secondary rounded-3 ">Checkout</a>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- ekka Cart End -->
 
-<!-- Ec breadcrumb start -->
 <div class="sticky-header-next-sec  ec-breadcrumb section-space-mb">
     <div class="container">
         <div class="row">
@@ -148,10 +66,10 @@
                                     <div class="card">
                                         <h5 class="card-header">Billing Method</h5>
                                         <div class="card-body">
-                                            {% if order.payment_method == 'Paypal' %}
-                                          <pre class="card-text">   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1200px-PayPal.svg.png" height="30px"></pre>
+                                            {% if order.payment_method == 'VNPAY' %}
+                                          <pre class="card-text">   <img src="{% static 'webapp/assets/images/icons/vnpay.jpeg' %}" height="30px"></pre>
                                             {% else %}
-                                            <pre class="card-text">   <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/89/Razorpay_logo.svg/1896px-Razorpay_logo.svg.png" height="30px"></pre>
+                                            <pre class="card-text">   <img src="{% static 'webapp/assets/images/icons/cod.png' %}" height="30px"></pre>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -305,16 +223,13 @@
     </div>
 </section>
 
-{% if payment_type == 'Paypal' %}
-                <div class="btn-container">
-                  <!-- razorpay button -->
-                  <button class="btn btn-dark col-12" id="pay-btn">Pay with Razorpay</button>
-                </div>
-
-<script src="https://www.paypal.com/sdk/js?client-id=ASHQaVNygDQF-248AqZVNtjAylXuiJaiyEO6VbCzC9bIr8lOCj5Cx0vckCvKK5QZ1RnGx5A9IvQwjYb4&currency=USD"></script>
+{% if payment_type == 'VNPAY' %}
+    <div class="btn-container">
+      <!-- razorpay button -->
+      <button class="btn btn-dark col-12" id="pay-btn">Pay with VNPAY</button>
+    </div>
 <script>
 
-    //csrf token 
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -391,40 +306,8 @@
 {% else %}
 
 <div class="btn-container container">
-    <!-- razorpay button -->
-    <button class="btn btn-dark col-2 rounded-3" id="pay-btn">Pay with Razorpay</button>
+    <button class="btn btn-dark col-2 rounded-3" id="pay-btn">Cash on delivery</button>
   </div>
-
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script>
-    var options = {
-       
-      // Enter the Key ID generated from the Dashboard
-      key: "{{rzp_test_JpeLWXukwaEiRw}}",
-       
-      // Amount is in currency subunits.
-      // Default currency is INR. Hence,
-      // 50000 refers to 50000 paise
-      amount: "{{ razorpay_amount }}",
-      currency: "{{ 'INR' }}",
-       
-      // Your/store name.
-      name: "Ekka's Ecommerce",
-       
-      // Pass the `id` obtained in the response of Step 1
-      order_id: "{{ razorpay_order_id }}",
-      callback_url: "{{ callback_url }}",
-    };
-     
-    // initialise razorpay with the options.
-    var rzp1 = new Razorpay(options);
-     
-    // add event listener to the payment button.
-    document.getElementById("pay-btn").onclick = function (e) {
-      rzp1.open();
-      e.preventDefault();
-    };
-  </script>
 
   {% endif %}
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load rating_tags %}
 <html lang="en">
 
 <head>
@@ -72,208 +73,199 @@
 <!-- Ec checkout page -->
 <section class="ec-page-content section-space-p">
     <div class="container">
-        <div class="row">
-            <div class="ec-checkout-leftside col-lg-8 col-md-12 ">
-                <!-- checkout content Start -->
-                <div class="ec-checkout-content">
-                    <div class="ec-checkout-inner">
-                        <div class="ec-checkout-wrap margin-bottom-30 padding-bottom-3">
-                            <div class="ec-checkout-block ec-check-bill">
-                                <h3 class="ec-checkout-title">Billing Details</h3>
-                                <div class="ec-bl-block-content">
-                                    <div class="ec-check-bill-form">
-                                        <form action="{% url 'place_order' %}" method="POST">
-                                            {% csrf_token %}
+        <form action="{% url 'place_order' %}" method="POST">
+            <div class="row">
+                {% csrf_token %}
+                <div class="ec-checkout-leftside col-lg-4 col-md-12">
+                    <div class="ec-sidebar-wrap">
+                        <!-- Sidebar Summary Block -->
+                        <div class="ec-sidebar-block">
+                            <div class="ec-sb-title">
+                                <h3 class="ec-sidebar-title">Summary</h3>
+                            </div>
+                            <div class="ec-sb-block-content">
+                                <div class="ec-cart-summary-bottom">
+                                    <div class="ec-cart-summary">
+                                        <div>
+                                            <span class="text-left">Sub-Total</span>
+                                            <span class="text-right">{{ total }}$</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-left">Taxs Charge ( {{ tax_percentage }}% )</span>
+                                            <span class="text-right">{{ tax }}$</span>
+                                        </div>
 
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                   <label>First Name*</label>
-                                                   <input type="text" name="first_name"
-                                                          placeholder="Enter your first name" required/>
-                                               </span>
-
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                   <label>Last Name*</label>
-                                                   <input type="text" name="last_name"
-                                                          placeholder="Enter your last name" required/>
-                                               </span>
-
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                    <label>Email*</label>
-                                                    <input type="email" name="email" placeholder="Enter your email"
-                                                           required/>
-                                                </span>
-
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                     <label>Phone*</label>
-                                                     <input type="text" name="phone" placeholder="Enter your phone"
-                                                            required/>
-                                                </span>
-
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                   <label for="city">City</label>
-                                                        <select class="form-control" id="city" name="city" required>
-                                                             <option value="{{ profile.city }}"
-                                                                     selected>{{ profile.city }}</option>
-                                                         </select>
-                                               </span>
-
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                    <label for="district">District</label>
-                                                         <select class="form-control border-1" id="district" name="district"
-                                                                 required>
-                                                             <option value="{{ profile.district }}"
-                                                                     selected>{{ profile.district }}</option>
-                                                         </select>
-                                               </span>
-
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                 <div class="form-group">
-                                                   <label for="ward">Ward</label>
-                                                        <select class="form-control" id="ward" name="ward" required>
-                                                            <option value="{{ profile.ward }}"
-                                                                    selected>{{ profile.ward }}</option>
-                                                        </select>
-                                                 </div>
-                                               </span>
-
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                   <label for="road">Road</label>
-                                                        <input type="text" class="form-control" id="road"
-                                                               value="{{ profile.road }}"
-                                                               name="road" required>
-                                               </span>
-
-                                            <span class="ec-bill-wrap ec-bill-half">
-                                                <label>Order Notes</label>
-                                                <input type="text" name="order_note"
-                                                       placeholder="Add Comments About Your Order"/>
-                                               </span>
-                                        </form>
+                                        <div>
+                                            <span class="text-left">Coupan Discount</span>
+                                            <span class="text-right"><a class="ec-cart-coupan">Apply Coupan</a></span>
+                                        </div>
+                                        <div class="ec-cart-coupan-content">
+                                            <form class="ec-cart-coupan-form" name="ec-cart-coupan-form" method="post"
+                                                  action="#">
+                                                <input class="ec-coupan" type="text" required=""
+                                                       placeholder="Enter Your Coupan Code" name="ec-coupan" value="">
+                                                <button class=" rounded-3 ec-coupan-btn button btn-primary"
+                                                        type="submit"
+                                                        name="subscribe" value="">Apply
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div class="ec-cart-summary-total">
+                                            <span class="text-left">Total Amount</span>
+                                            <span class="text-right"><b>{{ grand_total }}$</b></span>
+                                        </div>
                                     </div>
+
                                 </div>
-                            </div>
-
-                        </div>
-                        <div class="d-flex flex-column p-4">
-                            <div class="p-2 form-group">
-
-                                <label for="payment_method">Payment Method</label>
-                                <select style="color:black" name="payment_method" id="payment_method" required>
-                                    <option value="VNPAY">VNPAY</option>
-                                    <option value="COD">COD</option>
-                                </select>
-                            </div>
-                        </div>
-                        <span class="btn">
-                            <button type="submit" name="submit" class="btn btn-primary rounded-3">Place Order</button>
-                           </span>
-                    </div>
-                </div>
-                </form>
-                <!--cart content End -->
-            </div>
-            <!-- Sidebar Area Start -->
-            <div class="ec-checkout-rightside col-lg-4 col-md-12">
-                <div class="ec-sidebar-wrap">
-                    <!-- Sidebar Summary Block -->
-                    <div class="ec-sidebar-block">
-                        <div class="ec-sb-title">
-                            <h3 class="ec-sidebar-title">Summary</h3>
-                        </div>
-                        <div class="ec-sb-block-content">
-                            <div class="ec-cart-summary-bottom">
-                                <div class="ec-cart-summary">
-                                    <div>
-                                        <span class="text-left">Sub-Total</span>
-                                        <span class="text-right">{{ total }}$</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-left">Taxs Charge ( {{ tax_percentage }}% )</span>
-                                        <span class="text-right">{{ tax }}$</span>
-                                    </div>
-
-                                    <div>
-                                        <span class="text-left">Coupan Discount</span>
-                                        <span class="text-right"><a class="ec-cart-coupan">Apply Coupan</a></span>
-                                    </div>
-                                    <div class="ec-cart-coupan-content">
-                                        <form class="ec-cart-coupan-form" name="ec-cart-coupan-form" method="post"
-                                              action="#">
-                                            <input class="ec-coupan" type="text" required=""
-                                                   placeholder="Enter Your Coupan Code" name="ec-coupan" value="">
-                                            <button class=" rounded-3 ec-coupan-btn button btn-primary" type="submit"
-                                                    name="subscribe" value="">Apply
-                                            </button>
-                                        </form>
-                                    </div>
-                                    <div class="ec-cart-summary-total">
-                                        <span class="text-left">Total Amount</span>
-                                        <span class="text-right"><b>{{ grand_total }}$</b></span>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="ec-checkout-pro">
-                                {% for  cart_item in cart_items %}
-                                    <div class="col-sm-12 mb-6">
-                                        <div class="ec-product-inner">
-                                            <div class="ec-pro-image-outer">
-                                                <div class="ec-pro-image">
-                                                    <a href="product-left-sidebar.html" class="image">
-                                                        <img class="main-image"
-                                                             src={{ cart_item.product.images.url }}
-                                                                     alt="Product"/>
-                                                        {% comment %} <img class="hover-image"
-                                                           src="{% static 'webapp/assets/images/product-image/1_2.jpg' %}"
-                                                           alt="Product" /> {% endcomment %}
-                                                    </a>
+                                <div class="ec-checkout-pro">
+                                    {% for cart_item in cart_items %}
+                                        <div class="col-sm-12 mb-6">
+                                            <div class="ec-product-inner">
+                                                <div class="ec-pro-image-outer">
+                                                    <div class="ec-pro-image">
+                                                        <a href="{{ cart_item.product.category_main.get_url }}{{ cart_item.product.sub_category.slug }}/{{ cart_item.product.slug }}"
+                                                           class="image">
+                                                            <img class="main-image"
+                                                                    {% for image in cart_item.product.images.all %}
+                                                                        {% if image.image_type == "default" %}
+                                                                            src="{{ image.image_url }}" >
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                        </a>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="ec-pro-content">
-                                                <h5 class="ec-pro-title"><a
-                                                        href="product-left-sidebar.html">{{ cart_item.product.product_name }}</a>
-                                                </h5>
-                                                <div>
-                                                    <b>Quantity</b>: {{ cart_item.quantity }}
-                                                </div>
-                                                {% if cart_item.variations.all %}
-                                                    {% for item in cart_item.variations.all %}
-                                                        <div>
-                                                            <b>{{ item.Variation_category }}</b>
-                                                            : {{ item.Variation_value }}<br>
+                                                <div class="ec-pro-content">
+                                                    <h5 class="ec-pro-title"><a
+                                                            href="{{ cart_item.product.category_main.get_url }}{{ cart_item.product.sub_category.slug }}/{{ cart_item.product.slug }}">{{ cart_item.product.product_name }}</a>
+                                                    </h5>
+                                                    <div>
+                                                        <b>Quantity</b>: {{ cart_item.quantity }}
+                                                    </div>
+                                                    {% if cart_item.variations.all %}
+                                                        {% for item in cart_item.variations.all %}
+                                                            <div>
+                                                                <b>{{ item.Variation_category }}</b>
+                                                                : {{ item.Variation_value }}<br>
 
-                                                        </div>
-                                                    {% endfor %}
-                                                {% endif %}
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% endif %}
 
-                                                <br>
-                                                <div class="ec-pro-rating">
-                                                    <i class="ecicon eci-star fill"></i>
-                                                    <i class="ecicon eci-star fill"></i>
-                                                    <i class="ecicon eci-star fill"></i>
-                                                    <i class="ecicon eci-star fill"></i>
-                                                    <i class="ecicon eci-star"></i>
-                                                </div>
-                                                <span class="ec-price">
+                                                    <br>
+                                                    <div class="ec-pro-rating">
+                                                        {% render_stars cart_item.product.rating %}
+                                                    </div>
+                                                    <span class="ec-price">
                                                    <span class="old-price">{{ cart_item.product.mrp_price }}$</span> 
                                                    <span class="new-price">{{ cart_item.product.price }}$</span>
                                                </span>
 
+                                                </div>
                                             </div>
                                         </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sidebar Summary Block -->
+                    </div>
+                    <!-- Sidebar Payment Block -->
+                </div>
+            
+                <div class="ec-checkout-rightside col-lg-8 col-md-12 ">
+                    <!-- checkout content Start -->
+                    <div class="ec-checkout-content">
+                        <div class="ec-checkout-inner">
+                            <div class="ec-checkout-wrap margin-bottom-30 padding-bottom-3">
+                                <div class="ec-checkout-block ec-check-bill">
+                                    <h3 class="ec-checkout-title">Billing Details</h3>
+                                    <div class="ec-bl-block-content">
+                                        <div class="ec-check-bill-form">
+                                            <div class="row">
+                                                <span class="ec-bill-wrap ec-bill-half col-lg-12">
+                                                       <label>Full Name*</label>
+                                                       <input type="text" name="full_name"
+                                                              placeholder="Enter your full name" required/>
+                                                </span>
+    
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6">
+                                                        <label>Email*</label>
+                                                        <input type="email" name="email" placeholder="Enter your email"
+                                                               required/>
+                                                    </span>
+    
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6">
+                                                         <label>Phone*</label>
+                                                         <input type="text" name="phone" placeholder="Enter your phone"
+                                                                required/>
+                                                    </span>
+    
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6">
+                                                       <label for="city">City</label>
+                                                            <select class="form-control" id="city" name="city" required>
+                                                                 <option value="{{ cart_items.user.profile.city }}"
+                                                                         selected>{{ cart_items.user.profile.city }}</option>
+                                                             </select>
+                                                   </span>
+    
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6">
+                                                    <label for="district">District</label>
+                                                     <select class="form-control border-1" id="district"
+                                                             name="district"
+                                                             required>
+                                                         <option value="{{ cart_items.user.profile.district }}"
+                                                                 selected>{{ profile.district }}</option>
+                                                     </select>
+                                                </span>
+    
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6">
+                                                    <div class="form-group">
+                                                    <label for="ward">Ward</label>
+                                                    <select class="form-control" id="ward" name="ward" required>
+                                                        <option value="{{ cart_items.user.profile.ward }}"
+                                                                selected>{{ cart_items.user.profile.ward }}</option>
+                                                    </select>
+                                                     </div>
+                                                </span>
+    
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6">
+                                                   <label for="road">Road</label>
+                                                    <input type="text" class="form-control" id="road"
+                                                           value="{{ cart_items.user.profile.road }}"
+                                                           name="road" required>
+                                                </span>
+    
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6">
+                                                    <label>Order Notes</label>
+                                                    <input type="text" name="order_note"
+                                                           placeholder="Add Comments About Your Order"/>
+                                                </span>
+                                                
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6">
+                                                     <div class="form-group">
+                                                        <label for="payment_method">Payment Method</label>
+                                                        <select class="form-control" name="payment_method"
+                                                                id="payment_method" required>
+                                                            <option value="VNPAY">VNPAY</option>
+                                                            <option value="COD">COD</option>
+                                                        </select>
+                                                     </div>
+                                                 </span>
+                                            </div>
+                                            <span class="btn">
+                                                <button type="submit" name="submit" class="btn btn-primary rounded-3">Place Order</button>
+                                           </span>
+                                        </div>
                                     </div>
-                                {% endfor %}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Sidebar Summary Block -->
+                    <!--cart content End -->
                 </div>
-
-                <!-- Sidebar Payment Block -->
+                
             </div>
-            </form>
-        </div>
-    </div>
+        </form>
     </div>
 </section>
 
@@ -283,8 +275,7 @@
             <div class="container">
                 <div class="row">
                     <div class="text-center footer-off-msg">
-                        <span></span><a href="#" target="_blank">View
-                        Detail</a>
+                        <span></span><a href="#" target="_blank"></a>
                     </div>
                 </div>
             </div>
@@ -297,7 +288,7 @@
                             <div class="ec-footer-logo"><a href="#"><img
                                     src="{% static 'webapp/assets/images/logo/footer-logo.png' %}"
                                     alt=""><img class="dark-footer-logo"
-                                                src="{% static 'webapp/assets/images/logo/dark-logo.png' %}"
+                                                src="{% static 'webapp/assets/images/logo/logo-8.png' %}"
                                                 alt="Site Logo" style="display: none;"/></a></div>
                             <h4 class="ec-footer-heading">Contact us</h4>
                             <div class="ec-footer-links">

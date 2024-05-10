@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
+from ipware import get_client_ip
+
 from carts.models import CartItem
 from .forms import OrderForm
 import datetime
@@ -16,6 +19,8 @@ import razorpay
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseBadRequest
+
+from .vnpay import vnpay
 
 razorpay_client = razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
 
@@ -100,7 +105,6 @@ def payments(request):
 def place_order(request, total=0, quantity=0):
     current_user = request.user
 
-    # if cart count is less than or equal to 0, then redirect to cart page
     cart_items_ttl = CartItem.objects.filter(user=current_user, is_active=True)
     cart_count = cart_items_ttl.count()
     if cart_count <= 0:
@@ -143,42 +147,40 @@ def place_order(request, total=0, quantity=0):
             current_date = d.strftime("%d%m%Y")
 
             payment_type = data.payment_method
-            currency = 'INR'
+
             amount = int(grand_total * 100)
-            request.session["razorpay_amount"] = amount
-            razorpay_client = razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
-            razorpay_order = razorpay_client.order.create(
-                dict(amount=amount, currency=currency, payment_capture="0")
-            )
 
-            if payment_type == "VNpay":
-                order_number = razorpay_order['id']
-                data.order_number = razorpay_order['id']
+            if payment_type == "VNPAY":
 
-                data.save()
+                order_id = form.cleaned_data['order_id']
+                bank_code = form.cleaned_data['bank_code']
+                language = form.cleaned_data['language']
+                ipaddr = get_client_ip(request)
+
+                vnp = vnpay()
+                vnp.requestData['vnp_Version'] = '2.1.0'
+                vnp.requestData['vnp_Command'] = 'pay'
+                vnp.requestData['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
+                vnp.requestData['vnp_Amount'] = amount
+                vnp.requestData['vnp_CurrCode'] = 'VND'
+                vnp.requestData['vnp_TxnRef'] = order_id
+                vnp.requestData['vnp_OrderInfo'] = form.cleaned_data['order_note']
+                vnp.requestData['vnp_OrderType'] = "billpayment"
+
+                if language and language != '':
+                    vnp.requestData['vnp_Locale'] = language
+                else:
+                    vnp.requestData['vnp_Locale'] = 'vn'
+                if bank_code and bank_code != "":
+                    vnp.requestData['vnp_BankCode'] = bank_code
+
+                vnp.requestData['vnp_CreateDate'] = timezone.now().strftime('%Y%m%d%H%M%S')
+                vnp.requestData['vnp_IpAddr'] = ipaddr
+                vnp.requestData['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
+                vnpay_payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY)
+                return redirect(vnpay_payment_url)
             else:
-                order_number = current_date + str(data.id)
-                data.order_number = order_number
-                data.save()
-
-            # Order id of newly created order
-            razorpay_order_id = razorpay_order['id']
-            callback_url = 'paymenthandler/'
-
-            payment_type = request.POST['payment_method']
-            order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
-            context = {
-                'order': order,
-                'cart_items': cart_items_ttl,
-                'total': total,
-                'tax': tax,
-                'grand_total': grand_total,
-                'razorpay_order_id': razorpay_order_id,
-                'razorpay_merchant_key': settings.RAZOR_KEY_ID,
-                'razorpay_amount': amount,
-                'callback_url': callback_url,
-                'payment_type': payment_type,
-            }
+                print("Form input not validate")
             return render(request, 'orders/payments.html', context)
         else:
             return HttpResponse('Form is not valid')
