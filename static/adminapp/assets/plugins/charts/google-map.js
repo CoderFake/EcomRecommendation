@@ -5,22 +5,86 @@ google.charts.load('current', {
 google.charts.setOnLoadCallback(drawRegionsMap);
 
 function drawRegionsMap() {
-  var data = google.visualization.arrayToDataTable([
-    ['Country', 'Purchased'],
-    ['Germany', 50],
-    ['United States', 300],
-    ['Brazil', 400],
-    ['Canada', 500],
-    ['France', 600],
-['India', 987],
-    ['RU', 700]
-  ]);
+    var data = google.visualization.arrayToDataTable([
+        ['City', 'Purchase'],
+        ['Bắc Giang', 1],
+        ['Bắc Kạn', 2],
+        ['Cao Bằng', 3],
+        ['Hà Giang', 4],
+        ['Lạng Sơn', 5],
+        ['Phú Thọ', 6],
+        ['Quảng Ninh', 7],
+        ['Thái Nguyên', 8],
+        ['Tuyên Quang', 9],
+        ['Lào Cai', 10],
+        ['Yên Bái', 11],
+        ['Điện Biên', 12],
+        ['Hòa Bình', 13],
+        ['Lai Châu', 14],
+        ['Sơn La', 15],
+        ['Bắc Ninh', 16],
+        ['Hà Nam', 17],
+        ['Hải Dương', 18],
+        ['Hưng Yên', 19],
+        ['Nam Định', 20],
+        ['Ninh Bình', 21],
+        ['Thái Bình', 22],
+        ['Vĩnh Phúc', 23],
+        ['VN-HN', 24],
+        ['Hải Phòng City', 25],
+        ['Hà Tĩnh', 26],
+        ['Nghệ An', 27],
+        ['Quảng Bình', 28],
+        ['Quảng Trị', 29],
+        ['Thanh Hóa', 30],
+        ['Thừa Thiên–Huế', 31],
+        ['Đắk Lắk', 32],
+        ['VN-72', 33],
+        ['Gia Lai', 34],
+        ['Kon Tum', 35],
+        ['Lâm Đồng', 36],
+        ['Bình Định', 37],
+        ['Bình Thuận', 38],
+        ['Khánh Hòa', 39],
+        ['Ninh Thuận', 40],
+        ['Phú Yên', 41],
+        ['Quảng Nam', 42],
+        ['Quảng Ngãi', 43],
+        ['Đà Nẵng City', 44],
+        ['Bà Rịa–Vũng Tàu', 45],
+        ['Bình Dương', 46],
+        ['Bình Phước', 47],
+        ['Đồng Nai', 48],
+        ['Tây Ninh', 49],
+        ['VN-SG', 50],
+        ['An Giang', 51],
+        ['VN-55', 52],
+        ['Bến Tre', 53],
+        ['Cà Mau', 54],
+        ['Đồng Tháp', 55],
+        ['Hậu Giang', 56],
+        ['Kiên Giang', 57],
+        ['Long An', 58],
+        ['Sóc Trăng', 59],
+        ['Tiền Giang', 60],
+        ['Trà Vinh', 61],
+        ['Vĩnh Long', 62],
+        ['VN-CT', 63],
+        ['VN-DN', 63]
+    ]);
 
-  var options = {
-colorAxis: {colors: ['#cedbf9', '#6588d5']},
-};
+    var options = {
+        region: 'VN',
+        displayMode: 'regions',
+        resolution: 'provinces',
+        colorAxis: {colors: ['#cedbf9', '#6588d5']},
+        enableRegionInteractivity: true,
+        keepAspectRatio: true,
+        width: 600,
+        height: 500
+    };
 
-  var chart = new google.visualization.GeoChart(document.getElementById('regions_purchase'));
 
-  chart.draw(data, options);
+    var chart = new google.visualization.GeoChart(document.getElementById('regions_purchase'));
+    chart.draw(data, options);
 }

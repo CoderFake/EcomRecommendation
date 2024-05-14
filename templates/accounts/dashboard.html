@@ -27,13 +27,13 @@
                 <div class="col-12">
                     <div class="row ec_breadcrumb_inner">
                         <div class="col-md-6 col-sm-12">
-                            <h2 class="ec-breadcrumb-title">User History</h2>
+                            <h2 class="ec-breadcrumb-title">Order History</h2>
                         </div>
                         <div class="col-md-6 col-sm-12">
                             <!-- ec-breadcrumb-list start -->
                             <ul class="ec-breadcrumb-list">
-                                <li class="ec-breadcrumb-item"><a href="index.html">Home</a></li>
-                                <li class="ec-breadcrumb-item active">History</li>
+                                <li class="ec-breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                                <li class="ec-breadcrumb-item active">Order History</li>
                             </ul>
                             <!-- ec-breadcrumb-list end -->
                         </div>
@@ -48,8 +48,7 @@
     <section class="ec-page-content ec-vendor-uploads ec-user-account section-space-p">
         <div class="container">
             <div class="row">
-                {% include  'includes/headbar.html' %}
-                <div class="ec-shop-rightside col-lg-9 col-md-12">
+                <div class="ec-shop-rightside col-lg-12 col-md-12">
                     <div class="ec-vendor-dashboard-card">
                         <div class="ec-vendor-card-header">
                             <h5 style="text-transform: capitalize; color:#2f2695;">{{profile.full_name}}'s <br> <p style="font-size:15px; color:#8d77a3;"> Order's History<br>
@@ -83,36 +82,21 @@
                                     <tbody>
                                        {% for item in orders %} 
                                         <tr>
-                                            <th scope="row"><span>{{forloop.counter}}</span></th>
-                                            <th scope="row"><span>{{item.order_number}}</span></th>
-                                            {% comment %} <td><img class="prod-img mt-4 rounded-2" src="{{item.product.images.url}}"
-                                                    alt="product image" ></td>
-                                            <td><span><b>{{item.product.product_name}}</b></span> {% endcomment %}
-
-                                            {% comment %} Adding variation product {% endcomment %}
-            
-                                            {% comment %} {% if item.variation.all  %}
-                                                
-                                                {% for product in item.variation.all%}
-                                                    <div>
-                                                        <b>{{product.Variation_category}}</b> : {{product.Variation_value}}<br>
-                                                    </div>
-                                               {% endfor %}
-                                            {% endif %} {% endcomment %}
-
-                                              {% comment %} End vartion adding here {% endcomment %}
-                                            
-                                            </td>
-
+                                            <td ><span>{{forloop.counter}}</span></td>
+                                            <td><span>{{item.order_number}}</span></td>
                                             <td><span>{{item.updated_at}}</span></td>
-                                            <td><span>₹ <b>{{item.payment.amount_paid}}</b></span></td>
+                                            <td><span><b>{{item.payment.amount_paid}}$</b></span></td>
                                             <td><span><b>{{item.payment.status}}</b></span></td>
                                             <td><span><b>{{item.payment.payment_method}}</b></span></td>
                                             <td><span><b>{{item.order_status}}</b></span></td>
-                                            <td><span class="tbl-btn"><a class="btn btn-lg btn-primary rounded-3"
-                                                        href="./order_details/{{item.order_number}}/">Details</a></span></td>
+                                            <td>
+                                                <span class="tbl-btn"><a class="btn btn-lg btn-primary rounded-3"
+                                                        href="./order_details/{{item.order_number}}/">Details</a></span>
+                                                    {% if item.order_status == "Accepted" %}
                                                         <td><span class="tbl-btn"><a class="btn btn-lg btn-secondary rounded-3"
-                                                            href="./cancel_order/{{item.order_number}}/">Cancel</a></span></td>
+                                                            href="./cancel_order/{{item.order_number}}/">Cancel</a></span>
+                                                    {% endif %}
+                                                </td>
                                         </tr>
                                         {% endfor %} 
                                     </tbody>

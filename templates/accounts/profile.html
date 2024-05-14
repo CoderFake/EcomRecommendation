@@ -48,7 +48,7 @@
     <section class="ec-page-content ec-vendor-uploads ec-user-account section-space-p">
         <div class="container">
             <div class="row">
-                <div class="ec-shop-rightside col-lg-9 col-md-12">
+                <div class="ec-shop-rightside col-lg-12 col-md-12">
                     <div class="ec-vendor-dashboard-card ec-vendor-setting-card">
                         <div class="ec-vendor-card-body">
                             <div class="row">
@@ -144,45 +144,60 @@
                       
                             <h4 style="text-align:center; margin-bottom:20px;"><b>Edit Profile</b></h4><div style="height:2px; background-color:#f7f7f7;"></div>
                             <div class="ec-vendor-upload-detail">
-                                <form class="row g-3" method="POST" enctype="multipart/form-data">
+                                <form class="row g-3" action="{% url 'edit_profile' %}" method="POST" enctype="multipart/form-data">
                                     {% csrf_token %}
                                     <div class="col-md-6 space-t-15">
                                         <label class="form-label">Full Name</label>
                                         {{user_form.full_name }}
                                     </div>
                                     <div class="col-md-6 space-t-15">
-                                        <label class="form-label">Email</label>
-                                        {{user_form.email }}
+                                        <label class="form-label">User Name</label>
+                                        {{user_form.username }}
                                     </div>
                                     <div class="col-md-6 space-t-15">
                                         <label class="form-label">Phone Number</label>
                                         {{user_form.phone_number }}
                                     </div>
                                     <div class="col-md-6 space-t-15">
-                                        <label class="form-label">profile Picture</label>
-                                        {{profile_form.profile_picture }}
+                                        <label class="form-label">Profile Picture</label>
+                                        <div class="custom-file">
+{#                                            <label class="custom-file-label" for="profile_picture">Choose file...</label>#}
+                                            <input type="file" class="custom-file-input" id="profile_picture" name="profile_picture">
+                                            
+                                        </div>
                                     </div>
                                     
                                     <div class="col-md-6 space-t-15">
-                                        <label class="form-label">Birthday</label>
-                                        {{profile_form.date_of_birth }}
+                                        <label class="form-label" for="date_of_birth">Birthday</label>
+                                        <input type="date" class="form-control" id="date_of_birth"
+                                               value="{{ profile_data.date_of_birth|date:'Y-m-d' }}" name="date_of_birth" required max="{% now "Y-m-d" %}">
                                     </div>
                                     <div class="col-md-6 space-t-15">
-                                        <label class="form-label">Sex</label>
-                                        {{profile_form.sex }}
+                                        <label class="form-label" for="sex">Sex</label>
+                                        <select class="form-control" id="sex" name="sex">
+                                            <option {% if profile_data.sex == "male" %} value="male" selected {% endif %}>Male </option>
+                                            <option {% if profile_data.sex == "female" %} value="female"  selected{% endif %}>Female</option>
+                                            <option {% if profile_data.sex == "other" or not profile_data.sex %} value="other" selected {% endif %}>Other</option>
+                                        </select>
                                     </div>
                                    
                                     <div class="col-md-6 space-t-15">
-                                        <label class="form-label">City</label>
-                                        {{profile_form.city }}
+                                        <label class="form-label" for="city">City</label>
+                                        <select class="form-control" id="city" name="city">
+                                             <option value="{{ profile_data.city }}" selected>{{ profile_data.city_name }}</option>
+                                         </select>
                                     </div>
                                     <div class="col-md-6 space-t-15">
-                                        <label class="form-label">District</label>
-                                        {{profile_form.district }}
+                                        <label class="form-label" for="district">District</label>
+                                         <select class="form-control" id="district" name="district">
+                                             <option value="{{ profile_data.district }}" selected>{{ profile_data.district_name }}</option>
+                                         </select>
                                     </div>
                                     <div class="col-md-6 space-t-15">
-                                        <label class="form-label">Ward</label>
-                                        {{profile_form.ward}}
+                                        <label class="form-label" for="ward">Ward</label>
+                                        <select class="form-control" id="ward" name="ward">
+                                            <option value="{{ profile_data.ward }}" selected>{{ profile_data.ward_name }}</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-6 space-t-15">
                                         <label class="form-label">Road</label>
@@ -205,8 +220,56 @@
             </div>
         </div>
     </div>
-    <!-- Modal end -->
 
-    {% comment %} model ends here {% endcomment %}
+{% endblock %}
+{% block jsblock %}
+    <script>
+        function updateSelect(selectId, data, selectedValue) {
+            let select = $('#' + selectId);
+            select.empty();
+            select.append($('<option>', {
+                value: '',
+                text: 'Choose...'
+            }));
+            data.forEach(item => {
+                select.append($('<option>', {
+                    value: item.id,
+                    text: item.displayName,
+                    selected: item.id === selectedValue 
+                }));
+            });
+        }
 
-    {% endblock %}
+        function loadLocations(type, parentId = '', selectedValue = '') {
+            $.ajax({
+                url: '{% url 'get_locations' %}',
+                type: 'GET',
+                data: {type: type, parentId: parentId},
+                success: function (data) {
+                    updateSelect(type, data, selectedValue);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            let profile = {
+                city: '{{ profile_data.city }}',
+                district: '{{  profile_data.district }}',
+                ward: '{{  profile_data.ward }}'
+            };
+
+            loadLocations('city', '', profile.city);
+            loadLocations('district', profile.city, profile.district);
+            loadLocations('ward', profile.district, profile.ward);
+            
+            $('#city').on('change', function () {
+                loadLocations('district', $(this).val(), profile.district);
+            });
+
+            $('#district').on('change', function () {
+                loadLocations('ward', $(this).val(), profile.ward);
+            });
+        });
+
+    </script>
+{% endblock %}

@@ -100,15 +100,14 @@
                                             <span class="text-right"><a class="ec-cart-coupan">Apply Coupan</a></span>
                                         </div>
                                         <div class="ec-cart-coupan-content">
-                                            <form class="ec-cart-coupan-form" name="ec-cart-coupan-form" method="post"
-                                                  action="#">
-                                                <input class="ec-coupan" type="text" required=""
+                                            <div class="ec-cart-coupan-form" name="ec-cart-coupan-form">
+                                                <input class="ec-coupan" type="text"
                                                        placeholder="Enter Your Coupan Code" name="ec-coupan" value="">
                                                 <button class=" rounded-3 ec-coupan-btn button btn-primary"
                                                         type="submit"
                                                         name="subscribe" value="">Apply
                                                 </button>
-                                            </form>
+                                            </div>
                                         </div>
                                         <div class="ec-cart-summary-total">
                                             <span class="text-left">Total Amount</span>
@@ -123,20 +122,21 @@
                                             <div class="ec-product-inner">
                                                 <div class="ec-pro-image-outer">
                                                     <div class="ec-pro-image">
-                                                        <a href="{{ cart_item.product.category_main.get_url }}{{ cart_item.product.sub_category.slug }}/{{ cart_item.product.slug }}"
+                                                        <a href="
+                                                                
+                                                                {{ cart_item.product.category_main.get_url }}{{ cart_item.product.sub_category.slug }}/{{ cart_item.product.slug }}"
                                                            class="image">
                                                             <img class="main-image"
                                                                     {% for image in cart_item.product.images.all %}
                                                                         {% if image.image_type == "default" %}
-                                                                            src="{{ image.image_url }}" >
+                                                                 src="{{ image.image_url }}" >
                                                                         {% endif %}
                                                                     {% endfor %}
                                                         </a>
                                                     </div>
                                                 </div>
                                                 <div class="ec-pro-content">
-                                                    <h5 class="ec-pro-title"><a
-                                                            href="{{ cart_item.product.category_main.get_url }}{{ cart_item.product.sub_category.slug }}/{{ cart_item.product.slug }}">{{ cart_item.product.product_name }}</a>
+                                                    <h5 class="ec-pro-title"><a href="{{ cart_item.product.category_main.get_url }}{{ cart_item.product.sub_category.slug }}/{{ cart_item.product.slug }}">{{ cart_item.product.product_name }}</a>
                                                     </h5>
                                                     <div>
                                                         <b>Quantity</b>: {{ cart_item.quantity }}
@@ -171,7 +171,7 @@
                     </div>
                     <!-- Sidebar Payment Block -->
                 </div>
-            
+
                 <div class="ec-checkout-rightside col-lg-8 col-md-12 ">
                     <!-- checkout content Start -->
                     <div class="ec-checkout-content">
@@ -183,64 +183,64 @@
                                         <div class="ec-check-bill-form">
                                             <div class="row">
                                                 <span class="ec-bill-wrap ec-bill-half col-lg-12">
-                                                       <label>Full Name*</label>
-                                                       <input type="text" name="full_name"
-                                                              placeholder="Enter your full name" required/>
+                                                       <label for="full_name">Full Name*</label>
+                                                       <input type="text" name="full_name" id="full_name"
+                                                              placeholder="Enter your full name" value ="{{ request.user.full_name }}" required/>
                                                 </span>
-    
+
                                                 <span class="ec-bill-wrap ec-bill-half col-md-6">
-                                                        <label>Email*</label>
-                                                        <input type="email" name="email" placeholder="Enter your email"
+                                                        <label for="email">Email*</label>
+                                                        <input type="email" name="email" id='email' value="{{ request.user.email }}" placeholder="Enter your email"
                                                                required/>
                                                     </span>
-    
+
                                                 <span class="ec-bill-wrap ec-bill-half col-md-6">
-                                                         <label>Phone*</label>
-                                                         <input type="text" name="phone" placeholder="Enter your phone"
+                                                         <label for="phone">Phone*</label>
+                                                         <input type="text" name="phone" id="phone" value="{{ request.user.phone_number }}" placeholder="Enter your phone"
                                                                 required/>
                                                     </span>
-    
+
                                                 <span class="ec-bill-wrap ec-bill-half col-md-6">
                                                        <label for="city">City</label>
                                                             <select class="form-control" id="city" name="city" required>
-                                                                 <option value="{{ cart_items.user.profile.city }}"
-                                                                         selected>{{ cart_items.user.profile.city }}</option>
+                                                                 <option value="{{ profile.city }}"
+                                                                         selected>{{ profile.city_name }}</option>
                                                              </select>
                                                    </span>
-    
+
                                                 <span class="ec-bill-wrap ec-bill-half col-md-6">
                                                     <label for="district">District</label>
                                                      <select class="form-control border-1" id="district"
                                                              name="district"
                                                              required>
-                                                         <option value="{{ cart_items.user.profile.district }}"
-                                                                 selected>{{ profile.district }}</option>
+                                                         <option value="{{ profile.district }}"
+                                                                 selected>{{ profile.district_name }}</option>
                                                      </select>
                                                 </span>
-    
+
                                                 <span class="ec-bill-wrap ec-bill-half col-md-6">
                                                     <div class="form-group">
                                                     <label for="ward">Ward</label>
                                                     <select class="form-control" id="ward" name="ward" required>
-                                                        <option value="{{ cart_items.user.profile.ward }}"
-                                                                selected>{{ cart_items.user.profile.ward }}</option>
+                                                        <option value="{{ profile.ward }}"
+                                                                selected>{{ profile.ward_name }}</option>
                                                     </select>
                                                      </div>
                                                 </span>
-    
+
                                                 <span class="ec-bill-wrap ec-bill-half col-md-6">
                                                    <label for="road">Road</label>
                                                     <input type="text" class="form-control" id="road"
-                                                           value="{{ cart_items.user.profile.road }}"
+                                                           value="{{ profile.road }}"
                                                            name="road" required>
                                                 </span>
-    
+
                                                 <span class="ec-bill-wrap ec-bill-half col-md-6">
-                                                    <label>Order Notes</label>
-                                                    <input type="text" name="order_note"
+                                                    <label for="order_note">Order Notes</label>
+                                                    <input type="text" name="order_note" id="order_note"
                                                            placeholder="Add Comments About Your Order"/>
                                                 </span>
-                                                
+
                                                 <span class="ec-bill-wrap ec-bill-half col-md-6">
                                                      <div class="form-group">
                                                         <label for="payment_method">Payment Method</label>
@@ -251,6 +251,36 @@
                                                         </select>
                                                      </div>
                                                  </span>
+                                                <span class="ec-bill-wrap ec-bill-half col-md-6 bank-code">
+                                                      <div class="form-group ">
+                                                            <label for="bank_code">Bank Code</label>
+                                                            <select name="bank_code" id="bank_code" class="form-control">
+                                                                <option value="">Không chọn</option>
+                                                                <option value="NCB"> Ngân hàng NCB</option>
+                                                                <option value="AGRIBANK"> Ngân hàng Agribank</option>
+                                                                <option value="SCB"> Ngân hàng SCB</option>
+                                                                <option value="SACOMBANK">Ngân hàng SacomBank</option>
+                                                                <option value="EXIMBANK"> Ngân hàng EximBank</option>
+                                                                <option value="MSBANK"> Ngân hàng MSBANK</option>
+                                                                <option value="NAMABANK"> Ngân hàng NamABank</option>
+                                                                <option value="VNMART"> Ví điện tử VnMart</option>
+                                                                <option value="VIETINBANK">Ngân hàng Vietinbank</option>
+                                                                <option value="VIETCOMBANK"> Ngân hàng VCB</option>
+                                                                <option value="HDBANK">Ngân hàng HDBank</option>
+                                                                <option value="DONGABANK"> Ngân hàng Dong A</option>
+                                                                <option value="TPBANK"> Ngân hàng TPBank</option>
+                                                                <option value="OJB"> Ngân hàng OceanBank</option>
+                                                                <option value="BIDV"> Ngân hàng BIDV</option>
+                                                                <option value="TECHCOMBANK"> Ngân hàng Techcombank</option>
+                                                                <option value="VPBANK"> Ngân hàng VPBank</option>
+                                                                <option value="MBBANK"> Ngân hàng MBBank</option>
+                                                                <option value="ACB"> Ngân hàng ACB</option>
+                                                                <option value="OCB"> Ngân hàng OCB</option>
+                                                                <option value="IVB"> Ngân hàng IVB</option>
+                                                                <option value="VISA"> Thanh toán qua VISA/MASTER</option>
+                                                            </select>
+                                                        </div>
+                                                </span>
                                             </div>
                                             <span class="btn">
                                                 <button type="submit" name="submit" class="btn btn-primary rounded-3">Place Order</button>
@@ -263,7 +293,7 @@
                     </div>
                     <!--cart content End -->
                 </div>
-                
+
             </div>
         </form>
     </div>
@@ -286,7 +316,7 @@
                     <div class="col-sm-12 col-lg-3 ec-footer-contact">
                         <div class="ec-footer-widget">
                             <div class="ec-footer-logo"><a href="#"><img
-                                    src="{% static 'webapp/assets/images/logo/footer-logo.png' %}"
+                                    src="{% static 'webapp/assets/images/logo/logo-8.png' %}"
                                     alt=""><img class="dark-footer-logo"
                                                 src="{% static 'webapp/assets/images/logo/logo-8.png' %}"
                                                 alt="Site Logo" style="display: none;"/></a></div>
@@ -802,6 +832,20 @@
     function googleTranslateElementInit() {
         new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
     }
+</script>
+<script>
+    $(document).ready(function (){
+        $('#payment_method').on('change', function (){
+            if($('#payment_method option:selected').val() ===  "VNPAY"){
+                if($('.bank-code').hasClass('d-none')){
+                    $('.bank-code').removeClass('d-none');
+                }
+            }
+            else{
+                $('.bank-code').addClass('d-none');
+            }
+        })
+    })
 </script>
 <script>
     function updateSelect(selectId, data, selectedValue) {

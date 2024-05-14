@@ -430,14 +430,11 @@
     <script>
         function updateSelect(selectId, data, selectedValue) {
             let select = $('#' + selectId);
-            select.empty(); 
-            // Thêm tùy chọn mặc định
+            select.empty();
             select.append($('<option>', {
                 value: '',
                 text: 'Choose...'
             }));
-
-            // Thêm các lựa chọn từ API
             data.forEach(item => {
                 select.append($('<option>', {
                     value: item.id,

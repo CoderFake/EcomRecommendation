@@ -44,22 +44,19 @@
                                             <td>
                                                 {% for product in order_products %}
                                                     {% if product.order.id == order.id %}
-                                                        <img src="{{ product.product.images.url }}" height=50
-                                                             class="pb-2" style="border-radius:50%">
+                                                        {% for image in product.product.images.all %}
+                                                        {% if image.image_type == "default" %}
+                                                            <img src="{{ image.image_url }}" height=30 width=30 style="border-radius:50%">
+                                                            {% endif %}
+                                                        {% endfor %}
                                                         {{ product.product }}<br>
                                                     {% endif %}
                                                 {% endfor %}
                                             </td>
-                                            {% for product in order_products %}
-                                                {% if forloop.counter < 2 %}
-                                                    <td><span
-                                                            class="mb-2 mr-2 badge badge-secondary">{{ product.payment.status }}</span>
-                                                    </td>
-                                                {% endif %}
-                                            {% endfor %}
-                                            <td><span
-                                                    class="mb-2 mr-2 badge badge-primary">{{ order.order_status }}</span>
+                                            <td>
+                                                <span class="mb-2 mr-2 badge badge-secondary">{{ order.payment.status }}</span>
                                             </td>
+                                            <td><span  class="mb-2 mr-2 badge badge-primary">{{ order.order_status }}</span></td>
 
                                             <td>
                                                 <div class="btn-group mb-1">
@@ -67,8 +64,6 @@
                                                             class="btn btn-outline-success"><a
                                                             href="order_update/{{ order.id }}">Change Status</a>
                                                     </button>
-
-
                                                 </div>
                                             </td>
                                         </tr>

@@ -140,7 +140,6 @@ def product_session(request):
             request.session['product'] = product.id
 
             if request.user.is_authenticated:
-                # Kiểm tra xem có sự kiện nào trong vòng 24 giờ qua không
                 time_threshold = timezone.now() - timedelta(hours=24)
                 event = EventUser.objects.filter(user=request.user, product=product, event_type='view',
                                                  event_timestamp__gte=time_threshold).first()
@@ -152,13 +151,12 @@ def product_session(request):
                     event.save()
                     return HttpResponse("Success: View event updated")
                 else:
-                    # Nếu không, tạo sự kiện mới
                     EventUser.objects.create(
                         user=request.user,
                         product=product,
                         event_type='view',
                         event_timestamp=timezone.now(),
-                        frequency=1,  # Set frequency là 1 vì đây là lần đầu tiên xem
+                        frequency=1,
                     )
                     return HttpResponse("Success: View event created")
             else:

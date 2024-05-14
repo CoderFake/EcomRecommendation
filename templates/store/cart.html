@@ -45,8 +45,6 @@
             <div class="row">
                 <div class="ec-cart-leftside col-lg-8 col-md-12 ">
                     {% if not cart_items %}
-
-
                         <!-- shop empty page -->
                         <div class="py-6 py-lg-12" style="margin-top:-50px;">
                             <div class="container">
@@ -88,15 +86,16 @@
                                                     <tr>
                                                         <td data-label="Product" class="ec-cart-pro-name">
                                                             <a href="{{ cart_item.product.category_main.get_url }}{{ cart_item.product.sub_category.slug }}/{{ cart_item.product.slug }}">
-                                                            <img class="ec-cart-pro-img mr-4"
-                                                                 {% for image in cart_item.product.images.all %}
-                                                                    {% if image.image_type == "default" %}
-                                                                        src={{ image.image_url }}
-                                                                         {% endif %}
-                                                                 {% endfor %}
-                                                                 alt=""><b><b>{{ cart_item.product.product_name }}</b></b></a>
-
-                                                            {% comment %} vartions adding here {% endcomment %}
+                                                                <img class="ec-cart-pro-img mr-4"
+                                                                     {% for image in cart_item.product.images.all %}
+                                                                        {% if image.image_type == "default" %}
+                                                                            src={{ image.image_url }}
+                                                                             {% endif %}
+                                                                     {% endfor %}
+                                                                 alt="">
+                                                                <b><b>{{ cart_item.product.product_name }}</b></b>
+                                                            </a>
+                                                        
                                                             <div style="font-size:13px; margin-left:5rem;">
                                                                 {% if cart_item.variations.all %}
                                                                     {% for item in cart_item.variations.all %}
@@ -106,7 +105,7 @@
                                                                 {% endif %}
                                                             </div>
                                                         </td>
-                                                        {% comment %} Vartion like clr siz edns here {% endcomment %}
+                                                    
 
                                                         <td data-label="Price" class="ec-cart-pro-price"><span
                                                                 class="amount">{{ cart_item.product.price }}$</span>
@@ -116,6 +115,7 @@
                                                             <div class="cart-qty-plus-minus">
                                                                 <input class="cart-plus-minus" type="number"
                                                                        value="{{ cart_item.quantity }}" readonly/>
+                                                            <input type="hidden" class ="cartItemId" value="{{ cart_item.id }}">
                                                                 <form action="{% url 'add_cart' cart_item.product.id %}"
                                                                       method="POST">
                                                                     {% csrf_token %}
@@ -145,13 +145,16 @@
                                         <div class="row">
                                             <div class="col-lg-12">
                                                 <div class="ec-cart-update-bottom">
-                                                    <a href="{% url 'store' %}">Continue Shopping</a>
-                                                    <a href="{% url 'checkout' %}">Proceed to Checkout</a>
+                                                    <a href="{% url 'store' %}"  class="text-decoration-none">
+                                                        <i class="rounded-3  btn-success p-2" style="color:white;">
+                                                            Continue Shopping
+                                                        </i>
+                                                    </a>
 
-                                                    <a href="{% url 'checkout' %}">
-                                                        <button class=" rounded-3  btn-primary" style="color:white;">
-                                                            Check Out
-                                                        </button>
+                                                    <a href="{% url 'checkout' %}" class="text-decoration-none">
+                                                        <i class="rounded-3  btn-primary p-2" style=";color:white;">
+                                                            Checkout
+                                                        </i>
                                                     </a>
                                                 </div>
                                             </div>
@@ -221,19 +224,16 @@
             function updateCartSummary() {
                 var subtotal = 0;
                 $('.ec-cart-pro-subtotal').each(function () {
-                    // Cộng dồn giá trị subtotal từng sản phẩm
+
                     var itemTotal = parseFloat($(this).text().replace('$', ''));
                     subtotal += itemTotal;
                 });
 
-                // Cập nhật Sub-Total
                 $('.ec-cart-summary .text-right').first().text(subtotal.toFixed(2) + '$');
 
-                // Tính thuế (giả sử là 2%)
                 var tax = subtotal * 0.02;
                 $('.ec-cart-summary div').eq(1).find('.text-right').text(tax.toFixed(2) + '$');
 
-                // Tổng số tiền sau khi thêm thuế, không tính mức giảm giá ở đây
                 var total = subtotal + tax;
                 $('.ec-cart-summary-total .text-right b').text(total.toFixed(2) + '$');
             }
@@ -242,10 +242,11 @@
                 updateCartSummary();
                 var $button = $(this);
                 var $input = $button.closest('div.cart-qty-plus-minus').find('input.cart-plus-minus');
+                var cartItemId = $button.closest('div.cart-qty-plus-minus').find('input.cartItemId').val();
                 var oldValue = $input.val();
                 console.log('Old Value: ' + oldValue);
                 if (!isNaN(oldValue) && oldValue.trim() !== "") {
-                    oldValue = parseFloat(oldValue); // Chuyển đổi thành số nếu có thể
+                    oldValue = parseFloat(oldValue); 
                     var newVal;
 
                     if ($button.hasClass('inc')) {
@@ -263,7 +264,30 @@
                 var price = parseFloat(priceText.replace('$', ''));
                 var total = newVal * price;
                 $button.closest('tr').find('.ec-cart-pro-subtotal').text(total.toFixed(2) + '$');
-                updateCartSummary();
+                if (newVal !== oldValue) {
+                    $input.val(newVal);
+                    $.ajax({
+                        url: '{% url "update_cart" %}',
+                        type: 'POST',
+                        data: {
+                            'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
+                            'cartItemId': cartItemId,
+                            'quantity': newVal
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                var priceText = $button.closest('tr').find('.ec-cart-pro-price .amount').text();
+                                var price = parseFloat(priceText.replace('$', ''));
+                                var total = newVal * price;
+                                $button.closest('tr').find('.ec-cart-pro-subtotal').text(total.toFixed(2) + '$');
+                                updateCartSummary();
+                            } else {
+                                alert('Có lỗi xảy ra, không thể cập nhật số lượng.');
+                                $input.val(oldValue);
+                            }
+                        }
+                    });
+                }
             });
         });
 

@@ -102,8 +102,12 @@ $(document).ready(function (h) {
     });
 
 })
-
-$(document).ready(function() {
+$(document).ready(function () {
+    $('#responsive-data-table').DataTable({
+        responsive: true
+    });
+});
+$(document).ready(function () {
     $('.custom-file-input').on('change', function () {
         var file = this.files[0];
         var label = $(this).siblings('.custom-file-label');
@@ -113,18 +117,15 @@ $(document).ready(function() {
             var fileExtension = fileName.split('.').pop().toLowerCase();
             var validExtensions = ['jpg', 'jpeg', 'png'];
 
-            // Kiểm tra định dạng file
             if ($.inArray(fileExtension, validExtensions) === -1) {
                 alert("Only formats are allowed: " + validExtensions.join(', '));
-                $(this).val(''); // Xóa file đã chọn
-                label.text('Choose file...'); // Đặt lại nhãn
+                $(this).val('');
+                label.text('Choose file...');
             } else {
-                // Cập nhật tên file trên label, cắt nếu quá dài
                 var displayedName = fileName.length > 30 ? fileName.substring(0, 30) + '...' : fileName;
                 label.text(displayedName);
             }
         } else {
-            // Đặt lại nhãn nếu không có file được chọn
             label.text('Choose file...');
         }
     });

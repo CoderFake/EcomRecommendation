@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.utils import timezone
@@ -33,6 +35,18 @@ from decouple import config
 from django.core.mail import send_mail
 
 directory = os.path.join(settings.BASE_DIR, 'static', 'webapp', 'assets', 'user')
+
+
+def get_locations(id, parent_id):
+    api_url = "https://member.lazada.vn/locationtree/api/getSubAddressList?countryCode=VN"
+    if parent_id:
+        api_url += f"&addressId={parent_id}"
+    response = requests.get(api_url)
+    locations = response.json().get('module', [])
+    for location in locations:
+        if location.get('id') == id:
+            return location.get('name')
+    return None
 
 
 def upload_image_to_cloudflare(image_file, request):
@@ -107,6 +121,8 @@ def register(request):
 
 
 def login(request):
+    if request.user.is_authenticated:
+        return render(request, 'homePage/home.html')
     if request.method == "POST":
         email = request.POST['email']
         password = request.POST['password']
@@ -117,7 +133,7 @@ def login(request):
             timezone.activate(settings.TIME_ZONE)
             user_login = Account.objects.get(email=email)
             user_login.last_login = timezone.now()
-            print(timezone.now())
+            user_login.is_login = True
             user_login.save()
             try:
                 cart = Cart.objects.get(cart_id=_cart_id(request))
@@ -183,6 +199,9 @@ def login(request):
 
 @login_required(login_url='login')
 def logout(request):
+    user_login = Account.objects.get(email=request.user.email)
+    user_login.is_login = False
+    user_login.save()
     auth.logout(request)
     messages.success(request, 'you are logged out.')
     return redirect('login')
@@ -209,7 +228,7 @@ def activate(request, uidb64, token):
 @login_required(login_url='login')
 def dashboard(request):
     user = request.user
-    orders = Order.objects.order_by('-created_at').filter(user_id=user.id, is_ordered=True)
+    orders = Order.objects.order_by('-created_at').filter(user_id=user.id)
     orders_count = orders.count()
     product_ordered = OrderProduct.objects.filter(user_id=user.id).order_by('-created_at')
 
@@ -219,7 +238,6 @@ def dashboard(request):
         'user': user,
         'product_ordered': product_ordered,
         'orders': orders,
-
     }
     return render(request, 'accounts/dashboard.html', context)
 
@@ -327,11 +345,8 @@ def changePassword(request):
 @login_required(login_url='login')
 def user_profile(request):
     try:
-        # userprofile  = get_object_or_404(UserProfile, user=request.user)
         userprofile = UserProfile.objects.get(user=request.user)
-
     except ObjectDoesNotExist:
-        # created new userprofile if not exist for the user
         userprofile = UserProfile.objects.create(user=request.user)
         userprofile.save()
 
@@ -340,21 +355,54 @@ def user_profile(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile = profile_form.save()
-            if 'profile_picture' in request.FILES:
-                image_file = request.FILES['profile_picture']
-                try:
-                    image_url = upload_image_to_cloudflare(image_file)
-                    profile.profile_picture = image_url
-                    profile.save()
-                    messages.success(request, 'Image uploaded to Cloudflare successfully.')
-                except Exception as e:
-                    messages.error(request, str(e))
-            messages.success(request, 'Profile updated successfully.')
-            return redirect('user_profile')
+        user = request.user
+        profile = UserProfile.objects.get(user=request.user)
+        if not request.POST.get('username'):
+            return HttpResponse('Username is required')
+        user.full_name = request.POST.get('full_name')
+        user.username = request.POST.get('username')
+        user.phone_number = request.POST.get('phone_number')
+        user.save()
 
+        date_of_birth = request.POST.get('date_of_birth')
+        if date_of_birth:
+            try:
+                datetime.strptime(date_of_birth, '%Y-%m-%d')
+                profile.date_of_birth = date_of_birth
+            except ValueError:
+                print("Incorrect date format")
+
+        profile.sex = request.POST.get('sex')
+        profile.road = request.POST.get('road')
+        profile.ward = request.POST.get('ward')
+        profile.district = request.POST.get('district')
+        profile.city = request.POST.get('city')
+        profile.bio = request.POST.get('bio')
+
+        # Xử lý file ảnh
+        if 'profile_picture' in request.FILES:
+            try:
+                image_url = upload_image_to_cloudflare(request.FILES['profile_picture'], request)
+                if image_url is not None:
+                    profile.profile_picture = image_url
+            except Exception as e:
+                messages.error(request, f"Failed to upload image: {str(e)}")
+
+        profile.save()
+
+        if user_form.is_valid() and profile_form.is_valid():
+            updated_user = user_form.save()
+            updated_userprofile = profile_form.save()
+            user_form = UserForm(instance=updated_user)
+            profile_form = UserProfileForm(instance= updated_userprofile)
+
+        context = {
+            'user_form': user_form,
+            'profile_form': profile_form,
+            'profile': user,
+            'profile_data': profile_data,
+        }
+        return render(request, 'accounts/profile.html', context)
     user_form = UserForm(instance=request.user)
     profile_form = UserProfileForm(instance=userprofile)
     context = {
@@ -368,28 +416,30 @@ def user_profile(request):
 
 @login_required(login_url='login')
 def order_details(request, order_id):
+
     order_details = OrderProduct.objects.filter(order__order_number=order_id)
     order = Order.objects.get(order_number=order_id)
+    total = 0
+    tax = 0
 
-    for i in order_details:
-        total = i.product_price * i.quantity
-        i.total = total
-
-    # tax calculating
     for item in order_details:
-        item.tax = (i.total * 2) / 100
-        total = i.total + item.tax
+        item_total = item.product_price * item.quantity
+        item.tax = (item_total * 2) / 100
+        item.total = item_total + item.tax
+        tax += item.tax
+        total += item.total
 
-    # items count
     items_count = order_details.count()
 
     context = {
         'order_detail': order_details,
+        'items_count': items_count,
         'order': order,
-        'tax': item.tax,
-        'total': i.total,
+        'tax': tax,
+        'total': total,
     }
     return render(request, 'accounts/order_details.html', context)
+
 
 
 # order cancels
@@ -399,7 +449,8 @@ def cancel_order(request, order_id):
     Payments = Payment.objects.get(order=order)
     order.order_status = 'Cancelled'
     order.save()
-    Payments.status = 'Refunded'
+    if order.is_ordered == True:
+        Payments.status = 'Refunded'
     Payments.save()
 
     # refund process of stripe
@@ -408,9 +459,6 @@ def cancel_order(request, order_id):
         refund_amount = Payments.amount_paid
         amount = int(refund_amount * 100)
 
-        client = razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
-        print(paymentId)
-        client.payment.refund(paymentId, amount, )
 
         # addning stock in product
         order_items = OrderProduct.objects.filter(order=order)
@@ -419,19 +467,18 @@ def cancel_order(request, order_id):
             product.stock += item.quantity
             product.save()
 
-    # adding quantity of product back to stock in payapal
     order_items = OrderProduct.objects.filter(order=order)
     for item in order_items:
         product = Product.objects.get(id=item.product_id)
         product.stock += item.quantity
         product.save()
 
-    # Send email to the user ( with order details )
+    current_site = get_current_site(request)
     mail_subject = 'Your order from Ekka has been cancelled.'
     message = render_to_string('accounts/order_cancel_mail.html', {
         'user': request.user,
         'order': order,
-        'url': 'http://127.0.0.1:8000/accounts/order_details/' + order.order_number
+        'url': f'http:/{current_site}/accounts/order_details/' + order.order_number
     })
     to_email = order.email
     send_email = EmailMessage(mail_subject, message, to=[to_email])

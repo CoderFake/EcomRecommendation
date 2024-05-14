@@ -5,10 +5,8 @@ from .import views
 
 
 urlpatterns = [
+    path('payment_ipn/', views.payment_ipn, name='payment_ipn'),
     path('place_order/', views.place_order, name='place_order'),
     path('', views.add_review, name='add_review'),
-    path('payments/', views.payments, name='payments'),
-    path('place_order/paymenthandler/', views.paymenthandler, name='paymenthandler'),
-    path('order_complete/', views.order_complete, name='order_complete'),
-    
+    path('payment_return/', views.payment_return, name='order_complete'),
 ] 

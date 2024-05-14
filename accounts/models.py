@@ -1,3 +1,4 @@
+import requests
 from django.db import models
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
@@ -8,7 +9,16 @@ from category.models import CategoryMain, SubCategory
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
-# Create your models here.
+def get_locations(id, parent_id):
+    api_url = "https://member.lazada.vn/locationtree/api/getSubAddressList?countryCode=VN"
+    if parent_id:
+        api_url += f"&addressId={parent_id}"
+    response = requests.get(api_url)
+    locations = response.json().get('module', [])
+    for location in locations:
+        if location.get('id') == id:
+            return location.get('name')
+    return None
 class MyAccountManager(BaseUserManager):
     def create_user(self, email, username, password=None):
         if not email:
@@ -47,6 +57,7 @@ class Account(AbstractBaseUser):
 
     # required fields for AbstractBaseUser
     date_joined = models.DateTimeField(auto_now_add=True)
+    is_login = models.BooleanField(default=False)
     last_login = models.DateTimeField(default=timezone.now)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
@@ -83,7 +94,29 @@ class UserProfile(models.Model):
         return self.user.full_name
 
     def full_address(self):
-        return f'{self.road} {self.ward} {self.district} {self.city}'
+        if self.road and self.ward and self.district and self.city:
+            return self.road + ', ' + get_locations(self.ward, self.district) + ', ' + get_locations(self.district, self.city) + ', ' + get_locations(self.city, '')
+        else:
+            return ""
+
+    def ward_name(self):
+        if self.road and self.ward and self.district and self.city:
+            return get_locations(self.ward, self.district)
+        else:
+            return ""
+
+    def district_name(self):
+        if self.road and self.ward and self.district and self.city:
+            return get_locations(self.district, self.city)
+        else:
+            return ""
+
+    def city_name(self):
+        if self.road and self.ward and self.district and self.city:
+            return get_locations(self.city, '')
+        else:
+            return ""
+
 
 
 class EventUser(models.Model):

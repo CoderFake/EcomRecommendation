@@ -166,16 +166,6 @@ USE_I18N = True
 
 USE_TZ = False
 
-
-
-
-
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
@@ -198,20 +188,14 @@ MESSAGE_TAGS = {
 }
 
 
-#email setup
-#smtp configuration
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-
-#razor pay
-RAZOR_KEY_ID = "ABCD"
-RAZOR_KEY_SECRET = "ABCD"
-
-VNPAY_RETURN_URL = 'http://localhost:8000/payment/payment_return'
+VNPAY_RETURN_URL = 'http://localhost:8000/orders/payment_return'
 VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
 VNPAY_API_URL = 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction'
 VNPAY_TMN_CODE = config('VNPAY_TMN_CODE')

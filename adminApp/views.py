@@ -1,9 +1,12 @@
-from datetime import datetime
-
+import requests
+from django.db.models import Count
+from datetime import datetime, timedelta
+from django.utils.dateparse import parse_date, parse_datetime
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
+from requests import Response
+import openpyxl
 from EcomRecomendation import settings
 from accounts.models import Account, UserProfile
 from accounts.views import upload_image_to_cloudflare
@@ -18,27 +21,48 @@ from django.http import HttpResponse, JsonResponse
 from orders.models import Order, OrderProduct, Payment
 from django.contrib import messages
 import json
+import pandas as pd
 from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
 
-def count_users_logged_in_today():
+def get_locations(id, parent_id):
+    api_url = "https://member.lazada.vn/locationtree/api/getSubAddressList?countryCode=VN"
+    if parent_id:
+        api_url += f"&addressId={parent_id}"
+    response = requests.get(api_url)
+    locations = response.json().get('module', [])
+    for location in locations:
+        if location.get('id') == id:
+            return location.get('name')
+    return None
 
-    timezone.activate(settings.TIME_ZONE)
-    today = timezone.now().date()
-    users_logged_in_today = Account.objects.filter(last_login__date__gte=today).count()
+def update_dash(request):
+    if request.method == "POST":
+        timezone.activate(settings.TIME_ZONE)
+        today = timezone.now().date()
+        users_logged_in_today = Account.objects.filter(last_login__date__gte=today).count()
+        users_logged_in_not_today = Account.objects.filter(last_login__date__lt=today, is_login=True).count()
+        daily_signins = users_logged_in_today + users_logged_in_not_today
+        daily_signup = Account.objects.filter(date_joined__date__gte=today).count()
+        daily_order = Order.objects.filter(created_at__date__gte=today).count()
+        payments = Payment.objects.filter(created_at__gte=today)
+        daily_total_order = 0
+        for payment in payments:
+            daily_total_order += payment.amount_paid
+        response = {
+            "user_signins": daily_signins,
+            "daily_signups": daily_signup,
+            "daily_order": daily_order,
+            "daily_total_order": daily_total_order
+        }
+        return JsonResponse(response, safe=False)
 
-    return users_logged_in_today
-
-# Create your views here.
 @login_required(login_url='login')
 def index(request):
     if request.user.is_superuser:
-        context ={
-            'user_signins': count_users_logged_in_today()
-        }
-        return render(request, 'adminApp/dashboard.html', context)
+        return render(request, 'adminApp/dashboard.html')
     return HttpResponse('You are not authorized to view this page')
 
 
@@ -92,12 +116,11 @@ def user_profile(request, pk):
             user.phone_number = request.POST.get('phone_number')
             user.save()
 
-            # Cập nhật UserProfile
             date_of_birth = request.POST.get('date_of_birth')
             if date_of_birth:
                 try:
-                    datetime.strptime(date_of_birth, '%Y-%m-%d')  # Validate date format
-                    profile.date_of_birth = date_of_birth  # No need to reformat
+                    datetime.strptime(date_of_birth, '%Y-%m-%d')
+                    profile.date_of_birth = date_of_birth
                 except ValueError:
                     print("Incorrect date format")
 
@@ -119,7 +142,6 @@ def user_profile(request, pk):
 
             profile.save()
 
-            # Cập nhật mật khẩu, nếu cần
             old_password = request.POST.get('old_password')
             new_password = request.POST.get('new_password')
             confirm_password = request.POST.get('confirm_password')
@@ -339,11 +361,11 @@ def product_delete(request, pk):
 # product variations based views ##############################################################
 
 @login_required(login_url='login')
-def add_variations(requst):
-    if requst.user.is_superuser:
+def add_variations(request):
+    if request.user.is_superuser:
         existing_variations = Variation.objects.all()
-        if requst.method == 'POST':
-            form = variationForm(requst.POST, requst.FILES)
+        if request.method == 'POST':
+            form = variationForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
                 return redirect('add_variations')
@@ -353,7 +375,7 @@ def add_variations(requst):
             'existing_variations': existing_variations,
             'form': form,
         }
-        return render(requst, 'AdminApp/Variations/add_variations.html', context)
+        return render(request, 'AdminApp/Variations/add_variations.html', context)
     return HttpResponse('You are not authorized to view this page')
 
 
@@ -390,6 +412,92 @@ def delete_variations(request, pk):
 
 
 # Orders based views ##############################################################
+@login_required(login_url='login')
+def download_order_report(request):
+    if request.method == 'POST' and request.user.is_superuser:
+        data = json.loads(request.body)
+        start_date = parse_datetime(data['start_date'])
+        end_date = parse_datetime(data['end_date'])
+        end_date = end_date + timedelta(days=1) - timedelta(seconds=1)
+        orders = Order.objects.filter(
+            created_at__gte=start_date,
+            created_at__lte=end_date
+        ).values(
+            'id', 'order_number', 'created_at', 'user__full_name', 'user__email',
+            'order_total', 'payment__status', 'order_status', 'phone', 'road', 'ward', 'district', 'city'
+        )
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Orders Report"
+
+        columns = ["ID", "Order Number", "Full Name", "Phone Number", "Email", "Address",
+                   "Created At", "Payment Status", "Order Status",  "Total ($)"]
+        ws.append(columns)
+
+        for order in orders:
+            address = f'{order['road']}, {get_locations(order['ward'], order['district'])}, {get_locations(order['district'], order['city'])}, {get_locations(order['city'], "")}'
+            row = [
+                order['id'], order['order_number'], order['user__full_name'], order['phone'],
+                order['user__email'], address, order['created_at'].strftime('%Y-%m-%d %H:%M:%S'), order['payment__status'],
+                order['order_status'], order['order_total']
+            ]
+            ws.append(row)
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response[
+            'Content-Disposition'] = f'attachment; filename="orders_report_{start_date.strftime("%Y%m%d")}_to_{end_date.strftime("%Y%m%d")}.xlsx"'
+        wb.save(response)
+
+        return response
+
+    return HttpResponse("Invalid request", status=400)
+
+@login_required(login_url='login')
+def order_status_data(request):
+    if request.method == 'POST' and request.user.is_superuser:
+        try:
+            data = json.loads(request.body)
+            start_date = parse_date(data.get('start_date'))
+            end_date = parse_date(data.get('end_date'))
+        except (ValueError, KeyError):
+            return HttpResponse('Invalid data', status=400)
+
+        status_color_mapping = {
+            'Accepted': '#80e1c1',
+            'Ready to ship': '#f3d676',
+            'On shipping': '#f2994a',
+            'Delivered': '#4c84ff',
+            'Cancelled': '#ff7b7b',
+            'Return': '#bb6bd9',
+        }
+
+        # Filter orders between start_date and end_date
+        queryset = Order.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        ).values('order_status').annotate(total=Count('id'))
+
+        labels = []
+        data = []
+        backgroundColor = []
+
+        for item in queryset:
+            status = item['order_status']
+            if status in status_color_mapping:
+                labels.append(status)
+                data.append(item['total'])
+                backgroundColor.append(status_color_mapping[status])
+
+        response_data = {
+            'labels': labels,
+            'data': data,
+            'backgroundColor': backgroundColor
+        }
+        return JsonResponse(response_data)
+    return HttpResponse('You are not authorized to view this page', status=403)
+
+
 @login_required(login_url='login')
 def order_list(request):
     if request.user.is_superuser:

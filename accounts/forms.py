@@ -37,12 +37,12 @@ class RegistrationForm(forms.ModelForm):
 class UserForm(forms.ModelForm):
     class Meta:
         model = Account
-        fields = ['full_name', 'email', 'phone_number']
+        fields = ['full_name', 'username', 'email', 'phone_number']
         widgets = {
-            'user_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'full_name'   : forms.TextInput(attrs={'class': 'form-control'}),
-            'email'       : forms.EmailInput(attrs={'class': 'form-control', 'readonly': 'true'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control',}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'name': 'user_name', 'placeholder': 'Username'}),
+            'full_name': forms.TextInput(attrs={'class': 'form-control','name': 'full_name', 'placeholder': 'Full Name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'readonly': 'true'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'name': 'phone', 'placeholder': 'Phone'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -56,35 +56,3 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['date_of_birth', 'sex', 'road', 'ward', 'district', 'city', 'bio', 'profile_picture']
-        widgets = {
-            'date_of_birth'  : forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
-            'sex'            : forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sex'}),
-            'road'           : forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Road'}),
-            'ward'           : forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ward'}),
-            'district'       : forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'District'}),
-            'city'           : forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
-            'bio'            : forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Bio'}),
-        }
-
-        # def clean(self):
-        #     cleaned_data = super(UserProfileForm, self).clean()
-        #     old_password = cleaned_data.get('old_password')
-        #     new_password = cleaned_data.get('new_password')
-        #     confirm_password = cleaned_data.get('confirm_password')
-        #
-        #     if new_password != confirm_password:
-        #         raise forms.ValidationError('New password does not match!')
-        #
-        #     return cleaned_data
-
-
-        
-
-
-
-
-
-
-
-
-

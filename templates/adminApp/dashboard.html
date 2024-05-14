@@ -11,7 +11,7 @@
                 <div class="col-xl-3 col-sm-6 p-b-15 lbl-card">
                     <div class="card card-mini dash-card card-1">
                         <div class="card-body">
-                            <h2 class="mb-1">{{ user_signins }}</h2>
+                            <h2 class="mb-1 user-signins"></h2>
                             <p>Daily Signins</p>
                             <span class="mdi mdi-account-arrow-left"></span>
                         </div>
@@ -20,8 +20,8 @@
                 <div class="col-xl-3 col-sm-6 p-b-15 lbl-card">
                     <div class="card card-mini dash-card card-2">
                         <div class="card-body">
-                            <h2 class="mb-1">79,503</h2>
-                            <p>Daily Visitors</p>
+                            <h2 class="mb-1 daily-signups"></h2>
+                            <p>Daily Signups</p>
                             <span class="mdi mdi-account-clock"></span>
                         </div>
                     </div>
@@ -29,7 +29,7 @@
                 <div class="col-xl-3 col-sm-6 p-b-15 lbl-card">
                     <div class="card card-mini dash-card card-3">
                         <div class="card-body">
-                            <h2 class="mb-1">15,503</h2>
+                            <h2 class="mb-1 daily-order"></h2>
                             <p>Daily Order</p>
                             <span class="mdi mdi-package-variant"></span>
                         </div>
@@ -38,7 +38,7 @@
                 <div class="col-xl-3 col-sm-6 p-b-15 lbl-card">
                     <div class="card card-mini dash-card card-4">
                         <div class="card-body">
-                            <h2 class="mb-1">$98,503</h2>
+                            <h2 class="mb-1 daily-payment"></h2>
                             <p>Daily Revenue</p>
                             <span class="mdi mdi-currency-usd"></span>
                         </div>
@@ -83,27 +83,33 @@
 
                 <div class="col-xl-4 col-md-12 p-b-15">
                     <!-- Doughnut Chart -->
-                    <div class="card card-default">
-                        <div class="card-header justify-content-center">
+                    <div class="card card-default" id="order-overview">
+                        <div class="card-header justify-content-between">
                             <h2>Orders Overview</h2>
+                            <div class="date-range-report">
+                                <input type="hidden" class="start_date" name="start_date">
+                                <input type="hidden" class="end_date" name="end_date">
+                                <span></span>
+                            </div>
                         </div>
                         <div class="card-body">
                             <canvas id="doChart"></canvas>
                         </div>
-                        <a href="#" class="pb-5 d-block text-center text-muted"><i
-                                class="mdi mdi-download mr-2"></i> Download overall report</a>
+                        <a href="" id="order-overview-download"><span class="pb-5 d-block text-center text-muted"><i
+                                class="mdi mdi-download mr-2"></i> Download overall report</span></a>
+                        
                         <div class="card-footer d-flex flex-wrap bg-white p-0">
                             <div class="col-6">
                                 <div class="p-20">
                                     <ul class="d-flex flex-column justify-content-between">
                                         <li class="mb-2"><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
-                                                            style="color: #4c84ff"></i>Order Completed
+                                                            style="color:#80e1c1"></i>Accepted
                                         </li>
                                         <li class="mb-2"><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
-                                                            style="color: #80e1c1 "></i>Order Unpaid
+                                                            style="color:#f3d676"></i>Ready to ship
                                         </li>
                                         <li><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
-                                               style="color: #ff7b7b "></i>Order returned
+                                               style="color: #f2994a"></i> On shipping
                                         </li>
                                     </ul>
                                 </div>
@@ -112,13 +118,13 @@
                                 <div class="p-20">
                                     <ul class="d-flex flex-column justify-content-between">
                                         <li class="mb-2"><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
-                                                            style="color: #8061ef"></i>Order Pending
+                                                            style="color: #4c84ff"></i>Delivered
                                         </li>
                                         <li class="mb-2"><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
-                                                            style="color: #ffa128"></i>Order Canceled
+                                                            style="color:#ff7b7b"></i>Canceled
                                         </li>
                                         <li><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
-                                               style="color: #7be6ff"></i>Order Broken
+                                               style="color: #bb6bd9"></i>Return
                                         </li>
                                     </ul>
                                 </div>
@@ -174,24 +180,19 @@
                     <!-- World Chart -->
                     <div class="card card-default" id="analytics-country">
                         <div class="card-header justify-content-between">
-                            <h2>Purchased by Country</h2>
-                            <div class="date-range-report ">
+                            <h2>Purchased by City</h2>
+                            <div class="date-range-report">
                                 <span></span>
                             </div>
                         </div>
-                        <div class="card-body vector-map-world-2">
+                        <div class="card-body vector-map-world-2" style="height:550px;">
                             <div id="regions_purchase" style="height: 100%; width: 100%;"></div>
                         </div>
                         <div class="border-top mt-3">
                             <div class="row no-gutters">
-                                <div class="col-lg-6">
+                                <div class="col-lg-12">
                                     <div class="world-data-chart border-bottom pt-15px pb-15px">
                                         <canvas id="hbar1" class="chartjs"></canvas>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="world-data-chart pt-15px pb-15px">
-                                        <canvas id="hbar2" class="chartjs"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -719,7 +720,41 @@
                     </div>
                 </div>
             </div>
-        </div> <!-- End Content -->
-    </div> <!-- End Content Wrapper -->
+        </div> 
+    </div> 
+{% endblock %}
+{% block jsblock %}
+    <script>
+        $(document).ready(function (){
+            function getCSRFToken() {
+                return $('meta[name="csrf-token"]').attr('content');
+            }
+            function update(){
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    url: "{% url 'update_dash' %}",
+                    dataType: 'json',
+                    success: function(response){
+                        $('.user-signins').text(response.user_signins);
+                        $('.daily-signups').text(response.daily_signups);
+                        $('.daily-order').text(response.daily_order);
+                        $('.daily-payment').text(response.daily_total_order);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error: " + error);
+                        console.log("Status: " + status);
+                        console.log(xhr.responseText);
+                    }
+                })
+            }
+            update();
+            setTimeout(function (){
+                update();
+            }, 60000)
+        })
+    </script>
 {% endblock %}
 			

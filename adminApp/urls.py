@@ -5,6 +5,13 @@ urlpatterns = [
     path('', views.index, name='admin_dashboard'),
     path('user_infor', views.user_infor, name='user_infor'),
 
+    #dashboard overview
+    path('api/update_dash/', views.update_dash, name='update_dash'),
+    path('api/order-status/', views.order_status_data, name='order-status-data'),
+
+    #data export
+    path('api/download-order-report/', views.download_order_report, name='download-order-report'),
+
     #user based urls 
     path('user_list', views.user_list, name='user_list'),
     path('user_profile/<int:pk>', views.user_profile, name='user_profile'),

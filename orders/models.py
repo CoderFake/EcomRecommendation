@@ -1,8 +1,18 @@
+import requests
 from django.db import models
 from accounts.models import Account
 from store.models import Product, Variation
 
-# Create your models here.
+def get_locations(id, parent_id):
+    api_url = "https://member.lazada.vn/locationtree/api/getSubAddressList?countryCode=VN"
+    if parent_id:
+        api_url += f"&addressId={parent_id}"
+    response = requests.get(api_url)
+    locations = response.json().get('module', [])
+    for location in locations:
+        if location.get('id') == id:
+            return location.get('name')
+    return None
 
 class Payment(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
@@ -29,12 +39,11 @@ class Order(models.Model):
         ('On shipping', 'On shipping'),
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
-        ('return', 'return'),
-        ('Refunded', 'Refunded'),
+        ('Return', 'Return')
     )
 
     user = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
-    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, blank=True, null=True)
+    payment = models.OneToOneField(Payment, related_name="order", on_delete=models.SET_NULL, blank=True, null=True)
     order_number = models.CharField(max_length=20)
     full_name = models.CharField(max_length=100, blank=True, null=True)
     phone = models.CharField(max_length=20)
@@ -59,7 +68,7 @@ class Order(models.Model):
         return self.full_name + ' ' + self.order_number
 
     def address(self):
-        return self.road + ', ' + self.ward + ', ' + self.district + ', ' + self.city
+        return self.road + ', ' + get_locations(self.ward, self.district) + ', ' + get_locations(self.district, self.city) + ', ' + get_locations(self.city, '')
     
     def date(self):
         return self.created_at.strftime('%d %m %Y')
@@ -80,6 +89,7 @@ class OrderProduct(models.Model):
 
     def __str__(self):
         return self.product.product_name
+
 
 class Review(models.Model):
     order_product = models.ForeignKey(OrderProduct, on_delete=models.CASCADE, related_name='reviews')

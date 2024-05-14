@@ -140,34 +140,27 @@
                                <div class="col-sm-12 mb-6">
                                    <div class="ec-product-inner p-4">
                                        <div class="ec-pro-image-outer">
-                                           
-                                               <a href="product-left-sidebar.html" class="image">
-                                                   <img class="main-image"
-                                                       src={{cart_item.product.images.url }}
-                                                       alt="Product"  style="float:right; height:120px; width:120px; border-radius:15px;"/>
-                                                   {% comment %} <img class="hover-image"
-                                                       src="{% static 'webapp/assets/images/product-image/1_2.jpg' %}"
-                                                       alt="Product" /> {% endcomment %}
+                                               <a href="{{ cart_item.category_main.get_url }}{{ cart_item.sub_category.slug }}/{{ cart_item.product.slug }}" class="image">
+                                                   {% for image in cart_item.product.images.all %}
+                                                       {% if image.image_type == "default" %}
+                                                            <img class="main-image" src="{{image.image_url }}"
+                                                            alt=""  style="float:right; height:120px; width:120px; border-radius:15px;"/>
+                                                       {% endif %} 
+                                                   {% endfor %}
                                                </a>
                                           
                                        </div>
                                        <div class="ec-pro-content">
-                                           <h5 class="ec-pro-title"><a href="product-left-sidebar.html"><b>{{cart_item.product.product_name }}</b></a></h5>
-                                           <div>
-                                           <b>Quantity</b>: {{cart_item.quantity }}
-                                           </div>
-                                           {% if cart_item.variations.all  %}
-                                            {% for item in cart_item.variations.all%}
-                                            <div>
-                                           <b>{{item.Variation_category}}</b> : {{item.Variation_value}}<br>
-                                           
-                                            </div>
-                                           {% endfor %}
-                                           {% endif %}
+                                           <h5 class="ec-pro-title"><a href="{{ cart_item.category_main.get_url }}{{ cart_item.sub_category.slug }}/{{ cart_item.product.slug }}"><b>{{cart_item.product.product_name }}</b></a></h5>
+                                           <div><b>Quantity</b>: {{cart_item.quantity }}</div>
+                                            {% if cart_item.variations.all  %}
+                                                {% for item in cart_item.variations.all%}
+                                                    <div><b>{{item.Variation_category}}</b> : {{item.Variation_value}}<br></div>
+                                                {% endfor %}
+                                            {% endif %}
                                        
                                      
                                        <div class="ec-price">
-                                        
                                            <span class="old-price">{{cart_item.product.mrp_price}}$</span> 
                                            <span class="new-price">{{cart_item.product.price }}$</span>
                                            
@@ -176,13 +169,11 @@
                                </div>
                                 {% endfor %}
                                </div>
-                    <!-- Sidebar Summary Block -->
                     <div class="ec-sidebar-block">
                         <div class="ec-sb-title">
                             <h3 class="ec-sidebar-title">Summary</h3>
                         </div>
-                        
-
+  
                         <div class="ec-sb-block-content">
                             <div class="ec-cart-summary-bottom">
                                 <div class="ec-cart-summary">
@@ -254,8 +245,7 @@
     var orderID        = {{order.order_number}}
     var payment_method = "Paypal"
     var redirect_url   = "{% url 'order_complete' %}"
-
-    // Render the PayPal button into #paypal-button-container
+    
     paypal.Buttons({
 
         // Set up the transaction 
@@ -269,12 +259,9 @@
             });
         },
 
-        // Finalize the transaction
         onApprove: function(data, actions) {
             return actions.order.capture().then(function(details) {
-                // Successful capture! For demo purposes:
-                //console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                // var transaction = orderData.purchase_units[0].payments.captures[0];
+
                 console.log(details);
                 sendData();
                 function sendData(){
