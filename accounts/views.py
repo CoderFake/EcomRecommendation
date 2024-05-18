@@ -16,7 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from orders.models import Order, OrderProduct, Payment
 from store.models import Product
-from accounts.models import Account, UserProfile
+from accounts.models import Account, UserProfile, EventUser
 import razorpay
 from orders.models import Payment
 from django.contrib.sites.shortcuts import get_current_site
@@ -135,6 +135,13 @@ def login(request):
             user_login.last_login = timezone.now()
             user_login.is_login = True
             user_login.save()
+
+            event = EventUser(
+                user_id=user.id,
+                event_type='login'
+            )
+            event.save()
+
             try:
                 cart = Cart.objects.get(cart_id=_cart_id(request))
                 is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
@@ -202,6 +209,13 @@ def logout(request):
     user_login = Account.objects.get(email=request.user.email)
     user_login.is_login = False
     user_login.save()
+
+    event = EventUser(
+        user_id=request.user.id,
+        event_type='logout'
+    )
+    event.save()
+
     auth.logout(request)
     messages.success(request, 'you are logged out.')
     return redirect('login')
@@ -426,8 +440,9 @@ def order_details(request, order_id):
         item_total = item.product_price * item.quantity
         item.tax = (item_total * 2) / 100
         item.total = item_total + item.tax
-        tax += item.tax
+        tax += round(item.tax, 2)
         total += item.total
+        total = round(total, 2)
 
     items_count = order_details.count()
 

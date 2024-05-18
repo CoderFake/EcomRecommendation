@@ -18805,6 +18805,37 @@ h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
   position: relative;
 }
 
+.file-input-image {
+    position: absolute;
+    top : -10000px;
+    z-index: -100;
+}
+.image-search{
+  position: absolute;
+  top: 0;
+  left: auto;
+  right: 45px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 25px;
+  height: 100%;
+  background: transparent;
+  color: #555;
+  font-size: 16px;
+  border-radius: 0px;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  outline: 0;
+  padding: 0;
+}
+
 .submit {
   position: absolute;
   top: 0;

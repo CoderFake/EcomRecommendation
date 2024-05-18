@@ -63,6 +63,7 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     total_items = models.IntegerField(default=0)
     order_status = models.CharField(max_length=50, choices=ORDER_STATUS, default='Accepted')
+    is_view = models.BooleanField(default=True)
 
     def __str__(self):
         return self.full_name + ' ' + self.order_number

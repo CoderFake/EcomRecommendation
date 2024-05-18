@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
-from accounts.models import UserProfile
+from accounts.models import UserProfile, EventUser
 from store.models import Product as Prouct_modle, Variation
 from .models import Cart, CartItem
 from django.http import HttpResponse, JsonResponse
@@ -43,6 +43,21 @@ def add_cart(request, product_id):
     if current_user.is_authenticated:
         product_variation = []
         if request.method == 'POST':
+            event = EventUser.objects.filter(user_id=request.user.id, product_id = product_id, event_type='cart')
+            if event:
+                event.frequency += 1
+                event.event_timestamp = timezone.now()
+                event.save()
+            else:
+                user_event = EventUser(
+                    user_id=request.user.id,
+                    product_id=product_id,
+                    event_type='cart',
+                    frequency=1,
+                    event_timestamp=timezone.now()
+                )
+                user_event.save()
+
             for item in request.POST:
                 key = item
                 value = request.POST[key]

@@ -13,6 +13,7 @@ class Product(models.Model):
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, null=True, blank=True, related_name='products')
     mrp_price = models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
     rating = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(5)])
     short_desp = models.CharField(max_length=150)
     description = models.TextField(blank=True)

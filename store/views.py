@@ -1,138 +1,38 @@
+import io
+import logging
 import os
-import pandas as pd
-import numpy as np
-from django.conf import settings
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.decorators.csrf import csrf_exempt
-
-from store.models import Product
-from accounts.models import EventUser
-from category.models import CategoryMain, SubCategory
-from carts.views import _cart_id
-from carts.models import CartItem as cart_item
-from orders.models import Order
-from django.http import HttpResponse
-from django.db.models import Q, Sum
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from orders.models import OrderProduct
-from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler
-from django.utils import timezone
 from datetime import timedelta
-import joblib
 
-# MODEL_DIR = os.path.join(settings.BASE_DIR, 'static', 'model', 'recom_product')
-#
-# user_model_path = os.path.join(MODEL_DIR, 'user_kmeans_model.pkl')
-# user_model = joblib.load(user_model_path)
-# product_model_path = os.path.join(MODEL_DIR, 'product_kmeans_model.pkl')
-# product_model = joblib.load(product_model_path)
-#
-# day_encoder_path = os.path.join(MODEL_DIR, 'le_day_type.pkl')
-# time_encoder_path = os.path.join(MODEL_DIR, 'le_time_of_day.pkl')
-# frequency_scaler_path = os.path.join(MODEL_DIR, 'frequency_scaler.pkl')
-#
-# brand_name_encoder_path = os.path.join(MODEL_DIR, 'brand_name.pkl')
-# gender_encoder_path = os.path.join(MODEL_DIR, 'gender.pkl')
-# season_encoder_path = os.path.join(MODEL_DIR, 'season.pkl')
-# user_scaler_path = os.path.join(MODEL_DIR, 'user_scaler.pkl')
-# product_scaler_path = os.path.join(MODEL_DIR, 'product_scaler.pkl')
-# product_matrix_path = os.path.join(MODEL_DIR, 'product_matrix.csv')
-# cluster_matrix_path = os.path.join(MODEL_DIR, 'cluster_interaction_matrix.csv')
-#
-# day_encoder = joblib.load(day_encoder_path)
-# time_encoder = joblib.load(time_encoder_path)
-#
-# brand_name_encoder = joblib.load(brand_name_encoder_path)
-# gender_encoder = joblib.load(gender_encoder_path)
-# season_encoder = joblib.load(season_encoder_path)
-# frequency_scaler = joblib.load(frequency_scaler_path)
-# user_scaler = joblib.load(user_scaler_path)
-# product_scaler = joblib.load(product_scaler_path)
-# product_matrix = pd.read_csv(product_matrix_path)
-# interaction_matrix = pd.read_csv(cluster_matrix_path)
-#
-#
-# def calculate_total_spent_by_user(user_id):
-#
-#     completed_orders = Order.objects.filter(user_id=user_id, status='Completed')
-#     total_spent = completed_orders.aggregate(total_amount_spent=Sum('order_total'))
-#     if total_spent.get('total_amount_spent') is None:
-#         return 0
-#     return 0
-# def find_similar_products(user_id):
-#     event_count = EventUser.objects.filter().count()
-#     if event_count < 8:
-#         return False
-#     latest_events = EventUser.objects.filter().order_by('-event_timestamp')
-#
-#     total_spent = calculate_total_spent_by_user(user_id)
-#
-#     data = pd.DataFrame(list(latest_events.values('event_type', 'event_timestamp', 'frequency', 'rating', 'product_id')))
-#     data['event_timestamp'] = pd.to_datetime(data['event_timestamp'])
-#
-#     # Tính toán các đặc điểm cần thiết
-#     data['time_of_day'] = pd.cut(data['event_timestamp'].dt.hour, bins=[0, 3, 6, 9, 12, 15, 18, 21, 24],
-#                                  labels=['0-3', '3-6', '6-9', '9-12', '12-15', '15-18', '18-21', '21-24'], right=False)
-#     data['day_type'] = data['event_timestamp'].dt.day_name().apply(
-#         lambda x: 'weekend' if x in ['Saturday', 'Sunday'] else 'normal_day')
-#     data['day_type_encoded'] = day_encoder.transform(data['day_type'])
-#     data['time_of_day_encoded'] = time_encoder.transform(data['time_of_day'])
-#     data['frequency_scaled'] = frequency_scaler.transform(data[['frequency']])
-#     features_aggregated = data[['time_of_day_encoded', 'day_type_encoded', 'frequency_scaled']].mean().to_frame().T
-#     features_aggregated['user_id'] = user_id
-#
-#     views = data[data['event_type'] == 'view'].shape[0]
-#     pays = data[data['event_type'] == 'pay'].shape[0]
-#     if views > 0:
-#         purchase_ratio = pays / views
-#     else:
-#         purchase_ratio = 0
-#
-#     average_rating = data['rating'].mean()
-#     product_diversity = data['product_id'].nunique()
-#
-#     features = pd.DataFrame({
-#         'total_spent': [total_spent],
-#         'purchase_ratio': [purchase_ratio],
-#         'average_rating': [average_rating],
-#         'product_diversity': [product_diversity],
-#         'user_id': [user_id]
-#     })
-#     print(features)
-#
-#     features[['total_spent_scaled', 'purchase_ratio_scaled']] = user_scaler.transform(features[['total_spent', 'purchase_ratio']])
-#     features['user_id'] = user_id
-#     features_combined = features.merge(features_aggregated, on='user_id', how='left')
-#
-#     features_combined.replace([np.inf, -np.inf], np.nan, inplace=True)
-#     features_combined.dropna(inplace=True)
-#
-#     user_clusters = user_model.predict(features_combined.drop(columns=["user_id"]))
-#     recom_user_cluster = user_clusters[0]
+import faiss
+import numpy as np
+from PIL import Image
+from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db import connections
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image as keras_image
 
-    # user_events = EventUser.objects.filter(user_id=user_id).order_by('-event_timestamp')[:20]
-    # product_ids = user_events.values_list('product_id', flat=True)
-    # products = Product.objects.filter(id__in=product_ids)
-    # products = list(products.values())
-    # filtered_products = [{k: v for k, v in product.items() if k != 'description'} for product in products]
-    # product_data = pd.DataFrame(filtered_products)
-    # selected_columns = ['brand_name', 'gender', 'price', 'rating', 'season', 'category_main_id', 'sub_category_id']
-    # product_features = product_data[selected_columns]
-    #
-    # product_features['brand_name'] = brand_name_encoder.transform(product_features['brand_name'])
-    # product_features['gender'] = gender_encoder.transform(product_features['gender'])
-    # product_features['season'] = season_encoder.transform(product_features['season'])
-    # product_features[['price', 'rating', 'category_main_id', 'sub_category_id']] = product_scaler.transform(
-    #     product_features[['price', 'rating', 'category_main_id', 'sub_category_id']])
+from accounts.models import EventUser
+from carts.models import CartItem as cart_item
+from carts.views import _cart_id
+from category.models import CategoryMain, SubCategory
+from orders.models import OrderProduct
+from store.models import Product
+from asgiref.sync import sync_to_async, async_to_sync
 
-    # user_product_clusters = product_model.predict(product_features)
-    # recommended_cluster = interaction_matrix.loc[recom_user_cluster].idxmax()
-    # similar_products_ids = product_matrix[product_matrix['product_cluster'] == recommended_cluster]['product_id']
-    # similar_products = Product.objects.filter(id__in=similar_products_ids, is_available=True).order_by('-rating')
-    #
-    # return similar_products
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
+def api_product(request):
+    products = Product.objects.all().values()
+    products_list = list(products)
+    return JsonResponse(products_list, safe=False)
 def product_session(request):
     if request.method == 'POST' and 'product_slug' in request.POST:
         product = get_object_or_404(Product, slug=request.POST.get('product_slug', ''))
@@ -145,7 +45,6 @@ def product_session(request):
                                                  event_timestamp__gte=time_threshold).first()
 
                 if event:
-                    # Nếu có sự kiện, tăng frequency và cập nhật timestamp
                     event.frequency = (event.frequency or 0) + 1
                     event.event_timestamp = timezone.now()
                     event.save()
@@ -279,8 +178,8 @@ def substore(request, category_slug=None, sub_category_slug=None):
                 '-rating')
             produ_count = products.count()
 
-        paginator = Paginator(products, 100)  # Hiển thị 100 sản phẩm trên mỗi trang
-        page = request.GET.get('page')  # lấy số trang từ query parameters
+        paginator = Paginator(products, 100)
+        page = request.GET.get('page')
         try:
             page_obj = paginator.page(page)
         except PageNotAnInteger:
@@ -334,8 +233,7 @@ def product_detail(request, category_slug=None, sub_category_slug=None, product_
             Q(brand_name=product.brand_name),
             Q(gender=product.gender),
             Q(season=product.season),
-            Q(rating=5) | Q(rating=4)
-        ).exclude(id=product.id).distinct()[:8]
+        ).exclude(id=product.id).distinct().order_by('-rating')[:8]
 
     context = {
         'product': product,
@@ -347,13 +245,103 @@ def product_detail(request, category_slug=None, sub_category_slug=None, product_
     return render(request, 'store/product_detail.html', context)
 
 
+# Hàm để lấy embedding của ảnh
+def get_embedding(model, img_bytes):
+    try:
+        img = Image.open(img_bytes)
+        img = img.convert('RGB')
+        img = img.resize((224, 224))  # Kích thước đầu vào của mô hình
+        x = keras_image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        x = preprocess_input(x)
+        embedding = model.predict(x).reshape(-1)
+        return embedding
+    except Exception as e:
+        logging.error(f"Error processing image: {e}")
+        return None
+
+# Hàm để chuẩn hóa embedding
+def normalize_embedding(embedding):
+    norm = np.linalg.norm(embedding)
+    return embedding / norm
+
+MODEL_IMAGE_DIR = os.path.join(settings.BASE_DIR, 'static', 'model', 'recom_search_image')
+embedding_model_path = os.path.join(MODEL_IMAGE_DIR, 'embedding_model.h5')
+faiss_path = os.path.join(MODEL_IMAGE_DIR, 'faiss_index.bin')
+
+# Hàm để lấy embedding của ảnh
+def get_embedding(model, img_bytes):
+    try:
+        img = Image.open(img_bytes)
+        img = img.convert('RGB')
+        img = img.resize((224, 224))  # Kích thước đầu vào của mô hình
+        x = keras_image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        x = preprocess_input(x)
+        embedding = model.predict(x).reshape(-1)
+        return embedding
+    except Exception as e:
+        logging.error(f"Error processing image: {e}")
+        return None
+
+
+def normalize_embedding(embedding):
+    norm = np.linalg.norm(embedding)
+    return embedding / norm
+
+
+MODEL_IMAGE_DIR = os.path.join(settings.BASE_DIR, 'static', 'model', 'recom_search_image')
+
+embedding_model_path = os.path.join(MODEL_IMAGE_DIR, 'embedding_model.h5')
+faiss_path = os.path.join(MODEL_IMAGE_DIR, 'faiss_index.bin')
+
+@sync_to_async
+def fetch_image_ids(faiss_ids):
+    with connections['image_embeddings'].cursor() as cursor:
+        placeholders = ','.join(['%s'] * len(faiss_ids))
+        query = f"SELECT image_id FROM embeddings WHERE faiss_id IN ({placeholders})"
+        cursor.execute(query, faiss_ids)
+        return [row[0] for row in cursor.fetchall()]
+
+def chunked_iterable(iterable, size):
+    for i in range(0, len(iterable), size):
+        yield iterable[i:i + size]
+
 def search(request):
-    if 'keyword' in request.GET:
-        keyword = request.GET['keyword']
-        products_list = Product.objects.filter(Q(slug__icontains=keyword) | Q(description__icontains = keyword)).order_by('-rating')
+    if request.method == 'POST':
+        products_list = []
+        if 'image' in request.FILES:
+            image_file = request.FILES['image']
+
+            # Chuyển file upload thành một hình ảnh mà không cần lưu tạm thời
+            img_bytes = io.BytesIO(image_file.read())
+
+            model = load_model(embedding_model_path)
+            index = faiss.read_index(faiss_path)
+
+            embedding = get_embedding(model, img_bytes)
+            if embedding is None:
+                return redirect('store')  # Hoặc xử lý lỗi theo cách khác
+
+            normalized_embedding = normalize_embedding(embedding)
+
+            D, I = index.search(np.array([normalized_embedding], dtype=np.float32), 100)
+
+            faiss_ids = I[0].tolist()
+            product_ids = []
+            for chunk in chunked_iterable(faiss_ids, 10):
+                product_ids += async_to_sync(fetch_image_ids)(chunk)
+
+            products_list = Product.objects.filter(id__in=product_ids)
+            print(f"Found {len(products_list)} products for the uploaded image.")
+
+        elif 'keyword' in request.POST:
+            keyword = request.POST['keyword']
+            products_list = Product.objects.filter(Q(slug__icontains=keyword) | Q(description__icontains=keyword)).order_by('-rating')
+
         products_list = list(products_list)
         produ_count = len(products_list)
-        paginator = Paginator(products_list, 100)  # Sử dụng danh sách sản phẩm cho phân trang
+        paginator = Paginator(products_list, 100)
         page = request.GET.get('page', 1)
 
         try:
@@ -379,4 +367,3 @@ def search(request):
         return render(request, 'store/store.html', context)
     else:
         return redirect('store')
-

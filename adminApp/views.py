@@ -1,6 +1,10 @@
 import requests
-from django.db.models import Count
+from django.contrib.sites.shortcuts import get_current_site
+from django.db.models import Count, Sum
 from datetime import datetime, timedelta
+
+from django.db.models.functions import ExtractHour
+from django.forms import model_to_dict
 from django.utils.dateparse import parse_date, parse_datetime
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -8,7 +12,7 @@ from django.utils.decorators import method_decorator
 from requests import Response
 import openpyxl
 from EcomRecomendation import settings
-from accounts.models import Account, UserProfile
+from accounts.models import Account, UserProfile, EventUser
 from accounts.views import upload_image_to_cloudflare
 from django.shortcuts import redirect
 from category.models import CategoryMain, SubCategory
@@ -47,17 +51,18 @@ def update_dash(request):
         daily_signins = users_logged_in_today + users_logged_in_not_today
         daily_signup = Account.objects.filter(date_joined__date__gte=today).count()
         daily_order = Order.objects.filter(created_at__date__gte=today).count()
-        payments = Payment.objects.filter(created_at__gte=today)
+        orders = Order.objects.filter(created_at__gte=today, is_ordered=True)
         daily_total_order = 0
-        for payment in payments:
-            daily_total_order += payment.amount_paid
+        for order in orders:
+            daily_total_order += order.payment.amount_paid
         response = {
             "user_signins": daily_signins,
             "daily_signups": daily_signup,
             "daily_order": daily_order,
-            "daily_total_order": daily_total_order
+            "daily_total_order": round(daily_total_order, 2)
         }
         return JsonResponse(response, safe=False)
+
 
 @login_required(login_url='login')
 def index(request):
@@ -194,6 +199,59 @@ def user_unblock(request, pk):
         user.save()
         return redirect('user_list')
     return HttpResponse('You are not authorized to view this page')
+
+
+@login_required(login_url='login')
+def get_login_frequency(request):
+    if request.method == 'POST' and request.user.is_superuser:
+        try:
+            data = json.loads(request.body)
+            start_date = parse_datetime(data['start_date'])
+            end_date = parse_datetime(data['end_date'])
+            end_date = end_date + timedelta(days=1) - timedelta(seconds=1)
+        except (ValueError, KeyError):
+            return JsonResponse({'error': 'Invalid data'}, status=400)
+
+        events = EventUser.objects.filter(
+            event_timestamp__range=[start_date, end_date],
+            event_type='login'
+        ).annotate(hour=ExtractHour('event_timestamp')).values('hour').annotate(count=Count('id')).order_by('hour')
+
+        data = [0] * 12
+        for event in events:
+            hour_index = event['hour'] // 2
+            if hour_index < 12:
+                data[hour_index] += event['count']
+
+        return JsonResponse({'data': data})
+    return HttpResponse('You are not authorized to view this page')
+
+
+@login_required(login_url='login')
+def get_user_acquisition(request):
+    if request.method == 'POST' and request.user.is_superuser:
+        data = json.loads(request.body)
+        start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
+        end_date = datetime.strptime(data['end_date'], '%Y-%m-%d') + timedelta(days=1)
+
+        events = EventUser.objects.filter(
+            event_timestamp__range=[start_date, end_date],
+            event_type__in=['view', 'cart', 'pay']  # Chỉ xử lý các sự kiện này
+        ).annotate(hour=ExtractHour('event_timestamp')).values('hour', 'event_type').annotate(count=Count('id')).order_by('hour')
+
+        result = {
+            'View': [0]*12, 'Cart': [0]*12, 'Pay': [0]*12
+        }
+
+        for event in events:
+            hour_index = event['hour'] // 2
+            event_type = event['event_type'].capitalize()
+            if event_type in result:
+                result[event_type][hour_index] += 1
+
+        return JsonResponse(result)
+    else:
+        return HttpResponse('You are not authorized to view this page', status=403)
 
 
 # User based views ends here ##############################################################
@@ -453,6 +511,144 @@ def download_order_report(request):
 
     return HttpResponse("Invalid request", status=400)
 
+
+@login_required(login_url='login')
+def export_payments_to_excel(request):
+    if request.method == 'POST' and request.user.is_superuser:
+        try:
+            data = json.loads(request.body)
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+
+            if not start_date or not end_date:
+                return JsonResponse({'error': 'Missing start_date or end_date'}, status=400)
+
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+
+        except ValueError as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+        totals = {}
+
+        payments = Payment.objects.filter(
+            order__created_at__range=[start_date, end_date],
+            order__is_ordered=True
+        ).values('order__city', 'amount_paid')
+
+        for payment in payments:
+            city_name = payment['order__city']
+            if city_name:
+                if city_name not in totals:
+                    totals[city_name] = 0
+                totals[city_name] += payment['amount_paid']
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Payments by City"
+
+        ws.append(["City", "Revenue"])
+
+        for city, total in totals.items():
+            ws.append([get_locations(city, ''), total])
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="payments_by_city.xlsx"'
+
+        wb.save(response)
+
+        return response
+
+    return HttpResponse('You are not authorized to view this page', status=403)
+
+
+def get_order_stats(request):
+    if request.method == 'POST' and request.user.is_superuser:
+        data = json.loads(request.body)
+        start_date = parse_date(data.get('start_date'))
+        end_date = parse_date(data.get('end_date'))
+        period = data.get('period')
+
+        orders = Order.objects.filter(created_at__date__range=[start_date, end_date])
+
+        response_data = {
+            'labels': [],
+            'accepted': [],
+            'ready_to_ship': [],
+            'on_shipping': [],
+            'delivered': [],
+            'cancelled': [],
+            'returned': []
+        }
+
+        if period == 'hour':
+            for hour in range(24):
+                start_time = datetime.combine(start_date, datetime.min.time()) + timedelta(hours=hour)
+                end_time = start_time + timedelta(hours=1)
+                response_data['labels'].append(f"{hour:02d}:00-{hour + 1:02d}:00")
+                response_data['accepted'].append(
+                    orders.filter(created_at__time__range=[start_time.time(), end_time.time()],
+                                  order_status='Accepted').count())
+                response_data['ready_to_ship'].append(
+                    orders.filter(created_at__time__range=[start_time.time(), end_time.time()],
+                                  order_status='Ready to ship').count())
+                response_data['on_shipping'].append(
+                    orders.filter(created_at__time__range=[start_time.time(), end_time.time()],
+                                  order_status='On shipping').count())
+                response_data['delivered'].append(
+                    orders.filter(created_at__time__range=[start_time.time(), end_time.time()],
+                                  order_status='Delivered').count())
+                response_data['cancelled'].append(
+                    orders.filter(created_at__time__range=[start_time.time(), end_time.time()],
+                                  order_status='Cancelled').count())
+                response_data['returned'].append(
+                    orders.filter(created_at__time__range=[start_time.time(), end_time.time()],
+                                  order_status='Return').count())
+
+        elif period == 'day':
+            for day in range((end_date - start_date).days + 1):
+                current_date = start_date + timedelta(days=day)
+                response_data['labels'].append(current_date.strftime('%d %b'))
+                response_data['accepted'].append(
+                    orders.filter(created_at__date=current_date, order_status='Accepted').count())
+                response_data['ready_to_ship'].append(
+                    orders.filter(created_at__date=current_date, order_status='Ready to ship').count())
+                response_data['on_shipping'].append(
+                    orders.filter(created_at__date=current_date, order_status='On shipping').count())
+                response_data['delivered'].append(
+                    orders.filter(created_at__date=current_date, order_status='Delivered').count())
+                response_data['cancelled'].append(
+                    orders.filter(created_at__date=current_date, order_status='Cancelled').count())
+                response_data['returned'].append(
+                    orders.filter(created_at__date=current_date, order_status='Return').count())
+
+        elif period == 'month':
+            for month in range(start_date.month, end_date.month + 1):
+                month_start_date = start_date.replace(day=1, month=month)
+                month_end_date = (month_start_date + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+                response_data['labels'].append(month_start_date.strftime('%B'))
+                response_data['accepted'].append(
+                    orders.filter(created_at__date__range=[month_start_date, month_end_date],
+                                  order_status='Accepted').count())
+                response_data['ready_to_ship'].append(
+                    orders.filter(created_at__date__range=[month_start_date, month_end_date],
+                                  order_status='Ready to ship').count())
+                response_data['on_shipping'].append(
+                    orders.filter(created_at__date__range=[month_start_date, month_end_date],
+                                  order_status='On shipping').count())
+                response_data['delivered'].append(
+                    orders.filter(created_at__date__range=[month_start_date, month_end_date],
+                                  order_status='Delivered').count())
+                response_data['cancelled'].append(
+                    orders.filter(created_at__date__range=[month_start_date, month_end_date],
+                                  order_status='Cancelled').count())
+                response_data['returned'].append(
+                    orders.filter(created_at__date__range=[month_start_date, month_end_date],
+                                  order_status='Return').count())
+
+        return JsonResponse(response_data)
+    return HttpResponse('You are not authorized to view this page', status=403)
+
 @login_required(login_url='login')
 def order_status_data(request):
     if request.method == 'POST' and request.user.is_superuser:
@@ -497,6 +693,174 @@ def order_status_data(request):
         return JsonResponse(response_data)
     return HttpResponse('You are not authorized to view this page', status=403)
 
+
+@login_required(login_url='login')
+def get_payment_by_city(request):
+    if request.method == 'POST' and request.user.is_superuser:
+        try:
+            data = json.loads(request.body)
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+
+            if not start_date or not end_date:
+                return JsonResponse({'error': 'Missing start_date or end_date'}, status=400)
+
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+
+        except ValueError as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+        city_ids = {
+            'R1973756': 'VN-SG',
+            'R1875748': 'An Giang',
+            'R1873533': 'VN-55',
+            'R1904296': 'Bà Rịa–Vũng Tàu',
+            'R1902941': 'Bắc Giang',
+            'R1903471': 'Bắc Kạn',
+            'R1902690': 'Bắc Ninh',
+            'R1875968': 'Bến Tre',
+            'R1906037': 'Bình Dương',
+            'R1889794': 'Bình Định',
+            'R1898841': 'Bình Phước',
+            'R1904231': 'Bình Thuận',
+            'R1873490': 'Cà Mau',
+            'R1844412': 'Cao Bằng',
+            'R1874283': 'VN-CT',
+            'R1891418': 'VN-DN',
+            'R1884034': 'Đắk Lắk',
+            'R1884042': 'VN-72',
+            'R1903340': 'Điện Biên',
+            'R1904421': 'Đồng Nai',
+            'R1875866': 'Đồng Tháp',
+            'R1884018': 'Gia Lai',
+            'R1903478': 'Hà Giang',
+            'R1902686': 'Hải Dương',
+            'R1902682': 'Hải Phòng',
+            'R1901010': 'Hà Nam',
+            'R1903516': 'VN-HN',
+            'R1898458': 'Hà Tĩnh',
+            'R1874249': 'Hậu Giang',
+            'R1902973': 'Hòa Bình',
+            'R1901032': 'Hưng Yên',
+            'R1887959': 'Khánh Hòa',
+            'R1874471': 'Kiên Giang',
+            'R1879515': 'Kon Tum',
+            'R1903322': 'Lai Châu',
+            'R5522596': 'Lạng Sơn',
+            'R1903400': 'Lào Cai',
+            'R1885367': 'Lâm Đồng',
+            'R1877236': 'Long An',
+            'R1901008': 'Nam Định',
+            'R1898509': 'Nghệ An',
+            'R1900963': 'Ninh Bình',
+            'R1886159': 'Ninh Thuận',
+            'R1902930': 'Phú Thọ',
+            'R1889204': 'Phú Yên',
+            'R1896050': 'Quảng Bình',
+            'R1891352': 'Quảng Nam',
+            'R1890793': 'Quảng Ngãi',
+            'R1902947': 'Quảng Ninh',
+            'R1895630': 'Quảng Trị',
+            'R1873632': 'Sóc Trăng',
+            'R1903291': 'Sơn La',
+            'R1898961': 'Tây Ninh',
+            'R1901019': 'Thái Bình',
+            'R1902967': 'Thái Nguyên',
+            'R1898590': 'Thanh Hóa',
+            'R1891483': 'Thừa Thiên–Huế',
+            'R1876011': 'Tiền Giang',
+            'R1873642': 'Trà Vinh',
+            'R1903418': 'Tuyên Quang',
+            'R1875887': 'Vĩnh Long',
+            'R1902889': 'Vĩnh Phúc',
+            'R1903199': 'Yên Bái'
+        }
+
+        totals = {name: 0 for name in city_ids.values()}
+
+        payments = Payment.objects.filter(
+            order__created_at__range=[start_date, end_date],
+            order__city__in=city_ids.keys(),
+            order__is_ordered=True
+        ).values('order__city', 'amount_paid')
+
+        for payment in payments:
+            city_name = city_ids.get(payment['order__city'])
+            if city_name:
+                totals[city_name] += payment['amount_paid']
+
+        result = [['City', 'Revenue']]
+        for city, total in totals.items():
+            result.append([city, total])
+
+        return JsonResponse(result, safe=False)
+    return HttpResponse('You are not authorized to view this page')
+
+
+@login_required(login_url='login')
+def top_purchase(request):
+    if request.method == 'POST' and  request.user.is_superuser:
+        try:
+            data = json.loads(request.body)
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+
+            if not start_date or not end_date:
+                return JsonResponse({'error': 'Missing start_date or end_date'}, status=400)
+
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+
+        except ValueError as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+        payments = Payment.objects.filter(
+            order__created_at__range=[start_date, end_date],
+            order__is_ordered=True
+        ).values('order__city').annotate(
+            total_paid=Sum('amount_paid')
+        ).order_by('-total_paid')[:3]
+
+        response = {
+            'labels': [get_locations(payment['order__city'], '') for payment in payments],
+            'data': [round(payment['total_paid'], 2) for payment in payments]
+        }
+
+        return JsonResponse(response)
+
+    return HttpResponse('You are not authorized to view this page')
+
+
+@login_required(login_url='login')
+def recent_orders(request):
+    if request.method == 'POST' and request.user.is_superuser:
+        orders = Order.objects.prefetch_related('orderproduct_set__product').order_by('-created_at')[:5]
+        orders_data = []
+        current_site = get_current_site(request)
+        for order in orders:
+            products_info = [
+                {
+                    'product_name': op.product.product_name,
+                    'quantity': op.quantity,
+                    'product_price': op.product_price,
+                    "product_url": f"http://{current_site}/store/{op.product.category_main.slug}/{op.product.sub_category.slug}/{op.product.slug}"
+                }
+                for op in order.orderproduct_set.all()
+            ]
+            order_dict = {
+                "order_id": order.id,
+                "order_number": order.order_number,
+                "order_date": order.created_at.strftime("%b %d, %Y"),
+                "order_cost": order.order_total,
+                "status": order.order_status,
+                "products": products_info,
+                'url_view': f"http://{current_site}/accounts/order_details/{order.order_number}",
+                'url_edit': f"http://{current_site}/admin/order_update/{str(order.id)}",
+            }
+            orders_data.append(order_dict)
+        return JsonResponse(orders_data, safe=False)
+    return HttpResponse('You are not authorized to view this page')
 
 @login_required(login_url='login')
 def order_list(request):

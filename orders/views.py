@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 
+from accounts.models import EventUser
 from carts.models import CartItem
 from .forms import OrderForm
 import datetime
@@ -77,6 +78,25 @@ def payment_return(request):
         amount_usd = amount/25000
 
         order = Order.objects.get(order_number=order_id, is_ordered=False)
+        if order.is_view == False:
+            return redirect('order_details', order_id=order.order_number)
+        cart_items = CartItem.objects.filter(user=request.user)
+        for item in cart_items:
+            product = Product.objects.get(id=item.product_id)
+            event = EventUser.objects.filter(user_id=request.user.id, product_id=product.id, event_type='pay')
+            if event:
+                event.frequency += 1
+                event.event_timestamp = timezone.now()
+                event.save()
+            else:
+                user_event = EventUser(
+                    user_id=request.user.id,
+                    product_id=product.id,
+                    event_type='pay',
+                    frequency=1,
+                    event_timestamp=timezone.now()
+                )
+                user_event.save()
         if vnp.validate_response(settings.VNPAY_HASH_SECRET_KEY):
             if vnp_ResponseCode == "00":
                 try:
@@ -100,7 +120,7 @@ def payment_return(request):
                         orderproduct.product_id = item.product_id
                         orderproduct.quantity = item.quantity
                         orderproduct.product_price = item.product.price
-                        orderproduct.order_total = order.order_total
+                        orderproduct.order_total = round(order.order_total, 2)
                         orderproduct.ordered = True
                         orderproduct.save()
 
@@ -139,6 +159,8 @@ def payment_return(request):
                                         'subtotal': subtotal,
                                         'tax': tax,
                                         'grand_total': grand_total,
+                                        'order_status': order.order_status,
+                                        'created_at': order.created_at
                                     })
             else:
                 try:
@@ -162,7 +184,7 @@ def payment_return(request):
                         orderproduct.product_id = item.product_id
                         orderproduct.quantity = item.quantity
                         orderproduct.product_price = item.product.price
-                        orderproduct.order_total = order.order_total
+                        orderproduct.order_total = round(order.order_total, 2)
                         orderproduct.ordered = False
                         orderproduct.save()
 
@@ -199,7 +221,9 @@ def payment_return(request):
                                         'address': order.address,
                                         'subtotal': subtotal,
                                         'tax': tax,
-                                        'grand_total': grand_total
+                                        'grand_total': grand_total,
+                                        'order_status': order.order_status,
+                                        'created_at': order.created_at
                                     })
         else:
             try:
@@ -207,7 +231,7 @@ def payment_return(request):
                     user_id=request.user.id,
                     payment_id=vnp_TransactionNo,
                     payment_method='VNPAY',
-                    amount_paid=amount_usd,
+                    amount_paid=round(amount_usd,2),
                     status='Cancelled',
                 )
                 payment.save()
@@ -223,7 +247,7 @@ def payment_return(request):
                     orderproduct.product_id = item.product_id
                     orderproduct.quantity = item.quantity
                     orderproduct.product_price = item.product.price
-                    orderproduct.order_total = order.order_total
+                    orderproduct.order_total = round(order.order_total,2)
                     orderproduct.ordered = False
                     orderproduct.save()
 
@@ -256,7 +280,9 @@ def payment_return(request):
                            'address': order.address,
                            'subtotal': subtotal,
                            'tax': tax,
-                           'grand_total': grand_total
+                           'grand_total': grand_total,
+                           'order_status': order.order_status,
+                           'created_at': order.created_at
                            })
     else:
         return render(request, "orders/order_complete.html", {"title": "Kết quả thanh toán", "result": ""})
@@ -294,13 +320,15 @@ def place_order(request, total=0, quantity=0):
             data.city = form.cleaned_data['city']
             data.order_note = form.cleaned_data['order_note']
             data.payment_method = form.cleaned_data['payment_method']
-            data.order_total = grand_total
-            data.tax = tax
+            data.order_total = round(grand_total, 2)
+            data.tax = round(tax, 2)
             data.ip = get_client_ip(request)
             data.save()
 
             payment_type = data.payment_method
-
+            order_note = form.cleaned_data['order_note']
+            if not order_note:
+                order_note = "No Note"
             amount = int(grand_total * 100)
             amount_vnd = amount * 25000
 
@@ -316,7 +344,7 @@ def place_order(request, total=0, quantity=0):
                 vnp.requestData['vnp_Amount'] = amount_vnd
                 vnp.requestData['vnp_CurrCode'] = 'VND'
                 vnp.requestData['vnp_TxnRef'] = order_id
-                vnp.requestData['vnp_OrderInfo'] = form.cleaned_data['order_note']
+                vnp.requestData['vnp_OrderInfo'] = order_note
                 vnp.requestData['vnp_OrderType'] = "billpayment"
 
                 if language and language != '':
@@ -333,12 +361,14 @@ def place_order(request, total=0, quantity=0):
                 return redirect(vnpay_payment_url)
             elif payment_type == "COD":
                 order = Order.objects.get(order_number=order_id, is_ordered=False)
+                if order.is_view == False:
+                    return redirect('order_details', order_id=order.order_number)
                 try:
                     payment = Payment(
                         user_id=request.user.id,
                         payment_id=0,
                         payment_method='COD',
-                        amount_paid=amount,
+                        amount_paid=round(grand_total, 2),
                         status='Pending',
                     )
                     payment.save()
@@ -354,7 +384,7 @@ def place_order(request, total=0, quantity=0):
                         orderproduct.product_id = item.product_id
                         orderproduct.quantity = item.quantity
                         orderproduct.product_price = item.product.price
-                        orderproduct.order_total = order.order_total
+                        orderproduct.order_total = round(order.order_total,2)
                         orderproduct.ordered = True
                         orderproduct.save()
 
@@ -380,17 +410,19 @@ def place_order(request, total=0, quantity=0):
                 tax = round(tax, 2)
                 return render(request, "orders/order_complete.html",
                               {"title": "Kết quả thanh toán",
-                                   "result": "Thành công", "order_id": order_id,
-                                   "amount": amount,
-                                   'user_name': order.user.full_name,
-                                   'date': order.date,
-                                   'note': order.order_note,
-                                   'ordered_products': ordered_products,
-                                   'address': order.address,
-                                   'subtotal': subtotal,
-                                   'tax': tax,
-                                   'grand_total': grand_total,
-                               })
+                                        "result": "Thành công", "order_id": order_id,
+                                        "amount": amount,
+                                        'user_name': order.user.full_name,
+                                        'date': order.date,
+                                        'note': order.order_note,
+                                        'ordered_products': ordered_products,
+                                        'address': order.address,
+                                        'subtotal': subtotal,
+                                        'tax': tax,
+                                        'grand_total': grand_total,
+                                        'order_status': order.order_status,
+                                        'created_at': order.created_at
+                                    })
         else:
             return HttpResponse('Form is not valid')
     else:
@@ -423,16 +455,12 @@ def payment_ipn(request):
                     else:
                         print('Payment Error. Your code implement here')
 
-                    # Return VNPAY: Merchant update success
                     result = JsonResponse({'RspCode': '00', 'Message': 'Confirm Success'})
                 else:
-                    # Already Update
                     result = JsonResponse({'RspCode': '02', 'Message': 'Order Already Update'})
             else:
-                # invalid amount
                 result = JsonResponse({'RspCode': '04', 'Message': 'invalid amount'})
         else:
-            # Invalid Signature
             result = JsonResponse({'RspCode': '97', 'Message': 'Invalid Signature'})
     else:
         result = JsonResponse({'RspCode': '99', 'Message': 'Invalid request'})

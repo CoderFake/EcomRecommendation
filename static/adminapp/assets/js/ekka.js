@@ -102,11 +102,11 @@ $(document).ready(function (h) {
     });
 
 })
-$(document).ready(function () {
-    $('#responsive-data-table').DataTable({
-        responsive: true
-    });
-});
+// $(document).ready(function () {
+//     $('#responsive-data-table').DataTable({
+//         responsive: true
+//     });
+// });
 $(document).ready(function () {
     $('.custom-file-input').on('change', function () {
         var file = this.files[0];

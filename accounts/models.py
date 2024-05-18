@@ -124,11 +124,13 @@ class EventUser(models.Model):
         ('view', 'View'),
         ('cart', 'Cart'),
         ('pay', 'Pay'),
+        ('login', 'Login'),
+        ('logout', 'Logout')
     )
 
     user = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='user_events')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_events')
-    rating = models.IntegerField(default=0)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_events', blank=True, null=True)
+    rating = models.IntegerField(default=0,  blank=True, null=True)
     event_type = models.CharField(max_length=10, choices=EVENT_TYPES)
     event_timestamp = models.DateTimeField(auto_now_add=True)
     frequency = models.IntegerField(null=True, blank=True)

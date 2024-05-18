@@ -1,90 +1,187 @@
-/*======== Google Map chart ========*/
-google.charts.load('current', {
-  'packages':['geochart'],
-});
-google.charts.setOnLoadCallback(drawRegionsMap);
+/*======== 17. HORIZONTAL BAR CHART1 ========*/
+    var hbar1 = document.getElementById("hbar1");
+    var hbChart1;
+    if (hbar1 !== null) {
+        hbChart1 = new Chart(hbar1, {
+            type: "horizontalBar",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Revenue",
+                    data: [],
+                    callback: function (value) {
+                        return value + "USD";
+                    },
+                    backgroundColor: "#88aaf3"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {display: false},
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            drawBorder: false,
+                            display: true,
+                            color: "#eee",
+                            zeroLineColor: "#eee",
+                            tickMarkLength: 3
+                        },
+                        ticks: {
+                            display: true,
+                            beginAtZero: true,
+                            fontFamily: "Roboto, sans-serif",
+                            fontColor: "#8a909d",
+                            callback: function (value) {
+                                return value + "USD";
+                            }
+                        }
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            drawBorder: false,
+                            display: false
+                        },
+                        ticks: {
+                            display: true,
+                            beginAtZero: false,
+                            fontFamily: "Roboto, sans-serif",
+                            fontColor: "#8a909d",
+                            fontSize: 14
+                        },
+                        barPercentage: 1.6,
+                        categoryPercentage: 0.2
+                    }]
+                },
+                tooltips: {
+                    mode: "index",
+                    titleFontColor: "#888",
+                    bodyFontColor: "#555",
+                    titleFontSize: 12,
+                    bodyFontSize: 15,
+                    backgroundColor: "rgba(256,256,256,0.95)",
+                    displayColors: true,
+                    xPadding: 10,
+                    yPadding: 7,
+                    borderColor: "rgba(220, 220, 220, 0.9)",
+                    borderWidth: 2,
+                    caretSize: 6,
+                    caretPadding: 5
+                }
+            }
+        });
 
-function drawRegionsMap() {
-    var data = google.visualization.arrayToDataTable([
-        ['City', 'Purchase'],
-        ['Bắc Giang', 1],
-        ['Bắc Kạn', 2],
-        ['Cao Bằng', 3],
-        ['Hà Giang', 4],
-        ['Lạng Sơn', 5],
-        ['Phú Thọ', 6],
-        ['Quảng Ninh', 7],
-        ['Thái Nguyên', 8],
-        ['Tuyên Quang', 9],
-        ['Lào Cai', 10],
-        ['Yên Bái', 11],
-        ['Điện Biên', 12],
-        ['Hòa Bình', 13],
-        ['Lai Châu', 14],
-        ['Sơn La', 15],
-        ['Bắc Ninh', 16],
-        ['Hà Nam', 17],
-        ['Hải Dương', 18],
-        ['Hưng Yên', 19],
-        ['Nam Định', 20],
-        ['Ninh Bình', 21],
-        ['Thái Bình', 22],
-        ['Vĩnh Phúc', 23],
-        ['VN-HN', 24],
-        ['Hải Phòng City', 25],
-        ['Hà Tĩnh', 26],
-        ['Nghệ An', 27],
-        ['Quảng Bình', 28],
-        ['Quảng Trị', 29],
-        ['Thanh Hóa', 30],
-        ['Thừa Thiên–Huế', 31],
-        ['Đắk Lắk', 32],
-        ['VN-72', 33],
-        ['Gia Lai', 34],
-        ['Kon Tum', 35],
-        ['Lâm Đồng', 36],
-        ['Bình Định', 37],
-        ['Bình Thuận', 38],
-        ['Khánh Hòa', 39],
-        ['Ninh Thuận', 40],
-        ['Phú Yên', 41],
-        ['Quảng Nam', 42],
-        ['Quảng Ngãi', 43],
-        ['Đà Nẵng City', 44],
-        ['Bà Rịa–Vũng Tàu', 45],
-        ['Bình Dương', 46],
-        ['Bình Phước', 47],
-        ['Đồng Nai', 48],
-        ['Tây Ninh', 49],
-        ['VN-SG', 50],
-        ['An Giang', 51],
-        ['VN-55', 52],
-        ['Bến Tre', 53],
-        ['Cà Mau', 54],
-        ['Đồng Tháp', 55],
-        ['Hậu Giang', 56],
-        ['Kiên Giang', 57],
-        ['Long An', 58],
-        ['Sóc Trăng', 59],
-        ['Tiền Giang', 60],
-        ['Trà Vinh', 61],
-        ['Vĩnh Long', 62],
-        ['VN-CT', 63],
-        ['VN-DN', 63]
-    ]);
-
-    var options = {
-        region: 'VN',
-        displayMode: 'regions',
-        resolution: 'provinces',
-        colorAxis: {colors: ['#cedbf9', '#6588d5']},
-        enableRegionInteractivity: true,
-        keepAspectRatio: true,
-        width: 600,
-        height: 500
-    };
+    }
 
 
-    var chart = new google.visualization.GeoChart(document.getElementById('regions_purchase'));
-    chart.draw(data, options);
-}
+    google.charts.load('current', {
+        'packages': ['geochart'],
+        'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY'
+    });
+    google.charts.setOnLoadCallback(drawRegionsMap);
+
+
+    function drawRegionsMap() {
+        fetchDataAndUpdateMap();
+    }
+
+    function fetchDataAndUpdateMap() {
+        if (!google.visualization || !google.visualization.arrayToDataTable) {
+            console.error("Google Visualization API has not been loaded yet.");
+            return;
+        }
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        var startDate = $('#analytics-country .start_date').val();
+        var endDate = $('#analytics-country .end_date').val();
+
+        if (startDate && endDate && (startDate !== lastStartDate || endDate !== lastEndDate)) {
+            $.ajax({
+                url: '/admin/api/get-payment-by-city/',
+                method: 'POST',
+                headers: {'X-CSRFToken': csrfToken},
+                data: JSON.stringify({start_date: startDate, end_date: endDate}),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function (response) {
+                    if (response && response.length > 1) {
+                        var data = google.visualization.arrayToDataTable(response);
+                        var options = {
+                            region: 'VN',
+                            displayMode: 'regions',
+                            resolution: 'provinces',
+                            colorAxis: {colors: ['#cedbf9', '#6588d5']},
+                            enableRegionInteractivity: true,
+                            keepAspectRatio: true,
+                            width: 600,
+                            height: 400
+                        };
+                        var chart = new google.visualization.GeoChart(document.getElementById('regions_purchase'));
+                        chart.draw(data, options);
+                    } else {
+                        console.error('No data to display.');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+
+            $.ajax({
+                url: '/admin/api/top_purchase/',
+                type: 'POST',
+                data: JSON.stringify({start_date: startDate, end_date: endDate}),
+                contentType: 'application/json',
+                dataType: 'json',
+                headers: {'X-CSRFToken': csrfToken},
+                success: function (response) {
+                    hbChart1.data.labels = response.labels;
+                    hbChart1.data.datasets[0].data = response.data;
+                    hbChart1.update();
+                },
+                error: function (error) {
+                    console.error('Error fetching acquisition data:', error);
+                }
+            });
+            lastStartDate = startDate;
+            lastEndDate = endDate;
+        }
+    }
+
+    var lastStartDate = null;
+    var lastEndDate = null;
+
+    if ($("#analytics-country").length) {
+        var start = moment();
+        var end = moment();
+        var cb = function (start, end) {
+            $("#analytics-country .date-range-report span").html(
+                start.format("ll") + " - " + end.format("ll")
+            );
+            $('#analytics-country .start_date').val(start.format('YYYY-MM-DD'));
+            $('#analytics-country .end_date').val(end.format('YYYY-MM-DD'));
+
+            fetchDataAndUpdateMap();
+        };
+
+        $("#analytics-country .date-range-report").daterangepicker({
+            startDate: start,
+            endDate: end,
+            opens: 'left',
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, "days"), moment().subtract(1, "days")],
+                'Last 7 Days': [moment().subtract(6, "days"), moment()],
+                'Last 30 Days': [moment().subtract(29, "days"), moment()],
+                'This Month': [moment().startOf("month"), moment().endOf("month")],
+                'Last Month': [
+                    moment().subtract(1, "month").startOf("month"),
+                    moment().subtract(1, "month").endOf("month")
+                ]
+            }
+        }, cb);
+        cb(start, end);
+    }
+
+    setInterval(fetchDataAndUpdateMap, 60000);
+

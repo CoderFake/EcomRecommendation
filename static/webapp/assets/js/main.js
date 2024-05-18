@@ -98,9 +98,14 @@ function ecCheckCookie() {
         2 === a && b > 52 ? (p = a, $("#ec-main-menu-desk").addClass("menu_fixed_up")) : 1 === a && (p = a, $("#ec-main-menu-desk").addClass("menu_fixed"), $("#ec-main-menu-desk").removeClass("menu_fixed_up"))
     };
     $(window).on("scroll", function () {
-        if($(".sticky-header-next-sec")) {
-            var a = $(".sticky-header-next-sec").offset().top, b = $(window);
-            b.scrollTop() <= a + 50 ? $("#ec-main-menu-desk").removeClass("menu_fixed") : r()
+        if ($(".sticky-header-next-sec").length) {
+            var a = $(".sticky-header-next-sec").offset().top;
+            var b = $(window);
+            if (b.scrollTop() <= a + 50) {
+                $("#ec-main-menu-desk").removeClass("menu_fixed");
+            } else {
+                r();
+            }
         }
     }), $(document).ready(function () {
         $(".scroll-to ul li a.nav-scroll").bind("click", function (b) {
@@ -290,7 +295,7 @@ function ecCheckCookie() {
         $(this).parent().toggleClass("active");
         var a = "light";
         $(this).parent().hasClass("ec-change-mode") && $(this).parent().hasClass("active") ? $("link[href='/static/webapp/assets/css/responsive.css']").before(c) : $(this).parent().hasClass("ec-change-mode") && !$(this).parent().hasClass("active") && ($("link.dark").remove(), a = "light"), $(this).parent().hasClass("active") ? ($("#ec-fixedbutton .ec-change-color").css("pointer-events", "none"), $("body").addClass("dark"), ecCreateCookie("darkModeCookie", a = "dark", 1)) : ($("#ec-fixedbutton .ec-change-color").css("pointer-events", "all"), $("body").removeClass("dark"), ecDeleteCookie("darkModeCookie", a))
-    }), $(".ec-tools-sidebar .ec-fullscreen-mode .ec-fullscreen-switch").click(function (a){
+    }), $(".ec-tools-sidebar .ec-fullscreen-mode .ec-fullscreen-switch").click(function (a) {
         a.preventDefault(), $(this).parent().toggleClass("active"), document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement ? document.exitFullscreen ? document.exitFullscreen() : document.msExitFullscreen ? document.msExitFullscreen() : document.mozCancelFullScreen ? document.mozCancelFullScreen() : document.webkitExitFullscreen && document.webkitExitFullscreen() : document.documentElement.requestFullscreen ? document.documentElement.requestFullscreen() : document.documentElement.msRequestFullscreen ? document.documentElement.msRequestFullscreen() : document.documentElement.mozRequestFullScreen ? document.documentElement.mozRequestFullScreen() : document.documentElement.webkitRequestFullscreen && document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT)
     });
     var t = location.href;
@@ -388,25 +393,25 @@ function ecCheckCookie() {
         })
     }), $(document).ready(function () {
         // Lọc các liên kết có ảnh không rỗng
-            $(".popup-gallery").each(function () {
-                var imageSrc = $(this).attr("href");
-                if (imageSrc) {
-                    // Khởi tạo Magnific Popup chỉ cho những liên kết này
-                    $(this).magnificPopup({
-                        type: "image",
-                        mainClass: "mfp-with-zoom",
-                        gallery: {enabled: true},
-                        zoom: {
-                            enabled: true,
-                            duration: 300,
-                            easing: "ease-in-out",
-                            opener: function (openerElement) {
-                                return openerElement.is("img") ? openerElement : openerElement.find("img");
-                            }
+        $(".popup-gallery").each(function () {
+            var imageSrc = $(this).attr("href");
+            if (imageSrc) {
+                // Khởi tạo Magnific Popup chỉ cho những liên kết này
+                $(this).magnificPopup({
+                    type: "image",
+                    mainClass: "mfp-with-zoom",
+                    gallery: {enabled: true},
+                    zoom: {
+                        enabled: true,
+                        duration: 300,
+                        easing: "ease-in-out",
+                        opener: function (openerElement) {
+                            return openerElement.is("img") ? openerElement : openerElement.find("img");
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
+        });
     }), $(".ec-gl-btn").on("click", "button", function () {
         $(this).addClass("active").siblings().removeClass("active")
     }), $(document).on("click", ".btn-grid", function (a) {
@@ -524,10 +529,14 @@ function ecCheckCookie() {
                 start: [e, f],
                 connect: true,
                 step: l,
-                range: { min: e, max: f },
+                range: {min: e, max: f},
                 format: {
-                    to: function(value) { return value; },
-                    from: function(value) { return value; }
+                    to: function (value) {
+                        return value;
+                    },
+                    from: function (value) {
+                        return value;
+                    }
                 }
             });
 
@@ -542,6 +551,7 @@ function ecCheckCookie() {
             });
         }
     }
+
     function x(a, b) {
         $("body").removeClass("body-bg-1"), $("body").removeClass("body-bg-2"), $("body").removeClass("body-bg-3"), $("body").removeClass("body-bg-4"), $("body").addClass(b), $("#bg-switcher-css").attr("href", "assets/css/backgrounds/" + a + ".css"), ecCreateCookie("bgImageModeCookie", a + "||" + b, 1)
     }
@@ -626,3 +636,40 @@ function ecCheckCookie() {
         $(".ec-tools-sidebar-toggle").addClass("in-out"), $(".ec-tools-sidebar").stop().animate({right: "-200px"}, 100), $(".ec-tools-sidebar-overlay").fadeOut()
     })
 }(jQuery)
+$(document).ready(function () {
+    // Khi nút image-search được click, kích hoạt input file trong cùng form
+    $('.image-search').on('click', function (event) {
+        event.preventDefault();
+        $(this).siblings('.file-input-image').click();
+    });
+
+    // Bắt sự kiện khi người dùng chọn file trong cùng form
+    $('.file-input-image').on('change', function () {
+        const fileInput = $(this);
+        const file = fileInput[0].files[0];
+        const keywordInput = fileInput.siblings('input[name="keyword"]');
+
+        console.log(file); // In ra console để kiểm tra
+
+        if (file) {
+            const fileName = file.name;
+            const validFileExtensions = ['.jpg', '.jpeg', '.heic', '.png', '.webp'];
+            const fileExtension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
+
+            // Kiểm tra định dạng file
+            if (validFileExtensions.includes(fileExtension)) {
+                keywordInput.val(fileName);
+                console.log("File selected: " + fileName); // In ra console để kiểm tra
+            } else {
+                alert('Invalid file format. Please select a file with one of the following extensions: ' + validFileExtensions.join(', '));
+                fileInput.val(''); // Reset file input
+                keywordInput.val(''); // Clear file name input
+                console.log("Invalid file format"); // In ra console để kiểm tra
+            }
+        } else {
+            alert('No file selected.');
+            keywordInput.val(''); // Clear file name input
+            console.log("No file selected"); // In ra console để kiểm tra
+        }
+    });
+});

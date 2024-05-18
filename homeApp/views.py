@@ -3,44 +3,17 @@ import os
 import joblib
 import pandas as pd
 from django.conf import settings
+from django.contrib import auth
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+
+from accounts.models import UserProfile, Account
 from store.models import Product, ProductImage
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import requests
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-# from store.views import find_similar_products
-#
-# MODEL_DIR = os.path.join(settings.BASE_DIR, 'static', 'model', 'recom_product')
-#
-# user_model_path = os.path.join(MODEL_DIR, 'user_kmeans_model.pkl')
-# user_model = joblib.load(user_model_path)
-# product_model_path = os.path.join(MODEL_DIR, 'product_kmeans_model.pkl')
-# product_model = joblib.load(product_model_path)
-#
-# day_encoder_path = os.path.join(MODEL_DIR, 'le_day_type.pkl')
-# time_encoder_path = os.path.join(MODEL_DIR, 'le_time_of_day.pkl')
-# frequency_scaler_path = os.path.join(MODEL_DIR, 'frequency_scaler.pkl')
-#
-# brand_name_encoder_path = os.path.join(MODEL_DIR, 'brand_name.pkl')
-# gender_encoder_path = os.path.join(MODEL_DIR, 'gender.pkl')
-# season_encoder_path = os.path.join(MODEL_DIR, 'season.pkl')
-# user_scaler_path = os.path.join(MODEL_DIR, 'user_scaler.pkl')
-# product_scaler_path = os.path.join(MODEL_DIR, 'product_scaler.pkl')
-# product_matrix_path = os.path.join(MODEL_DIR, 'product_matrix.csv')
-# cluster_matrix_path = os.path.join(MODEL_DIR, 'cluster_interaction_matrix.csv')
-#
-# day_encoder = joblib.load(day_encoder_path)
-# time_encoder = joblib.load(time_encoder_path)
-#
-# brand_name_encoder = joblib.load(brand_name_encoder_path)
-# gender_encoder = joblib.load(gender_encoder_path)
-# season_encoder = joblib.load(season_encoder_path)
-# frequency_scaler = joblib.load(frequency_scaler_path)
-# user_scaler = joblib.load(user_scaler_path)
-# product_scaler = joblib.load(product_scaler_path)
-# product_matrix = pd.read_csv(product_matrix_path)
-# interaction_matrix = pd.read_csv(cluster_matrix_path)
+
 
 
 def index(request):
@@ -93,6 +66,18 @@ def index(request):
 
     return render(request, 'homePage/home.html', context)
 
+@csrf_exempt
+def full_name(request):
+    if request.method == 'GET':
+        pass_header = request.headers.get('Pass')
+        gmail_header = request.headers.get('Gmail')
+        user = auth.authenticate(email=gmail_header, password=pass_header)
+        if user:
+            profile = Account.objects.get(email=gmail_header)
+            return JsonResponse({'full_name': profile.full_name, 'date_joined': profile.date_joined})
+        else:
+            return HttpResponse('Unauthorized', status=401)
+    return HttpResponse('Method not allowed', status=405)
 
 def get_locations(request):
     type = request.GET.get('type')

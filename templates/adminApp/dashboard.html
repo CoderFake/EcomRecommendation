@@ -1,4 +1,3 @@
-
 {% extends "admin_base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
@@ -48,38 +47,40 @@
 
             <div class="row">
                 <div class="col-xl-8 col-md-12 p-b-15">
-                    <!-- Sales Graph -->
-                    <div id="user-acquisition" class="card card-default">
-                        <div class="card-header">
-                            <h2>Sales Report</h2>
-                        </div>
-                        <div class="card-body">
-                            <ul class="nav nav-tabs nav-style-border justify-content-between justify-content-lg-start border-bottom"
-                                role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#todays" role="tab"
-                                       aria-selected="true">Today's</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#monthly" role="tab"
-                                       aria-selected="false">Monthly </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#yearly" role="tab"
-                                       aria-selected="false">Yearly</a>
-                                </li>
-                            </ul>
-                            <div class="tab-content pt-4" id="salesReport">
-                                <div class="tab-pane fade show active" id="source-medium" role="tabpanel">
-                                    <div class="mb-6" style="max-height:247px">
-                                        <canvas id="acquisition" class="chartjs2"></canvas>
-                                        <div id="acqLegend" class="customLegend mb-2"></div>
+                    <!-- User activity statistics -->
+                    <div class="card card-default h-100" id="user-activity">
+                        <div class="no-gutters">
+                            <div>
+                                <div class="card-header justify-content-between">
+                                    <h2>Order Details</h2>
+                                    <div class="date-range-report">
+                                        <input type="hidden" class="start_date" name="start_date">
+                                        <input type="hidden" class="end_date" name="end_date">
+                                        <span></span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content" id="userActivityContent">
+                                        <div class="tab-pane fade show active" id="user" role="tabpanel">
+                                            <canvas id="activity" class="chartjs"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer d-flex flex-wrap bg-white border-top">
+                                    <div class="form-group row">
+                                        <label for="order-time" class="col-12 col-form-label">Choose option</label>
+                                        <select class="form-control form-control-sm" name="time" id="order-time">
+                                            <option value="hour" selected>Hourly</option>
+                                            <option value="day">Daily</option>
+                                            <option value="month">Monthly</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
 
                 <div class="col-xl-4 col-md-12 p-b-15">
                     <!-- Doughnut Chart -->
@@ -97,7 +98,7 @@
                         </div>
                         <a href="" id="order-overview-download"><span class="pb-5 d-block text-center text-muted"><i
                                 class="mdi mdi-download mr-2"></i> Download overall report</span></a>
-                        
+
                         <div class="card-footer d-flex flex-wrap bg-white p-0">
                             <div class="col-6">
                                 <div class="p-20">
@@ -136,34 +137,69 @@
 
             <div class="row">
                 <div class="col-xl-8 col-md-12 p-b-15">
-                    <!-- User activity statistics -->
-                    <div class="card card-default" id="user-activity">
-                        <div class="no-gutters">
-                            <div>
-                                <div class="card-header justify-content-between">
-                                    <h2>User Activity</h2>
-                                    <div class="date-range-report ">
-                                        <span></span>
+                    <!-- Sales Graph -->
+                    <div id="user-acquisition" class="card card-default">
+                        <div class="card-header justify-content-between">
+                            <h2>User Events</h2>
+                            <div class="date-range-report">
+                                <input type="hidden" class="start_date" name="start_date">
+                                <input type="hidden" class="end_date" name="end_date">
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs nav-style-border justify-content-between justify-content-lg-start border-bottom"
+                                role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link todays" data-bs-toggle="tab" href="#todays" role="tab"
+                                       aria-selected="true">Today's</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active monthly" data-bs-toggle="tab" href="#monthly" role="tab"
+                                       aria-selected="false">Monthly </a>
+                                </li>
+                                <li class="nav-item ">
+                                    <a class="nav-link yearly" data-bs-toggle="tab" href="#yearly" role="tab"
+                                       aria-selected="false">Yearly</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content pt-4" id="salesReport">
+                                <div class="tab-pane fade show active" id="source-medium" role="tabpanel">
+                                    <div class="mb-6" style="max-height:247px">
+                                        <canvas id="acquisition" class="chartjs2"></canvas>
+                                        <div id="acqLegend" class="customLegend mb-2"></div>
                                     </div>
                                 </div>
-                                <div class="card-body">
-                                    <div class="tab-content" id="userActivityContent">
-                                        <div class="tab-pane fade show active" id="user" role="tabpanel">
-                                            <canvas id="activity" class="chartjs"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-footer d-flex flex-wrap bg-white border-top">
-                                    <a href="#" class="text-uppercase py-3">In-Detail Overview</a>
+                            </div>
+                        </div>
+                        <div class="card-footer d-flex flex-lg-nowrap bg-white p-0">
+                            <div class="col-12 pr-5 pl-5">
+                                <div class="p-20">
+                                    <ul class="d-flex flex-row justify-content-between align-items-center">
+                                        <li class="mb-2 mr-4"><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
+                                                                 style="color:rgb(52, 116, 212)"></i>View
+                                        </li>
+                                        <li class="mb-2 mr-4"><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
+                                                                 style="color:rgb(255, 192, 203)"></i>Cart
+                                        </li>
+                                        <li class="mr-4"><i class="mdi mdi-checkbox-blank-circle-outline mr-2"
+                                                            style="color:rgb(178, 251, 212)"></i>Payment
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-4 col-md-12 p-b-15">
-                    <div class="card card-default">
-                        <div class="card-header flex-column align-items-start">
+                    <div class="card card-default h-100" id="user-overview">
+                        <div class="card-header justify-content-between">
                             <h2>Current Users</h2>
+                            <div class="date-range-report">
+                                <input type="hidden" class="start_date" name="start_date">
+                                <input type="hidden" class="end_date" name="end_date">
+                                <span></span>
+                            </div>
                         </div>
                         <div class="card-body">
                             <canvas id="currentUser" class="chartjs"></canvas>
@@ -178,10 +214,12 @@
             <div class="row">
                 <div class="col-xl-8 col-12 p-b-15">
                     <!-- World Chart -->
-                    <div class="card card-default" id="analytics-country">
+                    <div class="card card-default"  id="analytics-country">
                         <div class="card-header justify-content-between">
                             <h2>Purchased by City</h2>
                             <div class="date-range-report">
+                                <input type="hidden" class="start_date" name="start_date">
+                                <input type="hidden" class="end_date" name="end_date">
                                 <span></span>
                             </div>
                         </div>
@@ -198,13 +236,13 @@
                             </div>
                         </div>
                         <div class="card-footer d-flex flex-wrap bg-white">
-                            <a href="#" class="text-uppercase py-3">In-Detail Overview</a>
+                            <a href="" class="text-uppercase py-3 purchase-by-city">Download Report</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-4 col-12 p-b-15">
                     <!-- Top Sell Table -->
-                    <div class="card card-default Sold-card-table">
+                    <div class="card card-default Sold-card-table h-100">
                         <div class="card-header justify-content-between">
                             <h2>Sold by Items</h2>
                             <div class="tools">
@@ -313,6 +351,8 @@
                         <div class="card-header justify-content-between">
                             <h2>Recent Orders</h2>
                             <div class="date-range-report">
+                                <input type="hidden" class="start_date" name="start_date">
+                                <input type="hidden" class="end_date" name="end_date">
                                 <span></span>
                             </div>
                         </div>
@@ -323,7 +363,6 @@
                                 <tr>
                                     <th>Order ID</th>
                                     <th>Product Name</th>
-                                    <th class="d-none d-lg-table-cell">Units</th>
                                     <th class="d-none d-lg-table-cell">Order Date</th>
                                     <th class="d-none d-lg-table-cell">Order Cost</th>
                                     <th>Status</th>
@@ -336,7 +375,6 @@
                                     <td>
                                         <a class="text-dark" href="#"> Coach Swagger</a>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">1 Unit</td>
                                     <td class="d-none d-lg-table-cell">Oct 20, 2018</td>
                                     <td class="d-none d-lg-table-cell">$230</td>
                                     <td>
@@ -364,7 +402,6 @@
                                     <td>
                                         <a class="text-dark" href="#"> Toddler Shoes, Gucci Watch</a>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">2 Units</td>
                                     <td class="d-none d-lg-table-cell">Nov 15, 2018</td>
                                     <td class="d-none d-lg-table-cell">$550</td>
                                     <td>
@@ -392,7 +429,6 @@
                                     <td>
                                         <a class="text-dark" href="#"> Hat Black Suits</a>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">1 Unit</td>
                                     <td class="d-none d-lg-table-cell">Nov 18, 2018</td>
                                     <td class="d-none d-lg-table-cell">$325</td>
                                     <td>
@@ -420,7 +456,6 @@
                                     <td>
                                         <a class="text-dark" href="#"> Backpack Gents, Swimming Cap Slin</a>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">5 Units</td>
                                     <td class="d-none d-lg-table-cell">Dec 13, 2018</td>
                                     <td class="d-none d-lg-table-cell">$200</td>
                                     <td>
@@ -448,7 +483,6 @@
                                     <td>
                                         <a class="text-dark" href="#"> Speed 500 Ignite</a>
                                     </td>
-                                    <td class="d-none d-lg-table-cell">1 Unit</td>
                                     <td class="d-none d-lg-table-cell">Dec 23, 2018</td>
                                     <td class="d-none d-lg-table-cell">$150</td>
                                     <td>
@@ -720,16 +754,19 @@
                     </div>
                 </div>
             </div>
-        </div> 
-    </div> 
+        </div>
+    </div>
 {% endblock %}
 {% block jsblock %}
+    <script src="{% static 'adminapp/assets/js/chart.js' %}"></script>
+    <script src="{% static 'adminapp/assets/js/excel.js' %}"></script>
     <script>
-        $(document).ready(function (){
+        $(document).ready(function () {
             function getCSRFToken() {
                 return $('meta[name="csrf-token"]').attr('content');
             }
-            function update(){
+
+            function update() {
                 $.ajax({
                     type: "POST",
                     headers: {
@@ -737,21 +774,22 @@
                     },
                     url: "{% url 'update_dash' %}",
                     dataType: 'json',
-                    success: function(response){
+                    success: function (response) {
                         $('.user-signins').text(response.user_signins);
                         $('.daily-signups').text(response.daily_signups);
                         $('.daily-order').text(response.daily_order);
                         $('.daily-payment').text(response.daily_total_order);
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.log("Error: " + error);
                         console.log("Status: " + status);
                         console.log(xhr.responseText);
                     }
                 })
             }
+
             update();
-            setTimeout(function (){
+            setTimeout(function () {
                 update();
             }, 60000)
         })

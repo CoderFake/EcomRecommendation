@@ -8,9 +8,16 @@ urlpatterns = [
     #dashboard overview
     path('api/update_dash/', views.update_dash, name='update_dash'),
     path('api/order-status/', views.order_status_data, name='order-status-data'),
+    path('api/get-login-frequency/', views.get_login_frequency, name='get-login-frequency'),
+    path('api/get-user-acquisition/', views.get_user_acquisition, name='get_user_acquisition'),
+    path('api/get-payment-by-city/', views.get_payment_by_city, name='get-payment-by-city'),
+    path('api/top_purchase/', views.top_purchase, name='top_purchase'),
+    path('api/recent_orders/', views.recent_orders, name='recent_orders'),
+    path('api/update_order_line_chart/', views.get_order_stats, name='get_order_stats'),
 
     #data export
     path('api/download-order-report/', views.download_order_report, name='download-order-report'),
+    path('api/download-export_payments/', views.export_payments_to_excel, name='export_payments_to_excel'),
 
     #user based urls 
     path('user_list', views.user_list, name='user_list'),

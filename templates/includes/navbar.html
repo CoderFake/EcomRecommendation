@@ -80,11 +80,14 @@
                     <!-- Ec Header Search Start -->
                     <div class="align-self-center">
                         <div class="header-search">
-                            <form class="ec-btn-group-form" action="{% url 'search' %}" method = "GET" >
-
-                                <input class="form-control" placeholder="Enter Your Product Name..." type="text" name="keyword">
-                                <button class=" rounded-3 submit" type="submit"><img src="{% static 'webapp/assets/images/icons/search.svg' %}"
-                                        class="svg_img header_svg" alt="" /></button>
+                            <form class="ec-btn-group-form" action="{% url 'search' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input class="form-control" type="text" placeholder="Enter Your Product Name..." name="keyword" >
+                                <button class=" rounded-3 image-search" type="button"><img src="{% static 'webapp/assets/images/icons/camera.svg' %}"
+                                            class="svg_img header_svg" alt="" /></button>
+                                <button class=" rounded-3 submit" type="submit" ><img src="{% static 'webapp/assets/images/icons/search.svg' %}"
+                                        class="svg_img header_svg" alt="icon" /></button>
+                                <input type="file" class="file-input-image d-none" accept=".jpg,.jpeg,.heic,.png,.webp" name="image"/>
                             </form>
                         </div>
                     </div>
@@ -159,10 +162,14 @@
                 <!-- Ec Header Search Start -->
                 <div class="col">
                     <div class="header-search">
-                        <form class="ec-btn-group-form" action="{% url 'search' %}" method = "GET" >
+                        <form class="ec-btn-group-form" action="{% url 'search' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
                             <input class="form-control" type="text" placeholder="Enter Your Product Name..." name="keyword" >
+                            <button class=" rounded-3 image-search" type="button"><img src="{% static 'webapp/assets/images/icons/camera.svg' %}"
+                                        class="svg_img header_svg" alt="" /></button>
                             <button class=" rounded-3 submit" type="submit" ><img src="{% static 'webapp/assets/images/icons/search.svg' %}"
                                     class="svg_img header_svg" alt="icon" /></button>
+                                <input type="file" class="file-input-image d-none" accept=".jpg,.jpeg,.heic,.png,.webp" name="image"/>
                         </form>
                     </div>
                 </div>
