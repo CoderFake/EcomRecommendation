@@ -84,3 +84,10 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"{self.product.product_name} - {self.image_type}"
 
+
+class FolderEvent(models.Model):
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

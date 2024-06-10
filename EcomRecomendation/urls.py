@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', include('adminApp.urls')),
     path('', include('homeApp.urls')),
     path('accounts/', include('accounts.urls')),
+    path('chatbot/', include('chatbot.urls')),
     path('store/', include('store.urls')),
     path('cart/', include('carts.urls')),
     # orders

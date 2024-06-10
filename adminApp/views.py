@@ -2,7 +2,16 @@ import requests
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Count, Sum
 from datetime import datetime, timedelta
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import requests
+import json
+import base64
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
+from decouple import config
 from django.db.models.functions import ExtractHour
 from django.forms import model_to_dict
 from django.utils.dateparse import parse_date, parse_datetime
@@ -503,8 +512,7 @@ def download_order_report(request):
             ws.append(row)
 
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response[
-            'Content-Disposition'] = f'attachment; filename="orders_report_{start_date.strftime("%Y%m%d")}_to_{end_date.strftime("%Y%m%d")}.xlsx"'
+        response['Content-Disposition'] = f'attachment; filename="orders_report_{start_date.strftime("%Y%m%d")}_to_{end_date.strftime("%Y%m%d")}.xlsx"'
         wb.save(response)
 
         return response
@@ -896,3 +904,61 @@ def order_update(request, pk):
         }
         return render(request, 'adminApp/Orders/order_update.html', context)
     return HttpResponse('You are not authorized to view this page')
+
+
+AES_KEY = base64.urlsafe_b64decode(config('AES_KEY'))
+
+
+@login_required(login_url='login')
+def encrypt(data):
+    iv = os.urandom(16)
+    cipher = Cipher(algorithms.AES(AES_KEY), modes.CBC(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+
+    padder = padding.PKCS7(128).padder()
+    padded_data = padder.update(data.encode()) + padder.finalize()
+
+    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+    return base64.urlsafe_b64encode(iv + encrypted_data).decode('utf-8')
+
+
+@login_required(login_url='login')
+def decrypt(encrypted_data):
+    encrypted_data = base64.urlsafe_b64decode(encrypted_data)
+    iv = encrypted_data[:16]
+    encrypted_message = encrypted_data[16:]
+
+    cipher = Cipher(algorithms.AES(AES_KEY), modes.CBC(iv), backend=default_backend())
+    decryptor = cipher.decryptor()
+
+    decrypted_padded_message = decryptor.update(encrypted_message) + decryptor.finalize()
+
+    unpadder = padding.PKCS7(128).unpadder()
+    decrypted_message = unpadder.update(decrypted_padded_message) + unpadder.finalize()
+
+    return decrypted_message.decode('utf-8')
+
+
+@login_required(login_url='login')
+@csrf_exempt
+def get_folders(request):
+    response = requests.get(config('GET'))
+    if response.status_code == 200:
+        data = response.json()
+        decrypted_folders = [decrypt(folder) for folder in data['folders']]
+        return JsonResponse({"folders": decrypted_folders})
+    else:
+        return JsonResponse({"status": "error", "message": "Failed to get folders"}, status=500)
+
+
+@login_required(login_url='login')
+@csrf_exempt
+def process_folder(request):
+    if request.method == 'POST':
+        folder_name = request.POST.get('folder_name')
+        encrypted_folder_name = encrypt(json.dumps({"folder_name": folder_name}))
+        response = requests.post(config('POST'), json={"data": encrypted_folder_name})
+        if response.status_code == 200:
+            return JsonResponse(response.json())
+        else:
+            return JsonResponse({"status": "error", "message": "Failed to process folder"}, status=500)

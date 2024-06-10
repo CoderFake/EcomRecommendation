@@ -6,6 +6,7 @@ from .import views
 
 urlpatterns = [
     path('',views.store, name='store'),
+    path('send_user_events', views.send_user_events, name='send_user_events'),
     path('api/products/', views.api_product, name='api_product'),
     path('product_session/',views.product_session, name='product_session'),
     path('search/',views.search, name='search'),

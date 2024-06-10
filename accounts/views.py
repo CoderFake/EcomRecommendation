@@ -33,9 +33,10 @@ import os
 import requests
 from decouple import config
 from django.core.mail import send_mail
+from django.http import HttpResponse, JsonResponse
+
 
 directory = os.path.join(settings.BASE_DIR, 'static', 'webapp', 'assets', 'user')
-
 
 def get_locations(id, parent_id):
     api_url = "https://member.lazada.vn/locationtree/api/getSubAddressList?countryCode=VN"
@@ -68,7 +69,6 @@ def upload_image_to_cloudflare(image_file, request):
                 return url
         return None
     else:
-        print(response.json())
         response.raise_for_status()
 
 
@@ -263,7 +263,7 @@ def forgotPassword(request):
             user = Account.objects.get(email__exact=email)
 
             # reset pasword
-            current_site = get_current_site(request)  # this should be imported
+            current_site = get_current_site(request)
             mail_subject = 'Reset your account passowrd.'
             user.save()
             parameters = {

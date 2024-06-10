@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'category',
     'accounts',
+    'chatbot',
     'carts',
     'store',
     'orders',
@@ -65,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'chatbot.context_processors.chat_links',
                 'category.context_processors.menu_links',
                 'carts.context_processors.counter',
             ],
@@ -91,24 +93,14 @@ DATABASES = {
     #     'HOST': config('DTB_HOST'),
     #     'PORT': '5432',
     # },
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'dtmn',
-    #     'USER': 'root',
-    #     'PASSWORD': '',
-    #     'HOST': 'localhost',
-    #     'PORT': '3306',
-    #     'OPTIONS': {
-    #         'charset': 'utf8mb4',
-    #     },
-    # }
+
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': config('DB_NAME'),
         'USER': config('DB_USERNAME'),
         'PASSWORD': config('DB_PASS'),
         'HOST': config('DB_HOST'),
-        'PORT': '3306',
+        'PORT': 3306,
         'OPTIONS': {
             'charset': 'utf8mb4',
         },

@@ -2,7 +2,7 @@ import io
 import logging
 import os
 from datetime import timedelta
-
+import random
 import faiss
 import numpy as np
 from PIL import Image
@@ -16,23 +16,206 @@ from django.utils import timezone
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image as keras_image
-
-from accounts.models import EventUser
+import pandas as pd
+from accounts.models import EventUser, UserProfile
 from carts.models import CartItem as cart_item
 from carts.views import _cart_id
 from category.models import CategoryMain, SubCategory
 from orders.models import OrderProduct
 from store.models import Product
 from asgiref.sync import sync_to_async, async_to_sync
+from datetime import datetime
 
+today = datetime.today().date()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+MODEL_DIR = os.path.join(settings.BASE_DIR, 'static', 'model', 'recom')
+fp_growth = os.path.join(MODEL_DIR, 'fp_growth_result_unique.csv')
+te_model = os.path.join(MODEL_DIR, 'te.pkl')
+
+
+def recom_product(user):
+    data = pd.read_csv(fp_growth)
+
+    data['consequents'] = data['consequents'].apply(lambda x: eval(x))
+
+    user_event = EventUser.objects.filter(user=user).order_by('-event_timestamp').first()
+
+    matching_rules = []
+    if user_event and user_event.product:
+        product = user_event.product
+        sub_category = product.sub_category.sub_category_name
+        rules = data['antecedents']
+
+        for idx, rule in enumerate(rules):
+            if sub_category in rule:
+                matching_rules.extend(data['consequents'][idx])
+
+        # Loại bỏ các phần tử trùng lặp
+        matching_rules = list(set(matching_rules))
+        for rule in matching_rules:
+            print(rule)
+    return matching_rules
+
+
+def store(request, category_slug=None):
+    products_list = []
+    produ_count = 0
+    start = 0
+    end = 0
+
+    if category_slug:
+        if category_slug == "all":
+            products_list = Product.objects.all()
+            products_list = list(products_list)
+        else:
+            category = get_object_or_404(CategoryMain, slug=category_slug)
+            if 'product' in request.session:
+                product_id = request.session['product']
+                related_products = None
+                product = get_object_or_404(Product, id=product_id)
+                if product.category_main.slug == category_slug:
+                    related_products = Product.objects.filter(
+                        Q(category_main=product.category_main) &
+                        Q(sub_category=product.sub_category) &
+                        Q(brand_name=product.brand_name) &
+                        Q(gender=product.gender) &
+                        Q(season=product.season)
+                    ).exclude(id=product_id).order_by('-rating')
+
+                    other_products = Product.objects.filter(category_main=category).exclude(
+                        id__in=related_products.values_list('id', flat=True)
+                    ).order_by('-rating')
+                    products_list = list(related_products) + list(other_products)
+                else:
+                    products_list = list(Product.objects.filter(category_main=category).order_by('-rating'))
+            else:
+                products_list = list(Product.objects.filter(category_main=category).order_by('-rating'))
+    else:
+        if request.user.is_authenticated:
+            subs = recom_product(request.user)
+            user_event = EventUser.objects.filter(user=request.user).order_by('-event_timestamp').first()
+            if user_event and hasattr(user_event.product, 'gender') and user_event.product.gender:
+                gender = user_event.product.gender
+            else:
+                user_profile = UserProfile.objects.get(user=request.user)
+                gender = "Men" if user_profile.sex == "Male" else "Women"
+            recom_products = Product.objects.filter(
+                sub_category__sub_category_name__in=subs,
+                gender=gender
+            ).order_by('-rating')
+            if 'product' in request.session:
+                product_id = request.session['product']
+                product = get_object_or_404(Product, id=product_id)
+
+                related_products = Product.objects.filter(
+                    Q(category_main=product.category_main) &
+                    Q(sub_category=product.sub_category) &
+                    Q(brand_name=product.brand_name) &
+                    Q(gender=gender) &
+                    Q(season=product.season)
+                ).exclude(id=product_id).order_by('-rating')
+
+                if recom_products.exists():
+                    products_list = list(recom_products) + list(related_products)
+                else:
+                    other_products = Product.objects.exclude(
+                        Q(category_main=product.category_main) &
+                        Q(sub_category=product.sub_category) &
+                        Q(brand_name=product.brand_name) &
+                        Q(gender=gender) &
+                        Q(season=product.season) |
+                        Q(id=product_id)
+                    ).order_by('-rating')
+
+                    products_list = list(related_products) + list(other_products)
+            else:
+                products_list = list(recom_products)
+        else:
+            products_list = list(Product.objects.all().order_by('-rating'))
+
+    products_list = list(set(products_list))
+
+    random.shuffle(products_list)
+
+    produ_count = len(products_list)
+    paginator = Paginator(products_list, 100)
+    page = request.GET.get('page', 1)
+
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    if page_obj.number == paginator.num_pages:
+        start = produ_count - (page_obj.number - 1) * 100
+        end = produ_count
+    else:
+        start = (page_obj.number - 1) * 100
+        end = start + len(page_obj.object_list)
+
+    context = {
+        'page_obj': page_obj,
+        'produ_count': produ_count,
+        'start': start,
+        'end': end
+    }
+    return render(request, 'store/store.html', context)
+
+
+def send_user_events(request):
+    if request.method == 'GET':
+        # Lấy ngày hiện tại
+        today = datetime.today().date()
+
+        # Truy vấn dữ liệu từ Django models, lọc các sự kiện xảy ra trong ngày hôm nay
+        events = EventUser.objects.filter(
+            event_type__in=['view', 'cart', 'pay'],
+            event_timestamp__date=today
+        ).values(
+            'user_id', 'product_id', 'event_timestamp', 'event_type',
+            'product__category_main__category_name', 'product__sub_category__sub_category_name'
+        )
+        events_df = pd.DataFrame(list(events))
+
+        events_df.rename(columns={
+            'product__category_main__category_name': 'main_category_name',
+            'product__sub_category__sub_category_name': 'sub_category_name'
+        }, inplace=True)
+
+
+        pre_train_path = f'{MODEL_DIR}/pre_train.csv'
+        os.makedirs(os.path.dirname(pre_train_path), exist_ok=True)
+        events_df.to_csv(pre_train_path, index=False)
+
+        pre_train_df = pd.read_csv(pre_train_path)
+        pre_train_json = pre_train_df.to_json(orient='records')
+
+        response = requests.post('http://localhost:5001/update_user_events', json={'data': pre_train_json})
+
+        if response.status_code == 200:
+            save_path = f'{MODEL_DIR}/fp_growth_result_unique.csv'
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+            with open(save_path, 'wb') as f:
+                f.write(response.content)
+
+            return JsonResponse({'status': 'success', 'message': 'Data sent to Flask server and file saved successfully.'})
+        else:
+            return JsonResponse({'status': 'fail', 'message': 'Failed to send data to Flask server.'})
+
+    return JsonResponse({'status': 'fail', 'message': 'Invalid request method.'})
 
 
 def api_product(request):
     products = Product.objects.all().values()
     products_list = list(products)
     return JsonResponse(products_list, safe=False)
+
+
 def product_session(request):
     if request.method == 'POST' and 'product_slug' in request.POST:
         product = get_object_or_404(Product, slug=request.POST.get('product_slug', ''))
@@ -65,89 +248,6 @@ def product_session(request):
     else:
         return HttpResponse("Invalid request", status=400)
 
-
-def store(request, category_slug=None):
-    products_list = []
-    produ_count = 0
-    start = 0
-    end = 0
-
-    if category_slug:
-        category = get_object_or_404(CategoryMain, slug=category_slug)
-        if 'product' in request.session:
-            product_id = request.session['product']
-            related_products = None
-            product = get_object_or_404(Product, id=product_id)
-            if product.category_main.slug == category_slug:
-                related_products = Product.objects.filter(
-                    Q(category_main=product.category_main) &
-                    Q(sub_category=product.sub_category) &
-                    Q(brand_name=product.brand_name) &
-                    Q(gender=product.gender) &
-                    Q(season=product.season)
-                ).exclude(id=product_id).order_by('-rating')
-
-                other_products = Product.objects.filter(category_main=category).exclude(
-                    id__in=related_products.values_list('id', flat=True)
-                ).order_by('-rating')
-                products_list = list(related_products) + list(other_products)
-            else:
-                products_list = list(Product.objects.filter(category_main=category).order_by('-rating'))
-        else:
-            products_list = list(Product.objects.filter(category_main=category).order_by('-rating'))
-    else:
-        if 'product' in request.session:
-            product_id = request.session['product']
-            product = get_object_or_404(Product, id=product_id)
-
-            related_products = Product.objects.filter(
-                Q(category_main=product.category_main) &
-                Q(sub_category=product.sub_category) &
-                Q(brand_name=product.brand_name) &
-                Q(gender=product.gender) &
-                Q(season=product.season),
-                ~Q(id=product_id)
-            ).order_by('-rating')
-
-            other_products = Product.objects.exclude(
-                Q(category_main=product.category_main) &
-                Q(sub_category=product.sub_category) &
-                Q(brand_name=product.brand_name) &
-                Q(gender=product.gender) &
-                Q(season=product.season) |
-                Q(id=product_id)
-            ).order_by('-rating')
-
-            # Lưu thứ tự: sản phẩm liên quan trước, sau đó là sản phẩm khác
-            products_list = list(related_products) + list(other_products)
-        else:
-            products_list = list(Product.objects.all().order_by('-rating'))
-
-    produ_count = len(products_list)
-    paginator = Paginator(products_list, 100)  # Sử dụng danh sách sản phẩm cho phân trang
-    page = request.GET.get('page', 1)
-
-    try:
-        page_obj = paginator.page(page)
-    except PageNotAnInteger:
-        page_obj = paginator.page(1)
-    except EmptyPage:
-        page_obj = paginator.page(paginator.num_pages)
-
-    if page_obj.number == paginator.num_pages:
-        start = produ_count - (page_obj.number - 1) * 100
-        end = produ_count
-    else:
-        start = (page_obj.number - 1) * 100
-        end = start + len(page_obj.object_list)
-
-    context = {
-        'page_obj': page_obj,
-        'produ_count': produ_count,
-        'start': start,
-        'end': end
-    }
-    return render(request, 'store/store.html', context)
 
 
 def substore(request, category_slug=None, sub_category_slug=None):
@@ -226,7 +326,6 @@ def product_detail(request, category_slug=None, sub_category_slug=None, product_
             if latest_order_product.reviews.exists():
                 rv = None
 
-        # Query for similar products
         related_products = Product.objects.filter(
             Q(category_main=product.category_main),
             Q(sub_category=product.sub_category),
@@ -250,7 +349,7 @@ def get_embedding(model, img_bytes):
     try:
         img = Image.open(img_bytes)
         img = img.convert('RGB')
-        img = img.resize((224, 224))  # Kích thước đầu vào của mô hình
+        img = img.resize((224, 224))
         x = keras_image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
         x = preprocess_input(x)
@@ -260,7 +359,7 @@ def get_embedding(model, img_bytes):
         logging.error(f"Error processing image: {e}")
         return None
 
-# Hàm để chuẩn hóa embedding
+
 def normalize_embedding(embedding):
     norm = np.linalg.norm(embedding)
     return embedding / norm
@@ -269,12 +368,11 @@ MODEL_IMAGE_DIR = os.path.join(settings.BASE_DIR, 'static', 'model', 'recom_sear
 embedding_model_path = os.path.join(MODEL_IMAGE_DIR, 'embedding_model.h5')
 faiss_path = os.path.join(MODEL_IMAGE_DIR, 'faiss_index.bin')
 
-# Hàm để lấy embedding của ảnh
 def get_embedding(model, img_bytes):
     try:
         img = Image.open(img_bytes)
         img = img.convert('RGB')
-        img = img.resize((224, 224))  # Kích thước đầu vào của mô hình
+        img = img.resize((224, 224))
         x = keras_image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
         x = preprocess_input(x)
@@ -313,7 +411,6 @@ def search(request):
         if 'image' in request.FILES:
             image_file = request.FILES['image']
 
-            # Chuyển file upload thành một hình ảnh mà không cần lưu tạm thời
             img_bytes = io.BytesIO(image_file.read())
 
             model = load_model(embedding_model_path)
@@ -321,7 +418,7 @@ def search(request):
 
             embedding = get_embedding(model, img_bytes)
             if embedding is None:
-                return redirect('store')  # Hoặc xử lý lỗi theo cách khác
+                return redirect('store')
 
             normalized_embedding = normalize_embedding(embedding)
 
