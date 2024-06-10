@@ -1,0 +1,11 @@
+id,antecedents,consequents
+90,bags,"['topwear']"
+2207,belts,"['topwear']"
+2646,bottomwear,"['sandal', 'bags' , 'topwear']"
+223,flip-flops,"['shoes']"
+590,headwear,"['topwear']"
+2206,innerwear,"['topwear']"
+64,sandal,"['topwear']"
+108,shoes,"['topwear', 'socks']"
+242,topwear,"['shoes']"
+1832,wallets,"['bags']"
