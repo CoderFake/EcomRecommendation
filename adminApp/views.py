@@ -38,6 +38,18 @@ import pandas as pd
 from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from datetime import timedelta
+from django.http import HttpResponse
+from django.utils.dateparse import parse_datetime
+from django.contrib.auth.decorators import login_required
+from docx import Document
+from docx.shared import Pt, Inches
+from docx.enum.section import WD_ORIENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Cm
+import os
 
 
 def get_locations(id, parent_id):
@@ -51,26 +63,54 @@ def get_locations(id, parent_id):
             return location.get('name')
     return None
 
+
 def update_dash(request):
     if request.method == "POST":
         timezone.activate(settings.TIME_ZONE)
         today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+
+
         users_logged_in_today = Account.objects.filter(last_login__date__gte=today).count()
         users_logged_in_not_today = Account.objects.filter(last_login__date__lt=today, is_login=True).count()
         daily_signins = users_logged_in_today + users_logged_in_not_today
         daily_signup = Account.objects.filter(date_joined__date__gte=today).count()
         daily_order = Order.objects.filter(created_at__date__gte=today).count()
         orders = Order.objects.filter(created_at__gte=today, is_ordered=True)
-        daily_total_order = 0
-        for order in orders:
-            daily_total_order += order.payment.amount_paid
-        response = {
+        daily_total_order = sum(order.payment.amount_paid for order in orders)
+
+
+        users_logged_in_yesterday = Account.objects.filter(last_login__date__gte=yesterday,
+                                                           last_login__date__lt=today).count()
+        users_logged_in_not_yesterday = Account.objects.filter(last_login__date__lt=yesterday, is_login=True).count()
+        yesterday_signins = users_logged_in_yesterday + users_logged_in_not_yesterday
+        yesterday_signup = Account.objects.filter(date_joined__date__gte=yesterday, date_joined__date__lt=today).count()
+        yesterday_order = Order.objects.filter(created_at__date__gte=yesterday, created_at__date__lt=today).count()
+        yesterday_orders = Order.objects.filter(created_at__gte=yesterday, created_at__lt=today, is_ordered=True)
+        yesterday_total_order = sum(order.payment.amount_paid for order in yesterday_orders)
+
+        def calculate_percentage_change(today_value, yesterday_value):
+            if yesterday_value == 0:
+                return 100 if today_value > 0 else 0
+            return round(((today_value - yesterday_value) / yesterday_value) * 100, 2)
+
+        signin_change = calculate_percentage_change(daily_signins, yesterday_signins)
+        signup_change = calculate_percentage_change(daily_signup, yesterday_signup)
+        order_change = calculate_percentage_change(daily_order, yesterday_order)
+        total_order_change = calculate_percentage_change(daily_total_order, yesterday_total_order)
+
+        context = {
             "user_signins": daily_signins,
+            "signin_change": signin_change,
             "daily_signups": daily_signup,
+            "signup_change": signup_change,
             "daily_order": daily_order,
-            "daily_total_order": round(daily_total_order, 2)
+            "order_change": order_change,
+            "daily_total_order": round(daily_total_order, 2),
+            "total_order_change": total_order_change
         }
-        return JsonResponse(response, safe=False)
+
+        return JsonResponse(context, safe=False)
 
 
 @login_required(login_url='login')
@@ -479,6 +519,25 @@ def delete_variations(request, pk):
 
 
 # Orders based views ##############################################################
+MODEL_DIR = os.path.join(settings.BASE_DIR, 'static', 'adminapp', 'assets', 'img', 'logo')
+DOC_DIR = os.path.join(settings.BASE_DIR, 'static', 'doc')
+
+def set_cell_border(cell, **kwargs):
+
+    tc = cell._element
+    tcPr = tc.get_or_add_tcPr()
+
+    for edge in ('top', 'bottom', 'left', 'right', 'insideH', 'insideV'):
+        if edge in kwargs:
+            edge_data = kwargs.get(edge)
+            element = OxmlElement(f"w:{edge}")
+            element.set(qn('w:val'), edge_data.get("val", "single"))
+            element.set(qn('w:sz'), str(edge_data.get("sz", 12)))
+            element.set(qn('w:space'), str(edge_data.get("space", 0)))
+            element.set(qn('w:color'), edge_data.get("color", "000000"))
+            tcPr.append(element)
+
+
 @login_required(login_url='login')
 def download_order_report(request):
     if request.method == 'POST' and request.user.is_superuser:
@@ -494,31 +553,101 @@ def download_order_report(request):
             'order_total', 'payment__status', 'order_status', 'phone', 'road', 'ward', 'district', 'city'
         )
 
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Orders Report"
+        # Create a Document
+        doc = Document()
 
-        columns = ["ID", "Order Number", "Full Name", "Phone Number", "Email", "Address",
-                   "Created At", "Payment Status", "Order Status",  "Total ($)"]
-        ws.append(columns)
+        # Set landscape orientation
+        section = doc.sections[0]
+        section.orientation = WD_ORIENT.LANDSCAPE
+        new_width, new_height = section.page_height, section.page_width
+        section.page_width = new_width
+        section.page_height = new_height
 
+        # Add title and logo in the same cell
+        table = doc.add_table(rows=1, cols=1)
+        cell = table.cell(0, 0)
+        paragraph = cell.paragraphs[0]
+
+        # Add logo
+        run = paragraph.add_run()
+        run.add_picture(
+            os.path.join(settings.BASE_DIR, 'static', 'adminapp', 'assets', 'img', 'logo', 'ec-site-logo.png'),
+            width=Inches(1.0))
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        # Add store name
+        store_name = cell.add_paragraph()
+        run = store_name.add_run("EKKA Store")
+        run.font.size = Pt(48)
+        run.bold = True
+        store_name.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        store_name.paragraph_format.space_before = Pt(12)
+
+        # Add report title and date
+        title_para = doc.add_heading('Orders Overview Report', level=1)
+        title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        for run in title_para.runs:
+            run.font.size = Pt(22)
+
+        date_para = doc.add_paragraph(f"From: {start_date.strftime('%Y-%m-%d')} To: {end_date.strftime('%Y-%m-%d')}")
+        date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        date_para.style = doc.styles['Normal']
+        for run in date_para.runs:
+            run.font.size = Pt(18)
+
+        # Table
+        table = doc.add_table(rows=1, cols=10)
+        hdr_cells = table.rows[0].cells
+        headers = ["ID", "Order Number", "Full Name", "Phone Number", "Email", "Address",
+                   "Created At", "Payment Status", "Order Status", "Total ($)"]
+        for i, header in enumerate(headers):
+            hdr_cells[i].text = header
+            hdr_cells[i].paragraphs[0].runs[0].font.bold = True
+            set_cell_border(
+                hdr_cells[i],
+                top={"sz": 12, "val": "single", "color": "000000"},
+                bottom={"sz": 12, "val": "single", "color": "000000"},
+                left={"sz": 12, "val": "single", "color": "000000"},
+                right={"sz": 12, "val": "single", "color": "000000"},
+            )
+
+        # Insert order data
         for order in orders:
-            address = f'{order['road']}, {get_locations(order['ward'], order['district'])}, {get_locations(order['district'], order['city'])}, {get_locations(order['city'], "")}'
-            row = [
-                order['id'], order['order_number'], order['user__full_name'], order['phone'],
-                order['user__email'], address, order['created_at'].strftime('%Y-%m-%d %H:%M:%S'), order['payment__status'],
-                order['order_status'], order['order_total']
-            ]
-            ws.append(row)
+            row_cells = table.add_row().cells
+            row_cells[0].text = str(order['id'])
+            row_cells[1].text = order['order_number']
+            row_cells[2].text = order['user__full_name']
+            row_cells[3].text = order['phone']
+            row_cells[4].text = order['user__email']
+            row_cells[5].text = f"{order['road']}, {get_locations(order['ward'], order['district']) }, {get_locations(order['district'], order['city'])}, {get_locations(order['city'],"")}"
+            row_cells[6].text = order['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+            row_cells[7].text = order['payment__status']
+            row_cells[8].text = order['order_status']
+            row_cells[9].text = str(order['order_total'])
+            for cell in row_cells:
+                set_cell_border(
+                    cell,
+                    top={"sz": 6, "val": "single", "color": "000000"},
+                    bottom={"sz": 6, "val": "single", "color": "000000"},
+                    left={"sz": 6, "val": "single", "color": "000000"},
+                    right={"sz": 6, "val": "single", "color": "000000"},
+                )
 
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = f'attachment; filename="orders_report_{start_date.strftime("%Y%m%d")}_to_{end_date.strftime("%Y%m%d")}.xlsx"'
-        wb.save(response)
+        # Save the document
+        if not os.path.exists(DOC_DIR):
+            os.makedirs(DOC_DIR)
+        doc_file = os.path.join(DOC_DIR, 'orders_report.docx')
+        doc.save(doc_file)
 
-        return response
+        # Read the file content and return as response
+        with open(doc_file, 'rb') as f:
+            response = HttpResponse(f.read(),
+                                    content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            response[
+                'Content-Disposition'] = f'attachment; filename="orders_report_{start_date.strftime("%Y%m%d")}_to_{end_date.strftime("%Y%m%d")}.docx"'
+            return response
 
     return HttpResponse("Invalid request", status=400)
-
 
 @login_required(login_url='login')
 def export_payments_to_excel(request):

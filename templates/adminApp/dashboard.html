@@ -11,6 +11,7 @@
                     <div class="card card-mini dash-card card-1">
                         <div class="card-body">
                             <h2 class="mb-1 user-signins"></h2>
+                            <h5 class="mb-1 signin-change"></h5>
                             <p>Daily Signins</p>
                             <span class="mdi mdi-account-arrow-left"></span>
                         </div>
@@ -20,6 +21,7 @@
                     <div class="card card-mini dash-card card-2">
                         <div class="card-body">
                             <h2 class="mb-1 daily-signups"></h2>
+                            <h5 class="mb-1 signup-change"></h5>
                             <p>Daily Signups</p>
                             <span class="mdi mdi-account-clock"></span>
                         </div>
@@ -29,6 +31,7 @@
                     <div class="card card-mini dash-card card-3">
                         <div class="card-body">
                             <h2 class="mb-1 daily-order"></h2>
+                            <h5 class="mb-1 order-change"></h5>
                             <p>Daily Order</p>
                             <span class="mdi mdi-package-variant"></span>
                         </div>
@@ -38,6 +41,7 @@
                     <div class="card card-mini dash-card card-4">
                         <div class="card-body">
                             <h2 class="mb-1 daily-payment"></h2>
+                            <h5 class="mb-1 total-order-change"></h5>
                             <p>Daily Revenue</p>
                             <span class="mdi mdi-currency-usd"></span>
                         </div>
@@ -214,7 +218,7 @@
             <div class="row">
                 <div class="col-xl-8 col-12 p-b-15">
                     <!-- World Chart -->
-                    <div class="card card-default"  id="analytics-country">
+                    <div class="card card-default" id="analytics-country">
                         <div class="card-header justify-content-between">
                             <h2>Purchased by City</h2>
                             <div class="date-range-report">
@@ -779,14 +783,35 @@
                         $('.daily-signups').text(response.daily_signups);
                         $('.daily-order').text(response.daily_order);
                         $('.daily-payment').text(response.daily_total_order);
+
+                        updateIconAndText('.signin-change', response.signin_change);
+                        updateIconAndText('.signup-change', response.signup_change);
+                        updateIconAndText('.order-change', response.order_change);
+                        updateIconAndText('.total-order-change', response.total_order_change);
                     },
                     error: function (xhr, status, error) {
                         console.log("Error: " + error);
                         console.log("Status: " + status);
                         console.log(xhr.responseText);
                     }
-                })
+                });
             }
+
+            function updateIconAndText(selector, change) {
+                const element = $(selector);
+                element.empty();  
+
+                if (change > 0) {
+                    element.append('<i class="mdi mdi-arrow-up-bold" style="color: green;"></i> ');
+                } else if (change < 0) {
+                    element.append('<i class="mdi mdi-arrow-down-bold" style="color: red;"></i> ');
+                } else {
+                    element.append('<i></i> ');
+                }
+
+                element.append(`${change}%`);
+            }
+
 
             update();
             setTimeout(function () {

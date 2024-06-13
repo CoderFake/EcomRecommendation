@@ -109,10 +109,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'image_embeddings.db'),
     },
-    'chat_bot': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'chroma.sqlite3'),
-    }
 
 }
 

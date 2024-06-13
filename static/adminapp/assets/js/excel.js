@@ -19,7 +19,7 @@ $(document).ready(function () {
                 var url = window.URL.createObjectURL(blob);
                 var a = document.createElement("a");
                 a.href = url;
-                a.download = "orders_report_" + startDate.replaceAll('/', '-') + "_to_" + endDate.replaceAll('/', '-') + ".xlsx";
+                a.download = "orders_report_" + startDate.replaceAll('/', '-') + "_to_" + endDate.replaceAll('/', '-') + ".docx";
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
