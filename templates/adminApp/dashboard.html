@@ -245,107 +245,31 @@
                     </div>
                 </div>
                 <div class="col-xl-4 col-12 p-b-15">
-                    <!-- Top Sell Table -->
-                    <div class="card card-default Sold-card-table h-100">
-                        <div class="card-header justify-content-between">
-                            <h2>Sold by Items</h2>
-                            <div class="tools">
-                                <button class="text-black-50 mr-2 font-size-20"><i
-                                        class="mdi mdi-cached"></i></button>
-                                <div class="dropdown show d-inline-block widget-dropdown">
-                                    <a class="dropdown-toggle icon-burger-mini" href="#" role="button"
-                                       id="dropdown-units" data-bs-toggle="dropdown" aria-haspopup="true"
-                                       aria-expanded="false" data-display="static"></a>
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        <li class="dropdown-item"><a href="#">Action</a></li>
-                                        <li class="dropdown-item"><a href="#">Another action</a></li>
-                                        <li class="dropdown-item"><a href="#">Something else here</a></li>
-                                    </ul>
-                                </div>
+                    <div class="card card-default">
+                        <div class="card-header card-header-border-bottom">
+                            <h2>Import Status</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Folder Name</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="etl-folders">
+                                        <tr>
+                                            <td colspan="3" class="text-center">Loading folders...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                        <div class="card-body py-0 compact-units" data-simplebar style="height: 534px;">
-                            <table class="table ">
-                                <tbody>
-                                <tr>
-                                    <td class="text-dark">Backpack</td>
-                                    <td class="text-center">9</td>
-                                    <td class="text-right">33% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">T-Shirt</td>
-                                    <td class="text-center">6</td>
-                                    <td class="text-right">150% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">Coat</td>
-                                    <td class="text-center">3</td>
-                                    <td class="text-right">50% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">Necklace</td>
-                                    <td class="text-center">7</td>
-                                    <td class="text-right">150% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">Jeans Pant</td>
-                                    <td class="text-center">10</td>
-                                    <td class="text-right">300% <i
-                                            class="mdi mdi-arrow-down-bold text-danger pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">Shoes</td>
-                                    <td class="text-center">5</td>
-                                    <td class="text-right">100% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">T-Shirt</td>
-                                    <td class="text-center">6</td>
-                                    <td class="text-right">150% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">Watches</td>
-                                    <td class="text-center">18</td>
-                                    <td class="text-right">160% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">Inner</td>
-                                    <td class="text-center">156</td>
-                                    <td class="text-right">120% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-dark">T-Shirt</td>
-                                    <td class="text-center">6</td>
-                                    <td class="text-right">150% <i
-                                            class="mdi mdi-arrow-up-bold text-success pl-1 font-size-12"></i>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-
-                        </div>
-                        <div class="card-footer d-flex flex-wrap bg-white">
-                            <a href="#" class="text-uppercase py-3">View Report</a>
                         </div>
                     </div>
                 </div>
+                <!-- End ETL Products Section -->
             </div>
 
             <div class="row">
@@ -759,6 +683,26 @@
                 </div>
             </div>
         </div>
+         <!-- Import Confirmation Modal -->
+        <div class="modal fade" id="importConfirmModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Import</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Do you want to import products from folder <span id="import-folder-name"></span> into the database?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirm-import">Confirm Import</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 {% block jsblock %}
@@ -818,6 +762,108 @@
                 update();
             }, 60000)
         })
+    </script>
+    <script>
+        $(document).ready(function() {
+            loadFolders();
+
+            let currentFolder = null;
+
+            $(document).on('click', '.import-btn', function() {
+                currentFolder = $(this).data('folder');
+                $('#import-folder-name').text(currentFolder);
+                $('#importConfirmModal').modal('show');
+            });
+
+            $('#confirm-import').on('click', function() {
+                if (currentFolder) {
+                    importFolder(currentFolder);
+                    $('#importConfirmModal').modal('hide');
+                }
+            });
+        });
+
+        function loadFolders() {
+            $.ajax({
+                url: '{% url "get_folders" %}',
+                type: 'GET',
+                dataType: 'json',
+                headers: {
+                    'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.folders && response.folders.length > 0) {
+                        let html = '';
+
+                        response.folders.forEach(folder => {
+                            let statusBadge = '';
+                            let actionBtn = '';
+
+                            if (folder.imported) {
+                                statusBadge = '<span class="badge badge-primary">Imported</span>';
+                                actionBtn = '<button class="btn btn-sm btn-secondary" disabled>Imported</button>';
+                            } else {
+                                statusBadge = '<span class="badge badge-success">Ready to Import</span>';
+                                actionBtn = `<button class="btn btn-sm btn-success import-btn" data-folder="${folder.name}">Import</button>`;
+                            }
+
+                            html += `
+                                <tr>
+                                    <td>${folder.name}</td>
+                                    <td>${statusBadge}</td>
+                                    <td>${actionBtn}</td>
+                                </tr>
+                            `;
+                        });
+
+                        $('#etl-folders').html(html);
+                    } else {
+                        $('#etl-folders').html('<tr><td colspan="3" class="text-center">No folders available</td></tr>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading folders:', error);
+                    $('#etl-folders').html('<tr><td colspan="3" class="text-center text-danger">Failed to load folders</td></tr>');
+                }
+            });
+        }
+
+        function importFolder(folderName) {
+            const folderRow = $(`.import-btn[data-folder="${folderName}"]`).closest('tr');
+            const statusCell = folderRow.find('td:nth-child(2)');
+            const actionCell = folderRow.find('td:nth-child(3)');
+
+            statusCell.html('<span class="badge badge-warning">Importing...</span>');
+            actionCell.html('<i class="mdi mdi-loading mdi-spin"></i> Processing...');
+
+            $.ajax({
+                url: '{% url "process_folder" %}',
+                type: 'POST',
+                data: JSON.stringify({ folder_name: folderName }),
+                contentType: 'application/json',
+                dataType: 'json',
+                headers: {
+                    'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        statusCell.html('<span class="badge badge-primary">Imported</span>');
+                        actionCell.html('<button class="btn btn-sm btn-secondary" disabled>Imported</button>');
+                        alert('Folder imported successfully');
+                    } else {
+                        statusCell.html('<span class="badge badge-danger">Failed</span>');
+                        actionCell.html(`<button class="btn btn-sm btn-success import-btn" data-folder="${folderName}">Retry</button>`);
+                        alert('Failed to import folder: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error importing folder:', error);
+                    statusCell.html('<span class="badge badge-danger">Failed</span>');
+                    actionCell.html(`<button class="btn btn-sm btn-success import-btn" data-folder="${folderName}">Retry</button>`);
+                    alert('Failed to import folder. Please try again.');
+                }
+            });
+        }
     </script>
 {% endblock %}
 			

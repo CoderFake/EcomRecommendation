@@ -1,154 +1,32 @@
-import os
-
-import joblib
-import pandas as pd
-from django.conf import settings
 from django.contrib import auth
-from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
-from store.views import recom_product
 from accounts.models import UserProfile, Account, EventUser
 from store.models import Product, ProductImage
 from django.http import JsonResponse, HttpResponse
 import requests
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import random
 
+
 def index(request):
-    products_list = []
-    produ_count = 0
-    start = 0
-    end = 0
-
-    if request.user.is_authenticated:
-        subs = recom_product(request.user)
-        if not subs:
-            if 'product' in request.session:
-                product_id = request.session['product']
-                product = get_object_or_404(Product, id=product_id)
-                related_products = Product.objects.filter(
-                    Q(category_main=product.category_main) &
-                    Q(sub_category=product.sub_category) &
-                    Q(brand_name=product.brand_name) &
-                    Q(gender=product.gender) &
-                    Q(season=product.season)
-                ).exclude(id=product_id).order_by('-rating')
-
-                other_products = Product.objects.exclude(
-                    Q(category_main=product.category_main) &
-                    Q(sub_category=product.sub_category) &
-                    Q(brand_name=product.brand_name) &
-                    Q(gender=product.gender) &
-                    Q(season=product.season) |
-                    Q(id=product_id)
-                ).order_by('-rating')
-
-                products_list = list(related_products) + list(other_products)
-        else:
-            user_event = EventUser.objects.filter(user=request.user).order_by('-event_timestamp').first()
-            if user_event and hasattr(user_event.product, 'gender') and user_event.product.gender:
-                gender = user_event.product.gender
-            else:
-                user_profile = UserProfile.objects.get(user=request.user)
-                gender = "Men" if user_profile.sex == "Male" else "Women"
-            product = get_object_or_404(Product, id=user_event.product_id)
-            recom_products = Product.objects.filter(
-                sub_category__sub_category_name__in=subs,
-                gender=gender
-            ).order_by('-rating')
-
-            products_list = []
-
-            if 'product' in request.session:
-                product_id = request.session['product']
-                product = get_object_or_404(Product, id=product_id)
-                related_products = Product.objects.filter(
-                    Q(category_main=product.category_main) &
-                    Q(sub_category=product.sub_category) &
-                    Q(brand_name=product.brand_name) &
-                    Q(gender=gender) &
-                    Q(season=product.season)
-                ).exclude(id=product_id).order_by('-rating')
-                recom_products_list = list(recom_products)
-                related_products_list = list(related_products)
-                random.shuffle(recom_products_list)
-                random.shuffle(related_products_list)
-                if recom_products.exists():
-                    products_list = recom_products_list + related_products_list
-                else:
-                    other_products = Product.objects.exclude(
-                        Q(category_main=product.category_main) &
-                        Q(sub_category=product.sub_category) &
-                        Q(brand_name=product.brand_name) &
-                        Q(gender=gender) &
-                        Q(season=product.season) |
-                        Q(id=product_id)
-                    ).order_by('-rating')
-
-                    products_list = list(related_products) + list(other_products)
-
-                products_list = list(set(products_list))
-                random.shuffle(products_list)
-            else:
-                products_list = list(recom_products)
+    all_products = Product.objects.all()
+    new_products = Product.objects.all().order_by('-created_date')[:8]
+    top_rated_products = Product.objects.all().order_by('-rating')[:8]
+    if all_products.count() > 12:
+        random_products_ids = random.sample(list(all_products.values_list('id', flat=True)), 12)
+        random_products = Product.objects.filter(id__in=random_products_ids)
     else:
-        if 'product' in request.session:
-            product_id = request.session['product']
-            product = get_object_or_404(Product, id=product_id)
-
-            related_products = Product.objects.filter(
-                Q(category_main=product.category_main) &
-                Q(sub_category=product.sub_category) &
-                Q(brand_name=product.brand_name) &
-                Q(gender=product.gender) &
-                Q(season=product.season),
-                ~Q(id=product_id)
-            ).order_by('-rating')
-
-            other_products = Product.objects.exclude(
-                Q(category_main=product.category_main) &
-                Q(sub_category=product.sub_category) &
-                Q(brand_name=product.brand_name) &
-                Q(gender=product.gender) &
-                Q(season=product.season) |
-                Q(id=product_id)
-            ).order_by('-rating')
-
-            # Lưu thứ tự: sản phẩm liên quan trước, sau đó là sản phẩm khác
-            products_list = list(related_products) + list(other_products)
-        else:
-            products_list = list(Product.objects.all().order_by('-rating'))
-
-    produ_count = len(products_list)
-    paginator = Paginator(products_list, 100)
-    page = request.GET.get('page', 1)
-
-    try:
-        page_obj = paginator.page(page)
-    except PageNotAnInteger:
-        page_obj = paginator.page(1)
-    except EmptyPage:
-        page_obj = paginator.page(paginator.num_pages)
-
-    if page_obj.number == paginator.num_pages:
-        start = produ_count - (page_obj.number - 1) * 100
-        end = produ_count
-    else:
-        start = (page_obj.number - 1) * 100
-        end = start + len(page_obj.object_list)
+        random_products = all_products
 
     context = {
-        'page_obj': page_obj,
-        'produ_count': produ_count,
-        'start': start,
-        'end': end
+        'new_products': new_products,
+        'top_rated_products': top_rated_products,
+        'random_products': random_products,
+        'is_home': True
     }
+
     return render(request, 'homePage/home.html', context)
 
 
-
-@csrf_exempt
 def full_name(request):
     if request.method == 'GET':
         pass_header = request.headers.get('Pass')

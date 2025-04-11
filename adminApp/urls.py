@@ -49,4 +49,7 @@ urlpatterns = [
     #Order based urls
     path('order_list', views.order_list, name='order_list'),
     path('order_update/<int:pk>', views.order_update, name='order_update'),
+
+    path('api/get-folders/', views.get_folders, name='get_folders'),
+    path('api/process-folder/', views.process_folder, name='process_folder'),
 ]

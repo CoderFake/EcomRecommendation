@@ -11,9 +11,8 @@ category_main_choices = (
 class CategoryMain(models.Model):
     category_name = models.CharField(max_length=50 )
     slug = models.SlugField(max_length=100, unique=True)
-    cat_main_img = models.ImageField(upload_to='Category/cat_main_img', blank=True)
+    cat_main_img = models.CharField(max_length=254, null=True, blank=True)
     description = models.TextField(blank=True)
-    # New field for OLAP - parent category can be null if it's a top-level category
     parent_category = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
@@ -32,9 +31,8 @@ class SubCategory(models.Model):
     category = models.ForeignKey(CategoryMain, related_name='subcategories', on_delete=models.CASCADE)
     sub_category_name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
-    cat_sub_img = models.ImageField(upload_to='Category/cat_sub_img', blank=True)
+    cat_sub_img = models.CharField(max_length=254, null=True, blank=True)
     description = models.TextField(blank=True)
-    # New field for OLAP - indicates if this subcategory is active or not
     is_active = models.BooleanField(default=True)
 
     class Meta:

@@ -1,7 +1,6 @@
-
 {% extends 'base.html' %}
 {% load static %}
-{% load rating_tags %}
+
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/magnific-popup.css' %}" />
     <link rel="stylesheet" href="{% static 'webapp/assets/css/plugins/animate.css' %}" />
@@ -24,8 +23,6 @@
 
 {% block content %}
     <div id="ec-overlay"><span class="loader_img"></span></div>
-    
-
 
     <!-- Main Slider Start -->
     <div class="ec-main-slider section section-space-pb">
@@ -94,7 +91,6 @@
         </div>
     </div>
     <!-- Main Slider End -->
-
     <!--  category Section Start -->
     <section class="section ec-category-section section-space-p">
         <div class="container">
@@ -225,163 +221,303 @@
     </section>
     <!--category Section End -->
 
-    <!-- START Product Transparent Style -->
-    <section class="sec-tp el-prod section-space-p">
+    <!-- Random Products Section Start -->
+    <section class="section-space-p">
         <div class="container">
             <div class="row">
                 <div class="col-md-12 text-center">
                     <div class="section-title">
-                        <h2 class="ec-bg-title">All Products</h2>
-                        <h2 class="ec-title">All Products</h2>
-                        <p class="sub-title">Browse The Collection of Top Categories</p>
+                        <h2 class="ec-bg-title">Discover Products</h2>
+                        <h2 class="ec-title">Discover Products</h2>
+                        <p class="sub-title">Browse our random selections for you</p>
                     </div>
                 </div>
             </div>
             <div class="row">
-                {% for product in page_obj %}
-
-                    <!-- START single card -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 my-4">
-                        <div class="ec-product-tp">
-                            <div class="ec-product-image">
-                                <a href="
-                                        {{ product.category_main.get_url }}{{ product.sub_category.slug }}/{{ product.slug }}" class="product-session">
+                {% for product in random_products %}
+                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 mb-6 pro-gl-content">
+                    <div class="ec-product-inner">
+                        <div class="ec-pro-image-outer">
+                            <div class="ec-pro-image">
+                                <a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="image product-session">
                                     {% for image in product.images.all %}
-                                        {% if image.image_type == 'default' %}
-                                            <img src="{{ image.image_url }}" class="img-center" alt="">
+                                        {% if image.image_type == "default" %}
+                                            <img class="main-image"
+                                                src="{{ image.image_url }}" alt="{{ product.product_name }}" />
+                                        {% endif %}
+                                        {% if image.image_type == "back" %}
+                                            <img class="hover-image"
+                                                src="{{ image.image_url }}" alt="{{ product.product_name }}" />
                                         {% endif %}
                                     {% endfor %}
                                 </a>
-                                {% if product.is_available %}
-                                    <span class="ec-product-ribbon">In Stock</span>
-                                {% else %}
-                                    <span class="ec-product-ribbon">Out of Stock</span>
-                                {% endif %}
-                                <div class="ec-link-icon">
-                                    <a href="#" data-tip="Add to Wishlist"><img
-                                            src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
-                                            class="svg_img header_svg pro_svg" alt="wishlist"/></a>
-                                    <a href="#" data-tip="Compare"><img
-                                            src="{% static 'webapp/assets/images/icons/compare.svg' %}"
-                                            class="svg_img pro_svg" alt="compare"/></a>
-                                    <a href="#" data-tip="Quick View"><img
+                                <span class="percentage">-{{ product.mrp_price|floatformat:0 }}%</span>
+                                <div class="ec-pro-actions">
+                                    <a href="{% url 'add_cart' product.id %}" class="add-to-cart"><img
+                                            src="{% static 'webapp/assets/images/icons/cart.svg' %}"
+                                            class="svg_img pro_svg" alt="" /> Add To Cart</a>
+                                    <a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="ec-btn-group quickview product-session" data-link-action="quickview"
+                                        data-bs-toggle="modal" data-bs-target="#ec_quickview_modal"><img
                                             src="{% static 'webapp/assets/images/icons/quickview.svg' %}"
-                                            class="svg_img pro_svg" alt="quick view"/></a>
-                                </div>
-                            </div>
-                            <div class="ec-product-body">
-
-                                <h3 class="ec-title"><a href="#">{{ product.product_name }}</a></h3>
-                                {{ product.category_main }} - {{ product.sub_category }}
-                                <p class="ec-description">
-                                    {{ product.short_desp }}
-                                </p>
-                                <ul class="ec-rating">
-                                    {% render_stars product.rating %}
-                                </ul>
-                                <div class="ec-price"><span> {{ product.mrp_price }}$</span> {{ product.price }}$</div>
-                                <div class="ec-link-btn">
-
-                                    <a class=" ec-add-to-cart" href="
-                                            {{ product.category_main.get_url }}{{ product.sub_category.slug }}/{{ product.slug }}">View
-                                        Details</a>
-
-
+                                            class="svg_img pro_svg" alt="" /></a>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- END single card -->
-                {% endfor %}
-                <div class="mt-4 row">
-                    {% if page_obj.has_other_pages %}
-                        <div class="col-lg-12">
-                            <ul class="pagination justify-content-center" style="height:45px;">
-                                {% if page_obj.has_previous %}
-                                    <li class="page-item"><a href="" data-page="1"
-                                                             class="btn btn-outline-secondary mb-4 post-link"
-                                                             style="border-radius:2px; border: 1px solid #d3d3d3;overflow: hidden; text-overflow: ellipsis;">
-                                        <div class="text-nowrap">Trang đầu</div>
-                                    </a>
-                                    </li>
-                                    <li class="page-item"><a class="page-link post-link h-100" href=""
-                                                             data-page="{{ page_obj.previous_page_number }}"><i
-                                            style="margin-right:0px;" class="fas fa-angle-double-left"></i></a></li>
-                                {% else %}
-                                    <li class="page-item disabled"></li>
-                                {% endif %}
-                                {% if page_obj.number|add:'-2' > 1 %}
-                                    <li><a class="page-link post-link h-100" href=""
-                                           data-page="{{ page_obj.number|add:'-2' }}">&hellip;</a></li>
-                                {% endif %}
-                                {% for i in page_obj.paginator.page_range %}
-                                    {% if page_obj.number == i %}
-                                        <li class="page-item active"><span class="page-link h-100">{{ i }}<span
-                                                class="sr-only"></span></span></li>
-                                    {% elif i > page_obj.number|add:'-2' and  i < page_obj.number|add:'2' %}
-                                        <li class="page-item"><a class="page-link post-link h-100" href=""
-                                                                 data-page="{{ i }}">{{ i }}</a></li>
+                        <div class="ec-pro-content">
+                            <h5 class="ec-pro-title"><a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="product-session">{{ product.product_name }}</a></h5>
+                            <div class="ec-pro-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.rating %}
+                                        <i class="ecicon eci-star fill"></i>
+                                    {% else %}
+                                        <i class="ecicon eci-star"></i>
                                     {% endif %}
                                 {% endfor %}
-                                {% if page_obj.paginator.num_pages > page_obj.number|add:'2' %}
-                                    <li><a class="page-link post-link h-100" href=""
-                                           data-page="{{ page_obj.number|add:'-2' }}">&hellip;</a></li>
-                                    <li><a class="post-link h-100" href="" data-page="{{ i }}">{{ i }}</a></li>
-                                    <li><a class="page-link post-link h-100" href=""
-                                           data-page="{{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
-                                    </li>
+                            </div>
+                            <div class="ec-pro-list-desc">{{ product.short_desp }}</div>
+                            <span class="ec-price">
+                                {% if product.mrp_price > product.price %}
+                                <span class="old-price">${{ product.mrp_price }}</span>
                                 {% endif %}
-                                {% if page_obj.has_next %}
-                                    <li class="page-item"><a class="page-link post-link h-100" href=""
-                                                             data-page="{{ page_obj.next_page_number }}"><i
-                                            style="margin-right:0px;" class="fas fa-angle-double-right"></i></a></li>
-                                    <li class="page-item"><a href="" data-page="{{ page_obj.paginator.num_pages }}"
-                                                             class="btn btn-outline-secondary mb-4 post-link"
-                                                             style="border-radius:2px; border: 1px solid #d3d3d3;overflow: hidden; text-overflow: ellipsis;">
-                                        <div class="text-nowrap">Trang cuối</div>
-                                    </a>
-                                    </li>
-                                {% else %}
-                                    <li class="page-item disabled"></li>
-                                {% endif %}
-                            </ul>
+                                <span class="new-price">${{ product.price }}</span>
+                            </span>
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
-
+                {% endfor %}
             </div>
         </div>
     </section>
-    <!--/END Product Default Style -->
+    <!-- Random Products Section End -->
+
+    <!-- New Products Section Start -->
+    <section class="section-space-p bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="section-title">
+                        <h2 class="ec-bg-title">New Arrivals</h2>
+                        <h2 class="ec-title">New Arrivals</h2>
+                        <p class="sub-title">Browse our latest collection</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                {% for product in new_products %}
+                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 mb-6 pro-gl-content">
+                    <div class="ec-product-inner">
+                        <div class="ec-pro-image-outer">
+                            <div class="ec-pro-image">
+                                <a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="image product-session">
+                                    {% for image in product.images.all %}
+                                        {% if image.image_type == "default" %}
+                                            <img class="main-image"
+                                                src="{{ image.image_url }}" alt="{{ product.product_name }}" />
+                                        {% endif %}
+                                        {% if image.image_type == "back" %}
+                                            <img class="hover-image"
+                                                src="{{ image.image_url }}" alt="{{ product.product_name }}" />
+                                        {% endif %}
+                                    {% endfor %}
+                                </a>
+                                <span class="flags">
+                                    <span class="new">New</span>
+                                </span>
+                                <div class="ec-pro-actions">
+                                    <a href="{% url 'add_cart' product.id %}" class="add-to-cart"><img
+                                            src="{% static 'webapp/assets/images/icons/cart.svg' %}"
+                                            class="svg_img pro_svg" alt="" /> Add To Cart</a>
+                                    <a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="ec-btn-group quickview product-session" data-link-action="quickview"
+                                        data-bs-toggle="modal" data-bs-target="#ec_quickview_modal"><img
+                                            src="{% static 'webapp/assets/images/icons/quickview.svg' %}"
+                                            class="svg_img pro_svg" alt="" /></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ec-pro-content">
+                            <h5 class="ec-pro-title"><a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="product-session">{{ product.product_name }}</a></h5>
+                            <div class="ec-pro-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.rating %}
+                                        <i class="ecicon eci-star fill"></i>
+                                    {% else %}
+                                        <i class="ecicon eci-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="ec-pro-list-desc">{{ product.short_desp }}</div>
+                            <span class="ec-price">
+                                {% if product.mrp_price > product.price %}
+                                <span class="old-price">${{ product.mrp_price }}</span>
+                                {% endif %}
+                                <span class="new-price">${{ product.price }}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <!-- New Products Section End -->
+
+    <!-- Top Rated Products Section Start -->
+    <section class="section-space-p">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="section-title">
+                        <h2 class="ec-bg-title">Top Rated</h2>
+                        <h2 class="ec-title">Top Rated</h2>
+                        <p class="sub-title">Discover highly rated products by our customers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                {% for product in top_rated_products %}
+                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 mb-6 pro-gl-content">
+                    <div class="ec-product-inner">
+                        <div class="ec-pro-image-outer">
+                            <div class="ec-pro-image">
+                                <a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="image product-session">
+                                    {% for image in product.images.all %}
+                                        {% if image.image_type == "default" %}
+                                            <img class="main-image"
+                                                src="{{ image.image_url }}" alt="{{ product.product_name }}" />
+                                        {% endif %}
+                                        {% if image.image_type == "back" %}
+                                            <img class="hover-image"
+                                                src="{{ image.image_url }}" alt="{{ product.product_name }}" />
+                                        {% endif %}
+                                    {% endfor %}
+                                </a>
+                                <span class="flags">
+                                    <span class="sale">Top</span>
+                                </span>
+                                <div class="ec-pro-actions">
+                                    <a href="{% url 'add_cart' product.id %}" class="add-to-cart"><img
+                                            src="{% static 'webapp/assets/images/icons/cart.svg' %}"
+                                            class="svg_img pro_svg" alt="" /> Add To Cart</a>
+                                    <a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="ec-btn-group quickview product-session" data-link-action="quickview"
+                                        data-bs-toggle="modal" data-bs-target="#ec_quickview_modal"><img
+                                            src="{% static 'webapp/assets/images/icons/quickview.svg' %}"
+                                            class="svg_img pro_svg" alt="" /></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ec-pro-content">
+                            <h5 class="ec-pro-title"><a href="{% url 'product_detail' product.category_main.slug product.sub_category.slug product.slug %}" class="product-session">{{ product.product_name }}</a></h5>
+                            <div class="ec-pro-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.rating %}
+                                        <i class="ecicon eci-star fill"></i>
+                                    {% else %}
+                                        <i class="ecicon eci-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="ec-pro-list-desc">{{ product.short_desp }}</div>
+                            <span class="ec-price">
+                                {% if product.mrp_price > product.price %}
+                                <span class="old-price">${{ product.mrp_price }}</span>
+                                {% endif %}
+                                <span class="new-price">${{ product.price }}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <!-- Top Rated Products Section End -->
+
+    <!-- Services Section Start -->
+    <section class="section-space-p bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="section-title">
+                        <h2 class="ec-bg-title">Our Services</h2>
+                        <h2 class="ec-title">Our Services</h2>
+                        <p class="sub-title">What we offer</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="ec_ser_content ec_ser_content_1 col-sm-12 col-md-6 col-lg-3">
+                    <div class="ec_ser_inner">
+                        <div class="ec-service-image">
+                            <img src="{% static 'webapp/assets/images/icons/service_1.svg' %}" class="svg_img" alt="" />
+                        </div>
+                        <div class="ec-service-desc">
+                            <h2>Free Shipping</h2>
+                            <p>Free shipping on all orders over $100</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="ec_ser_content ec_ser_content_2 col-sm-12 col-md-6 col-lg-3">
+                    <div class="ec_ser_inner">
+                        <div class="ec-service-image">
+                            <img src="{% static 'webapp/assets/images/icons/service_2.svg' %}" class="svg_img" alt="" />
+                        </div>
+                        <div class="ec-service-desc">
+                            <h2>24X7 Support</h2>
+                            <p>Contact us 24 hours a day, 7 days a week</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="ec_ser_content ec_ser_content_3 col-sm-12 col-md-6 col-lg-3">
+                    <div class="ec_ser_inner">
+                        <div class="ec-service-image">
+                            <img src="{% static 'webapp/assets/images/icons/service_3.svg' %}" class="svg_img" alt="" />
+                        </div>
+                        <div class="ec-service-desc">
+                            <h2>30 Days Return</h2>
+                            <p>Simply return it within 30 days for an exchange</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="ec_ser_content ec_ser_content_4 col-sm-12 col-md-6 col-lg-3">
+                    <div class="ec_ser_inner">
+                        <div class="ec-service-image">
+                            <img src="{% static 'webapp/assets/images/icons/service_4.svg' %}" class="svg_img" alt="" />
+                        </div>
+                        <div class="ec-service-desc">
+                            <h2>Payment Security</h2>
+                            <p>We ensure secure payment with PEV</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Services Section End -->
 
 {% endblock %}
+
 {% block jsblock %}
-    <script src="{% static 'webapp/assets/js/demo-8.js' %}"></script>
-    <script>
-        $(document).ready(function () {
-            $('.post-link').click(function (e) {
-                e.preventDefault();  // Ngăn không cho liên kết mở theo cách thông thường
-                var page = $(this).data('page');  // Lấy giá trị data-page
-                if (page) {
-                    window.location.href = '?page=' + page;  // Thay đổi URL hiện tại
-                }
-            });
+<script src="{% static 'webapp/assets/js/plugins/swiper-bundle.min.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        // Swiper slider initialization
+        var mainSlider = new Swiper('.ec-main-slider', {
+            loop: true,
+            speed: 2000,
+            effect: "fade",
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            }
         });
-
-        var swiper = new Swiper('.swiper-container', {
-        slidesPerView: 1,
-        spaceBetween: 30,
-        loop: true,
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-        },
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
-        });
-    </script>
-
+    });
+</script>
 {% endblock %}
-

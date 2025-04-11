@@ -26,7 +26,7 @@ from accounts.views import upload_image_to_cloudflare
 from django.shortcuts import redirect
 from category.models import CategoryMain, SubCategory
 from category.forms import SubCategoryForm, CategoryMainForm
-from store.models import Product, Variation, VariationManager
+from store.models import Product, Variation, VariationManager, FolderEvent
 from carts.forms import ProductForm
 from store.forms import variationForm
 from orders.forms import OrderForm, OrderUpdateForm
@@ -619,7 +619,7 @@ def download_order_report(request):
             row_cells[2].text = order['user__full_name']
             row_cells[3].text = order['phone']
             row_cells[4].text = order['user__email']
-            row_cells[5].text = f"{order['road']}, {get_locations(order['ward'], order['district']) }, {get_locations(order['district'], order['city'])}, {get_locations(order['city'],"")}"
+            row_cells[5].text = f"{order['road']}, {get_locations(order['ward'], order['district']) }, {get_locations(order['district'], order['city'])}, {get_locations(order['city'],'')}"
             row_cells[6].text = order['created_at'].strftime('%Y-%m-%d %H:%M:%S')
             row_cells[7].text = order['payment__status']
             row_cells[8].text = order['order_status']
@@ -1038,7 +1038,6 @@ def order_update(request, pk):
 AES_KEY = base64.urlsafe_b64decode(config('AES_KEY'))
 
 
-@login_required(login_url='login')
 def encrypt(data):
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(AES_KEY), modes.CBC(iv), backend=default_backend())
@@ -1051,7 +1050,6 @@ def encrypt(data):
     return base64.urlsafe_b64encode(iv + encrypted_data).decode('utf-8')
 
 
-@login_required(login_url='login')
 def decrypt(encrypted_data):
     encrypted_data = base64.urlsafe_b64decode(encrypted_data)
     iv = encrypted_data[:16]
@@ -1069,25 +1067,77 @@ def decrypt(encrypted_data):
 
 
 @login_required(login_url='login')
-@csrf_exempt
 def get_folders(request):
-    response = requests.get(config('GET'))
-    if response.status_code == 200:
-        data = response.json()
-        decrypted_folders = [decrypt(folder) for folder in data['folders']]
-        return JsonResponse({"folders": decrypted_folders})
-    else:
-        return JsonResponse({"status": "error", "message": "Failed to get folders"}, status=500)
+    if request.method == 'GET' and request.user.is_superuser:
+        try:
+            response = requests.get('http://127.0.0.1:5000/get-folders')
+
+            if response.status_code == 200:
+                data = response.json()
+                folders = []
+
+                for encrypted_folder in data.get('folders', []):
+                    folder_name = decrypt(encrypted_folder)
+
+                    is_imported = FolderEvent.objects.filter(name=folder_name).exists()
+
+                    folders.append({
+                        'name': folder_name,
+                        'imported': is_imported
+                    })
+
+                return JsonResponse({"status": "success", "folders": folders})
+            else:
+                return JsonResponse({
+                    "status": "error",
+                    "message": f"ETL service returned status code {response.status_code}"
+                }, status=500)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+    return JsonResponse({"status": "error", "message": "Unauthorized or invalid request"}, status=403)
 
 
 @login_required(login_url='login')
-@csrf_exempt
 def process_folder(request):
-    if request.method == 'POST':
-        folder_name = request.POST.get('folder_name')
-        encrypted_folder_name = encrypt(json.dumps({"folder_name": folder_name}))
-        response = requests.post(config('POST'), json={"data": encrypted_folder_name})
-        if response.status_code == 200:
-            return JsonResponse(response.json())
-        else:
-            return JsonResponse({"status": "error", "message": "Failed to process folder"}, status=500)
+    if request.method == 'POST' and request.user.is_superuser:
+        try:
+            data = json.loads(request.body)
+            folder_name = data.get('folder_name')
+
+            if not folder_name:
+                return JsonResponse({"status": "error", "message": "Folder name is required"}, status=400)
+
+            encrypted_data = encrypt(json.dumps({"folder_name": folder_name}))
+
+            response = requests.post(
+                'http://127.0.0.1:5000/process-folder',
+                json={"data": encrypted_data}
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+
+                if result.get('status') == 'success':
+                    FolderEvent.objects.create(name=folder_name)
+
+                    return JsonResponse({
+                        "status": "success",
+                        "message": "Folder imported successfully"
+                    })
+                else:
+                    return JsonResponse({
+                        "status": "error",
+                        "message": result.get('message', 'Failed to process folder')
+                    })
+            else:
+                return JsonResponse({
+                    "status": "error",
+                    "message": f"ETL service returned status code {response.status_code}"
+                }, status=500)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+    return JsonResponse({"status": "error", "message": "Unauthorized or invalid request"}, status=403)
