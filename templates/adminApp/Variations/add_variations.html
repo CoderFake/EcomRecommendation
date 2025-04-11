@@ -22,22 +22,19 @@
                                         <label for="text" class="col-12 col-form-label">Choose Product</label>
                                         <div class="col-12">
                                             {{ form.Product }}
-
                                         </div>
                                     </div>
                                     <div class="form-group row">
-                                        <label for="text" class="col-12 col-form-label">Main Category</label>
+                                        <label for="text" class="col-12 col-form-label">Variation Category</label> {# Corrected Label #}
                                         <div class="col-12">
-                                            {{ form.Variation_category }}
-
+                                            {{ form.variation_category }} {# Corrected field name #}
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="text" class="col-12 col-form-label">Sub Category </label>
+                                        <label for="text" class="col-12 col-form-label">Variation Value</label> {# Corrected Label #}
                                         <div class="col-12">
-                                            {{ form.Variation_value }}
-
+                                            {{ form.variation_value }} {# Corrected field name #}
                                         </div>
                                     </div>
 
@@ -45,7 +42,6 @@
                                         <label for="text" class="col-12 col-form-label">Active</label>
                                         <div class="col-12 pr-5 pl-5">
                                             {{ form.is_active }}
-
                                         </div>
                                     </div>
                                     <div class="row">
@@ -53,8 +49,6 @@
                                             <button name="submit" type="submit" class="btn btn-primary">Submit</button>
                                         </div>
                                     </div>
-
-
                                 </form>
 
                             </div>
@@ -69,66 +63,106 @@
                                     <thead>
                                     <tr>
                                         <th>Sl no</th>
-
                                         <th>Product Thumb & Name</th>
-                                        <th>Variation value</th>
+                                        <th>Variation Category</th> {# Added Category Column #}
+                                        <th>Variation Value</th>
                                         <th>Active</th>
                                         <th>Action</th>
-
                                     </tr>
                                     </thead>
-
                                     <tbody>
-                                    {% for prodt in existing_variations %}
+                                    {% for variation in page_obj %} {# Changed variable name #}
                                         <tr>
-                                        <td><span class="ec-sub-cat-count"
-                                                  title="Total Sub Categories">{{ forloop.counter }}</span></td>
-                                        <td><img class="cat-thumb" src="{{ prodt.Product.images.url }}"
-                                                 alt="Product Image"/>
-                                            <a href="../..
-                                                    
-                                                    {{ prodt.Category_Main.get_url }}{{ prodt.sub_category.slug }}/{{ prodt.slug }}">{{ prodt.Product.product_name }}</a>
-                                        </td>
-
-
-                                        <td>
-                                            {{ prodt.Variation_value }}
-                                        <td>
-                                            {% if prodt.is_active  > 0 %}
-                                                <span class="badge badge-success">Active</span>
-                                            {% else %}
-                                                <span class="badge badge-danger">Disabled</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <button type="button"
-                                                        class="btn btn-outline-success">Info
-                                                </button>
-                                                <button type="button"
-                                                        class="btn btn-outline-success dropdown-toggle dropdown-toggle-split"
-                                                        data-bs-toggle="dropdown" aria-haspopup="true"
-                                                        aria-expanded="false" data-display="static">
-                                                    <span class="sr-only">Info</span>
-                                                </button>
-
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="./edit_variations/{{ prodt.id }}">Edit</a>
-                                                    <a class="dropdown-item" href="./edit_variations/{{ prodt.id }}">Delete</a>
+                                            {# Adjust counter to reflect current page number #}
+                                            <td><span class="ec-sub-cat-count" title="Variation Number">{{ page_obj.start_index|add:forloop.counter0 }}</span></td>
+                                            <td>
+                                                {# Assuming first image or a default if none #}
+                                                {% with variation.product.images.first as img %}
+                                                    {% if img %}
+                                                        <img class="cat-thumb" src="{{ img.image_url }}" alt="Product Image"/>
+                                                    {% else %}
+                                                        <img class="cat-thumb" src="{% static 'webapp/assets/images/product-image/default.jpg' %}" alt="Default Product Image"/> {# Placeholder default image #}
+                                                    {% endif %}
+                                                {% endwith %}
+                                                {# Corrected product link assumption - needs verification #}
+                                                <a href="{% url 'product_detail' variation.product.category_main.slug variation.product.sub_category.slug variation.product.slug %}">{{ variation.product.product_name }}</a>
+                                            </td>
+                                            <td>{{ variation.variation_category }}</td> {# Display variation category #}
+                                            <td>{{ variation.variation_value }}</td>
+                                            <td>
+                                                {% if variation.is_active %}
+                                                    <span class="badge badge-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge badge-danger">Disabled</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-outline-success">Info</button>
+                                                    <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                                                        <span class="sr-only">Info</span>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <a class="dropdown-item" href="{% url 'edit_variations' variation.id %}">Edit</a> {# Use url tag #}
+                                                        <a class="dropdown-item" href="{% url 'delete_variations' variation.id %}">Delete</a> {# Use url tag #}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
+                                            </td>
+                                        </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
-
-                                </tr>
-
                             </div>
+                            {% comment %} Pagination Controls {% endcomment %}
+                            <nav aria-label="Page navigation example" class="mt-3">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for i in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == i %}
+                                            <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                                             <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                        {% elif i == page_obj.paginator.page_range.0 or i == page_obj.paginator.page_range|last %}
+                                             {# Always show first and last page numbers #}
+                                             {% if i == page_obj.paginator.page_range.0 and page_obj.number > 4 %}
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                             {% endif %}
+                                             <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                             {% if i == page_obj.paginator.page_range|last and page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                             {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% comment %} End Pagination Controls {% endcomment %}
                         </div>
                     </div>
                 </div>
             </div>
         </div> <!-- End Content -->
-    </div> 
+    </div>
 {% endblock %}

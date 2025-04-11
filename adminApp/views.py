@@ -50,7 +50,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm
 import os
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def get_locations(id, parent_id):
     api_url = "https://member.lazada.vn/locationtree/api/getSubAddressList?countryCode=VN"
@@ -149,10 +149,22 @@ def user_infor(request):
 @login_required(login_url='login')
 def user_list(request):
     if request.user.is_superuser:
-        profiles = UserProfile.objects.all().order_by('-user__date_joined')
+        profile_list = UserProfile.objects.all().order_by('-user__date_joined')
+        paginator = Paginator(profile_list, 10) # Show 10 profiles per page.
+
+        page_number = request.GET.get('page')
+        try:
+            page_obj = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            page_obj = paginator.page(paginator.num_pages)
+
         profile_user = UserProfile.objects.get(user__pk=request.user.id)
         context = {
-            'profiles': profiles,
+            'page_obj': page_obj, # Pass the page object
             'profile_user': profile_user
         }
         return render(request, 'adminApp/users/user_list.html', context)
@@ -314,12 +326,26 @@ def main_category(request):
             form = CategoryMainForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
+                messages.success(request, 'Main category added successfully.')
                 return redirect('main_category')
-        data = SubCategory.objects.all()
-        main = CategoryMain.objects.all()
+            else:
+                 messages.error(request, 'Failed to add main category. Please check the form.')
+
+        main_list = CategoryMain.objects.all().order_by('category_name')
+        paginator = Paginator(main_list, 10) # Show 10 categories per page
+
+        page_number = request.GET.get('page')
+        try:
+            page_obj = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        data = SubCategory.objects.all() # Keep this for potential use in the form/template
         form = CategoryMainForm()
         context = {
-            'main': main,
+            'page_obj': page_obj, # Pass the page object for main categories
             'sub': data,
             'form': form,
         }
@@ -370,13 +396,26 @@ def sub_category(request):
             form = SubCategoryForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
+                messages.success(request, 'Sub category added successfully.')
                 return redirect('sub_category')
-        data = SubCategory.objects.all()
+            else:
+                messages.error(request, 'Failed to add sub category. Please check the form.')
+
+        sub_list = SubCategory.objects.all().order_by('category__category_name', 'sub_category_name')
+        paginator = Paginator(sub_list, 10) # Show 10 sub categories per page
+
+        page_number = request.GET.get('page')
+        try:
+            page_obj = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
         form = SubCategoryForm()
         context = {
-            'sub': data,
+            'page_obj': page_obj, # Pass the page object for sub categories
             'form': form,
-
         }
         return render(request, 'adminApp/Category/SubCategory.html', context)
     return HttpResponse('You are not authorized to view this page')
@@ -417,15 +456,30 @@ def sub_category_delete(request, pk):
 @login_required(login_url='login')
 def product_list(request):
     if request.user.is_superuser:
-        product = Product.objects.all()
-        addProductForm = ProductForm
+        product_list_all = Product.objects.all().order_by('-created_date') # Order by creation date
+        paginator = Paginator(product_list_all, 10) # Show 10 products per page
+
+        page_number = request.GET.get('page')
+        try:
+            page_obj = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        addProductForm = ProductForm() # Initialize form for adding new product
         if request.method == 'POST':
-            addProductForm = ProductForm(request.POST, request.FILES)
-            if addProductForm.is_valid():
-                addProductForm.save()
+            form = ProductForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Product added successfully.')
                 return redirect('product_list')
+            else:
+                messages.error(request, 'Failed to add product. Please check the form.')
+                addProductForm = form # Pass the invalid form back to template
+
         context = {
-            'product': product,
+            'page_obj': page_obj, # Pass the page object for products
             'addProduct': addProductForm,
         }
         return render(request, 'adminApp/Products/product_list.html', context)
@@ -470,19 +524,34 @@ def product_delete(request, pk):
 @login_required(login_url='login')
 def add_variations(request):
     if request.user.is_superuser:
-        existing_variations = Variation.objects.all()
+        variation_list = Variation.objects.all().order_by('product__product_name', 'variation_category', 'variation_value')
+        paginator = Paginator(variation_list, 10) # Show 10 variations per page
+
+        page_number = request.GET.get('page')
+        try:
+            page_obj = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        form = variationForm() # Initialize form for adding new variation
         if request.method == 'POST':
-            form = variationForm(request.POST, request.FILES)
-            if form.is_valid():
-                form.save()
-                return redirect('add_variations')
-        form = variationForm
+            add_form = variationForm(request.POST, request.FILES)
+            if add_form.is_valid():
+                add_form.save()
+                messages.success(request, 'Variation added successfully.')
+                return redirect('add_variations') # Redirect to clear POST data
+            else:
+                 messages.error(request, 'Failed to add variation. Please check the form.')
+                 form = add_form # Pass the invalid form back to template
 
         context = {
-            'existing_variations': existing_variations,
+            'page_obj': page_obj, # Pass the page object for variations
             'form': form,
         }
-        return render(request, 'AdminApp/Variations/add_variations.html', context)
+        # Note: The template path seems inconsistent (AdminApp vs adminApp). Assuming 'adminApp' based on others.
+        return render(request, 'adminApp/Variations/add_variations.html', context)
     return HttpResponse('You are not authorized to view this page')
 
 
@@ -1002,12 +1071,23 @@ def recent_orders(request):
 @login_required(login_url='login')
 def order_list(request):
     if request.user.is_superuser:
-        orders = Order.objects.all()
-        order_products = OrderProduct.objects.all()
-        print(order_update)
+        order_list_all = Order.objects.select_related('user', 'payment').prefetch_related('orderproduct_set').order_by('-created_at')
+        paginator = Paginator(order_list_all, 10) # Show 10 orders per page
+
+        page_number = request.GET.get('page')
+        try:
+            page_obj = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        # order_products might not be needed if accessed via page_obj.object_list in template
+        # order_products = OrderProduct.objects.filter(order__in=page_obj.object_list)
+
         context = {
-            'orders': orders,
-            'order_products': order_products,
+            'page_obj': page_obj, # Pass the page object for orders
+            # 'order_products': order_products, # Pass only if needed separately
         }
         return render(request, 'adminApp/Orders/order_list.html', context)
     return HttpResponse('You are not authorized to view this page')
