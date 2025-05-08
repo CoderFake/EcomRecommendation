@@ -340,7 +340,7 @@
                                 <ul class="align-items-center">
                                     <li class="ec-footer-link"><a href="https://coderfake.github.io/hoangdieu22/">About
                                         us</a></li>
-                                    <li class="ec-footer-link"><a href="faq.html">FAQ</a></li>
+                                    <li class="ec-footer-link"><a href="{% url 'faq' %}">FAQ</a></li>
                                     <li class="ec-footer-link"><a href="#">Delivery Information</a></li>
                                     <li class="ec-footer-link"><a href="https://www.facebook.com/hoangdieu.22022002">Contact
                                         us</a></li>
@@ -354,7 +354,7 @@
                             <div class="ec-footer-links">
                                 <ul class="align-items-center">
                                     <li class="ec-footer-link"><a href="#">My Account</a></li>
-                                    <li class="ec-footer-link"><a href="track-order.html">Order History</a></li>
+                                    <li class="ec-footer-link"><a href="{% url 'track_order' %}">Order History</a></li>
                                     <li class="ec-footer-link"><a href="#">Wish List</a></li>
                                     <li class="ec-footer-link"><a href="#">Specials</a></li>
                                 </ul>
@@ -369,8 +369,7 @@
                                     <li class="ec-footer-link"><a href="#">Discount Returns</a></li>
                                     <li class="ec-footer-link"><a href="#">Policy & policy </a></li>
                                     <li class="ec-footer-link"><a href="#">Customer Service</a></li>
-                                    <li class="ec-footer-link"><a href="terms-condition.html">Term & condition</a>
-                                    </li>
+                                    <li class="ec-footer-link"><a href="{% url 'terms_condition' %}">Term & condition</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -506,9 +505,8 @@
                     </div>
                     <div class="col-md-7 col-sm-12 col-xs-12">
                         <div class="quickview-pro-content">
-                            <h5 class="ec-quick-title"><a href="product-left-sidebar.html">Handbag leather purse for
-                                women</a>
-                            </h5>
+                            <h5 class="ec-quick-title"><a href="{% url 'product_detail' %}">Handbag leather purse for
+                                women</a></h5>
                             <div class="ec-quickview-rating">
                                 <i class="ecicon eci-star fill"></i>
                                 <i class="ecicon eci-star fill"></i>
@@ -577,22 +575,22 @@
                         src="{% static 'webapp/assets/images/icons/menu.svg' %}" class="svg_img header_svg" alt=""/></a>
             </div>
             <div class="ec-nav-panel-icons">
-                <a href="#ec-side-cart" class="toggle-cart ec-header-btn ec-side-toggle"><img
+                <a href="{% url 'cart' %}" class="ec-header-btn"><img
                         src="{% static 'webapp/assets/images/icons/cart.svg' %}" class="svg_img header_svg"
                         alt=""/><span
-                        class="ec-cart-noti ec-header-count cart-count-lable">3</span></a>
+                        class="ec-cart-noti ec-header-count cart-count-lable">{{cart_count}}</span></a>
             </div>
             <div class="ec-nav-panel-icons">
-                <a href="index.html" class="ec-header-btn"><img src="{% static 'webapp/assets/images/icons/home.svg' %}"
+                <a href="{% url 'index' %}" class="ec-header-btn"><img src="{% static 'webapp/assets/images/icons/home.svg' %}"
                                                                 class="svg_img header_svg" alt="icon"/></a>
             </div>
             <div class="ec-nav-panel-icons">
-                <a href="wishlist.html" class="ec-header-btn"><img
+                <a href="{% url 'wishlist' %}" class="ec-header-btn"><img
                         src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
-                        class="svg_img header_svg" alt="icon"/><span class="ec-cart-noti">4</span></a>
+                        class="svg_img header_svg" alt="icon"/><span class="ec-cart-noti wishlist-count">{% if request.user.is_authenticated %}{{ request.user.wishlist_set.count }}{% else %}0{% endif %}</span></a>
             </div>
             <div class="ec-nav-panel-icons">
-                <a href="login.html" class="ec-header-btn"><img src="{% static 'webapp/assets/images/icons/user.svg' %}"
+                <a href="{% url 'login' %}" class="ec-header-btn"><img src="{% static 'webapp/assets/images/icons/user.svg' %}"
                                                                 class="svg_img header_svg" alt="icon"/></a>
             </div>
 
@@ -603,10 +601,10 @@
 
 <!-- Cart Floating Button -->
 <div class="ec-cart-float">
-    <a href="#ec-side-cart" class="ec-header-btn ec-side-toggle">
+    <a href="{% url 'cart' %}" class="ec-header-btn">
         <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/cart.svg' %}"
                                       class="svg_img header_svg" alt=""/></div>
-        <span class="ec-cart-count cart-count-lable">3</span>
+        <span class="ec-cart-count cart-count-lable">{{cart_count}}</span>
     </a>
 </div>
 <!-- Cart Floating Button end -->

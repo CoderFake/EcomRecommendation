@@ -25,6 +25,7 @@ urlpatterns = [
     path('user_delete/<int:pk>', views.user_delete, name='user_delete'),
     path('user_block/<int:pk>', views.user_block, name='user_block'),
     path('user_unblock/<int:pk>', views.user_unblock, name='user_unblock'),
+    path('api/user_profile/<int:pk>', views.user_profile_api, name='user_profile_api'),
 
     #category based urls
     path('main_category', views.main_category, name='main_category'),

@@ -42,13 +42,13 @@ idna==3.3
 iniconfig==2.0.0
 jmespath==1.0.1
 joblib==1.4.2
-keras==3.3.3
+keras>=3.5.0
 libclang==18.1.1
 Markdown==3.6
 markdown-it-py==3.0.0
 MarkupSafe==2.1.5
 mdurl==0.1.2
-ml-dtypes==0.3.2
+ml-dtypes<1.0.0, >=0.5.1
 namex==0.0.8
 numpy==1.26.4
 oauthlib==3.2.0
@@ -93,9 +93,9 @@ social-auth-app-django==5.0.0
 social-auth-core==4.3.0
 sqlparse==0.4.2
 stripe==4.0.2
-tensorboard==2.16.2
+tensorboard==2.19.0
 tensorboard-data-server==0.7.2
-tensorflow==2.16.1
+tensorflow==2.19.0
 termcolor==2.4.0
 threadpoolctl==3.5.0
 tinycss2==1.1.1
@@ -115,5 +115,20 @@ wrapt==1.16.0
 yarg==0.1.9
 zopfli==0.2.3
 
-pip~=24.3.1
 exceptiongroup~=1.2.2
+python-docx==1.1.2
+djangorestframework-simplejwt==5.2.2
+django-redis==5.2.0
+django-treebeard==4.7
+faiss-cpu==1.7.4
+django-cors-headers==4.1.0
+fluent-logger==0.10.0
+grpcio-status==1.48.2
+jsonpickle==2.0.0
+markdown==3.4.3
+onnxruntime==1.15.1
+qrcode==7.4.2
+simplejson==3.18.0
+smmap==5.0.0
+sqlparse==0.4.4
+langdetect==1.0.9

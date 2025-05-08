@@ -6,6 +6,51 @@
     <link rel="stylesheet" id="bg-switcher-css" href="{% static 'webapp/assets/css/backgrounds/bg-4.css' %}">
     <link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}"/>
     <link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}"/>
+    <style>
+        /* Dropdown menu cho subcategory */
+        .ec-sub-sidebar-block {
+            display: none;
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+        .ec-sub-sidebar-block li {
+            margin-bottom: 5px;
+        }
+        .ec-sidebar-block-toggle {
+            display: inline-block;
+            cursor: pointer;
+            float: right;
+            margin-right: 10px;
+            position: relative;
+            width: 16px;
+            height: 16px;
+        }
+        .ec-sidebar-block-toggle:before, .ec-sidebar-block-toggle:after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 2px;
+            background-color: #555;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .ec-sidebar-block-toggle:after {
+            transform: translate(-50%, -50%) rotate(90deg);
+        }
+        .ec-sidebar-block-toggle.active:after {
+            display: none;
+        }
+        /* CSS cho filter */
+        .filter-item-color {
+            cursor: pointer;
+        }
+        #apply-price-filter {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -70,13 +115,14 @@
                             <b> {{ produ_count }} Products Found</b>
                             <span class="sort-by">| Sort by</span>
                             <div class="ec-select-inner">
-                                <select name="ec-select" id="ec-select">
-                                    <option selected disabled>Position</option>
-                                    <option value="1">Relevance</option>
-                                    <option value="2">Name, A to Z</option>
-                                    <option value="3">Name, Z to A</option>
-                                    <option value="4">Price, low to high</option>
-                                    <option value="5">Price, high to low</option>
+                                <select name="ec-select" id="ec-select" onchange="applySort(this.value)">
+                                    <option value="" {% if not sort_option %}selected{% endif %}>Position</option>
+                                    <option value="rating" {% if sort_option == 'rating' %}selected{% endif %}>Relevance</option>
+                                    <option value="name_asc" {% if sort_option == 'name_asc' %}selected{% endif %}>Name, A to Z</option>
+                                    <option value="name_desc" {% if sort_option == 'name_desc' %}selected{% endif %}>Name, Z to A</option>
+                                    <option value="price_asc" {% if sort_option == 'price_asc' %}selected{% endif %}>Price, low to high</option>
+                                    <option value="price_desc" {% if sort_option == 'price_desc' %}selected{% endif %}>Price, high to low</option>
+                                    <option value="newest" {% if sort_option == 'newest' %}selected{% endif %}>Newest First</option>
                                 </select>
                             </div>
                         </div>
@@ -108,7 +154,7 @@
                                                     {% endif %}
 
                                                     <div class="ec-link-icon">
-                                                        <a href="#" data-tip="Add to Wishlist"><img
+                                                        <a href="{% url 'add_to_wishlist' product.id %}" class="add-to-wishlist" data-product-id="{{ product.id }}" data-tip="Add to Wishlist"><img
                                                                 src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
                                                                 class="svg_img header_svg pro_svg" alt="wishlist"/></a>
                                                         <a href="#" data-tip="Compare"><img
@@ -245,6 +291,16 @@
                                             <li>
                                                 <div class="ec-sidebar-block-item">
                                                     <a href="{{ cat.get_url }}">{{ cat.category_name }}</a>
+                                                    {% if cat.subcategories.exists %}
+                                                        <ul class="ec-sub-sidebar-block submenu-content">
+                                                            {% for subcat in cat.subcategories.all %}
+                                                                <li>
+                                                                    <a href="{{ cat.get_url }}{{ subcat.slug }}/">{{ subcat.sub_category_name }}</a>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                        <span class="ec-sidebar-block-toggle"></span>
+                                                    {% endif %}
                                                 </div>
                                             </li>
                                         {% endfor %}
@@ -265,38 +321,21 @@
                                     <h3 class="ec-sidebar-title">Size</h3>
                                 </div>
                                 <div class="ec-sb-block-content">
-                                    <ul>
-                                        <li>
-                                            <div class="ec-sidebar-block-item">
-                                                <input type="checkbox" value="" checked/><a href="#">S</a><span
-                                                    class="checked"></span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item">
-                                                <input type="checkbox" value=""/><a href="#">M</a><span
-                                                    class="checked"></span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item">
-                                                <input type="checkbox" value=""/> <a href="#">L</a><span
-                                                    class="checked"></span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item">
-                                                <input type="checkbox" value=""/><a href="#">XL</a><span
-                                                    class="checked"></span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item">
-                                                <input type="checkbox" value=""/><a href="#">XXL</a><span
-                                                    class="checked"></span>
-                                            </div>
-                                        </li>
-                                    </ul>
+                                    <div class="ec-select-inner">
+                                        <select class="form-select" id="size-select" onchange="applySize(this.value)">
+                                            <option value="">All Sizes</option>
+                                            {% for size in available_sizes %}
+                                                <option value="{{ size }}" {% if selected_size == size %}selected{% endif %}>{{ size }}</option>
+                                            {% endfor %}
+                                            {% if not available_sizes %}
+                                                <option value="S">S</option>
+                                                <option value="M">M</option>
+                                                <option value="L">L</option>
+                                                <option value="XL">XL</option>
+                                                <option value="XXL">XXL</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <!-- Sidebar Color item -->
@@ -306,46 +345,24 @@
                                 </div>
                                 <div class="ec-sb-block-content">
                                     <ul>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#c4d6f9;"></span></div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#ff748b;"></span></div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#000000;"></span></div>
-                                        </li>
-                                        <li class="active">
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#2bff4a;"></span></div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#ff7c5e;"></span></div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#f155ff;"></span></div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#ffef00;"></span></div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#c89fff;"></span></div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#7bfffa;"></span></div>
-                                        </li>
-                                        <li>
-                                            <div class="ec-sidebar-block-item"><span
-                                                    style="background-color:#56ffc1;"></span></div>
-                                        </li>
+                                        {% for color_value, color_code in available_colors %}
+                                            <li {% if selected_color == color_value %}class="active"{% endif %}>
+                                                <div class="ec-sidebar-block-item filter-item-color" data-color="{{ color_value }}" data-tooltip="{{ color_value }}">
+                                                    <span style="background-color:{{ color_code }}"></span>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                        <!-- Hiển thị một số màu phổ biến nếu không có sản phẩm -->
+                                        {% if not available_colors %}
+                                            <li><div class="ec-sidebar-block-item filter-item-color" data-color="black"><span style="background-color:#000000"></span></div></li>
+                                            <li><div class="ec-sidebar-block-item filter-item-color" data-color="white"><span style="background-color:#FFFFFF"></span></div></li>
+                                            <li><div class="ec-sidebar-block-item filter-item-color" data-color="red"><span style="background-color:#FF0000"></span></div></li>
+                                            <li><div class="ec-sidebar-block-item filter-item-color" data-color="blue"><span style="background-color:#0000FF"></span></div></li>
+                                            <li><div class="ec-sidebar-block-item filter-item-color" data-color="green"><span style="background-color:#00FF00"></span></div></li>
+                                            <li><div class="ec-sidebar-block-item filter-item-color" data-color="yellow"><span style="background-color:#FFFF00"></span></div></li>
+                                            <li><div class="ec-sidebar-block-item filter-item-color" data-color="purple"><span style="background-color:#800080"></span></div></li>
+                                            <li><div class="ec-sidebar-block-item filter-item-color" data-color="pink"><span style="background-color:#FFC0CB"></span></div></li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                             </div>
@@ -359,12 +376,13 @@
                                         <div id="ec-sliderPrice" class="filter__slider-price" data-min="0"
                                              data-max="250" data-step="10"></div>
                                         <div class="ec-price-input">
-                                            <label class="filter__label"><input type="text"
-                                                                                class="filter__input"></label>
+                                            <label class="filter__label"><input type="text" 
+                                                id="filter-min-price" class="filter__input" value="{{ min_price|default:'0' }}"></label>
                                             <span class="ec-price-divider"></span>
-                                            <label class="filter__label"><input type="text"
-                                                                                class="filter__input"></label>
+                                            <label class="filter__label"><input type="text" 
+                                                id="filter-max-price" class="filter__input" value="{{ max_price|default:'250' }}"></label>
                                         </div>
+                                        <button id="apply-price-filter" class="btn btn-primary btn-sm mt-2">Apply</button>
                                     </div>
                                 </div>
                             </div>
@@ -380,14 +398,110 @@
     <script>
         $(document).ready(function () {
             $('.post-link').click(function (e) {
-                e.preventDefault();  // Ngăn không cho liên kết mở theo cách thông thường
-                var page = $(this).data('page');  // Lấy giá trị data-page
+                e.preventDefault();
+                var page = $(this).data('page');
                 if (page) {
-                    window.location.href = '?page=' + page;  // Thay đổi URL hiện tại
+                    var currentParams = new URLSearchParams(window.location.search);
+                    currentParams.set('page', page);
+                    window.location.href = window.location.pathname + '?' + currentParams.toString();
                 }
             });
-        });
-        
-    </script>
 
+            $('.ec-sidebar-block-toggle').click(function() {
+                $(this).parent().find('.submenu-content').slideToggle('fast');
+                $(this).toggleClass('active');
+            });
+
+            $('.filter-item-color').click(function() {
+                var color = $(this).data('color');
+                
+                var currentParams = new URLSearchParams(window.location.search);
+                
+                if ($(this).parent().hasClass('active')) {
+                    currentParams.delete('color');
+                } else {
+                    currentParams.set('color', color);
+                }
+                
+                currentParams.set('page', 1);
+                
+                window.location.href = window.location.pathname + '?' + currentParams.toString();
+            });
+
+            $('.filter-item-color').hover(
+                function() {
+                    var colorName = $(this).data('color');
+                    $('<div class="color-tooltip">' + colorName + '</div>').appendTo('body')
+                        .css('left', $(this).offset().left + $(this).width() + 5)
+                        .css('top', $(this).offset().top - 5);
+                },
+                function() {
+                    $('.color-tooltip').remove();
+                }
+            );
+
+            $('#apply-price-filter').click(function() {
+                var minPrice = $('#filter-min-price').val();
+                var maxPrice = $('#filter-max-price').val();
+                
+                var currentParams = new URLSearchParams(window.location.search);
+                
+                if (minPrice) {
+                    currentParams.set('min_price', minPrice);
+                } else {
+                    currentParams.delete('min_price');
+                }
+                
+                if (maxPrice) {
+                    currentParams.set('max_price', maxPrice);
+                } else {
+                    currentParams.delete('max_price');
+                }
+                
+                currentParams.set('page', 1);
+                
+                window.location.href = window.location.pathname + '?' + currentParams.toString();
+            });
+        });
+
+        function applySort(sortValue) {
+            var currentParams = new URLSearchParams(window.location.search);
+            
+            if (sortValue) {
+                currentParams.set('sort', sortValue);
+            } else {
+                currentParams.delete('sort');
+            }
+            
+            currentParams.set('page', 1);
+            
+            window.location.href = window.location.pathname + '?' + currentParams.toString();
+        }
+        
+        function applySize(sizeValue) {
+            var currentParams = new URLSearchParams(window.location.search);
+            
+            if (currentParams.get('size') === sizeValue) {
+                currentParams.delete('size');
+            } else {
+                currentParams.set('size', sizeValue);
+            }
+            
+            currentParams.set('page', 1);
+            
+            window.location.href = window.location.pathname + '?' + currentParams.toString();
+        }
+    </script>
+    <style>
+        .color-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+    </style>
 {% endblock %}

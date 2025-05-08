@@ -37,10 +37,10 @@
                         </div>
                         <!-- Header User End -->
                         <!-- Header Cart Start -->
-                        <a href="wishlist.html" class="ec-header-btn ec-header-wishlist">
+                        <a href="{% url 'wishlist' %}" class="ec-header-btn ec-header-wishlist">
                             <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
                                     class="svg_img header_svg" alt="" /></div>
-                            <span class="ec-header-count">4</span>
+                            <span class="ec-header-count wishlist-count">{% if request.user.is_authenticated %}{{ request.user.wishlist_set.count }}{% else %}0{% endif %}</span>
                         </a>
                         <!-- Header Cart End -->
                         <!-- Header Cart Start -->
@@ -124,14 +124,14 @@
                             </div>
                             <!-- Header User End -->
                             <!-- Header wishlist Start -->
-                            <a href="wishlist" class="ec-header-btn ec-header-wishlist">
+                            <a href="{% url 'wishlist' %}" class="ec-header-btn ec-header-wishlist">
                                 <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
                                         class="svg_img header_svg" alt="" /></div>
-                                <span class="ec-header-count">4</span>
+                                <span class="ec-header-count wishlist-count">{% if request.user.is_authenticated %}{{ request.user.wishlist_set.count }}{% else %}0{% endif %}</span>
                             </a>
                             <!-- Header wishlist End -->
                             {% comment %} <!-- Header Cart Start --> ( #ec-side-cart ) to view side cart ) {% endcomment %}
-                            <a href="/cart/" class="ec-header-btn ">
+                            <a href="{% url 'cart' %}" class="ec-header-btn ">
                                 <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/cart.svg' %}"
                                         class="svg_img header_svg" alt="" /></div>
                                 <span class="ec-header-count ec-cart-count cart-count-lable">{{cart_count}}</span>
@@ -185,62 +185,71 @@
                 <div class="col-md-12 align-self-center">
                     <div class="ec-main-menu">
                         <ul>
-                            <li><a href="/">Home</a></li>
+                            <li><a href="{% url 'index' %}">Home</a></li>
                             <li class="dropdown position-static"><a href="javascript:void(0)">Categories</a>
                                 <ul class="mega-menu d-block">
-                                    <li class="d-flex">
-                                        <ul class="d-block">
-                                            <li class="menu_title"><a href="javascript:void(0)">Electronic</a></li>
-{#                                            {% for cat in cat_main_links%}#}
-{#                                            <li><a href="{{cat.get_url}}">{{cat.category_name}}   </a>#}
-{#                                            </li>#}
-{#                                            {% endfor %} #}
-                                            
-                                        </ul>
-                                        <ul class="d-block">
-                                            <li class="menu_title"><a href="javascript:void(0)">Men Store</a></li>
-{#                                            {% for cat in cat_sub_links %}#}
-{#                                            <li><a href="{{cat.category.get_url}}{{cat.slug}}">{{cat.sub_category_name}} </a></li>#}
-{#                                            {% endfor %} #}
-                                            
-                                        </ul>
-                                        <ul class="d-block">
-                                            <li class="menu_title"><a href="javascript:void(0)">Women Store</a></li>
-{#                                            {% for cat in cat_main_links%}#}
-{#                                            <li><a href="{{cat.get_url}}">{{cat.category_name}}</a>#}
-{#                                            </li>#}
-{#                                            {% endfor %}#}
-                                            
-                                        </ul>
-                                        <ul class="d-block">
-                                            <li class="menu_title"><a href="javascript:void(0)">Accessories</a></li>
-{#                                             {% for cat in cat_sub_links %}#}
-{#                                            <li><a href="{{cat.category.get_url}}{{cat.slug}}">{{cat.sub_category_name}}</a></li>#}
-{#                                            {% endfor %}#}
-                                        </ul>
+                                    <li>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="category-wrapper">
+                                                    <div class="category-horizontal-list mb-4 d-flex justify-content-center">
+                                                        {% for cat in cat_main_links %}
+                                                        <div class="category-item" data-category="{{ cat.id }}">
+                                                            <a href="{{ cat.get_url }}">{{ cat.category_name }}</a>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                    
+                                                    <div class="subcategory-vertical-container" style="max-height: 500px; overflow-y: auto;">
+                                                        {% for cat in cat_main_links %}
+                                                        <div class="subcategory-list" id="subcategory-{{ cat.id }}">
+                                                            {% if cat.subcategories.exists %}
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <h5 class="category-title text-center mb-3">{{ cat.category_name }}</h5>
+                                                                    <div class="subcategory-column">
+                                                                        {% for subcat in cat.subcategories.all %}
+                                                                        <div class="subcategory-item text-center">
+                                                                            <a href="{{ cat.get_url }}{{ subcat.slug }}/">{{ subcat.sub_category_name }}</a>
+                                                                        </div>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {% else %}
+                                                            <div class="no-subcategories">
+                                                                <p>Không có danh mục phụ</p>
+                                                            </div>
+                                                            {% endif %}
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </li>
                                     <li>
-                                        <ul class="ec-main-banner w-100">
-                                            <li><a class="p-0" href="{{cat.get_url}}"><img
+                                        <ul class="ec-main-banner w-100 mt-4">
+                                            <li><a class="p-0" href="{% url 'store' %}"><img
                                                         class="img-responsive" src="{% static 'webapp/assets/images/menu-banner/1.jpg' %}"
                                                         alt=""></a></li>
-                                            <li><a class="p-0" href="{{cat.get_url}}"><img
+                                            <li><a class="p-0" href="{% url 'store' %}"><img
                                                         class="img-responsive" src="{% static 'webapp/assets/images/menu-banner/2.jpg' %}"
                                                         alt=""></a></li>
-                                            <li><a class="p-0" href="{{cat.get_url}}"><img
+                                            <li><a class="p-0" href="{% url 'store' %}"><img
                                                         class="img-responsive" src="{% static 'webapp/assets/images/menu-banner/3.jpg' %}"
                                                         alt=""></a></li>
-                                            <li><a class="p-0" href="{{cat.get_url}}"><img
+                                            <li><a class="p-0" href="{% url 'store' %}"><img
                                                         class="img-responsive" src="{% static 'webapp/assets/images/menu-banner/21.jpeg' %}"
                                                         alt=""></a></li>
                                         </ul>
                                     </li>
                                 </ul>
                             </li>
-                            <li><a href="/store/">Products</a></li>
-                            <li><a href="/accounts/user_profile">Profile</a></li>
-                            <li><a href="/accounts/dashboard">Orders</a></li>
-                            <li><a href="/accounts/dashboard">Hot Offers</a></li>
+                            <li><a href="{% url 'store' %}">Products</a></li>
+                            <li><a href="{% url 'edit_profile' %}">Profile</a></li>
+                            <li><a href="{% url 'dashboard' %}">Orders</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -256,25 +265,231 @@
         <div class="ec-menu-inner">
             <div class="ec-menu-content">
                 <ul>
-                    <li><a href="/">Home</a></li>
+                    <li><a href="{% url 'index' %}">Home</a></li>
                     <li><a href="javascript:void(0)">Categories</a>
                         <ul class="sub-menu">
-                            <li><a href="/store/">Ladies Store</a></li>
-                            <li><a href="/store/">Girls Store</a></li>
-                            <li><a href="/store/">Boys Store</a></li>
-                            <li><a href="/store/">Kids Store</a></li>
+                            {% for cat in cat_main_links %}
+                            <li><a href="{{ cat.get_url }}">{{ cat.category_name }}</a>
+                                {% if cat.subcategories.exists %}
+                                <ul class="sub-menu">
+                                    {% for subcat in cat.subcategories.all %}
+                                    <li><a href="{{ cat.get_url }}{{ subcat.slug }}/">{{ subcat.sub_category_name }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </li>
+                            {% empty %}
+                            <li><a href="{% url 'store' %}">No categories found</a></li>
+                            {% endfor %}
                         </ul>
                     </li>
-                    <li><a href="{% url 'index' %}">Products</a></li>
+                    <li><a href="{% url 'store' %}">Products</a></li>
+                    {% if user.is_authenticated %}
                     <li><a href="{% url 'edit_profile' %}">Profile</a></li>
                     <li><a href="{% url 'dashboard' %}">Orders</a></li>
-                    <li><a href="{% url 'dashboard' %}">Hot Offers</a></li>
-                    
+                    <li><a href="{% url 'wishlist' %}">Wishlist</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                    {% if request.user and request.user.is_admin %}
+                    <li><a href="{% url 'admin_dashboard' %}">Admin Panel</a></li>
+                    {% endif %}
+                    {% else %}
+                    <li><a href="{% url 'register' %}">Register</a></li>
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    {% endif %}
                 </ul>
             </div>
+            {% if user.is_authenticated %}
+            <div class="ec-menu-content mt-3">
+                <h4 class="ec-menu-title">User: 
+                    {% if not user.full_name and request.user.is_admin %}
+                    ADMIN
+                    {% else %}
+                    {{user.full_name}}
+                    {% endif %}
+                </h4>
+            </div>
+            {% endif %}
             
+            <div class="ec-menu-content mt-3">
+                <div class="ec-menu-item">
+                    <span>Need help?</span>
+                    <a href="#" class="btn btn-primary btn-sm mt-2" id="mobile-chat-toggle">Chat with us</a>
+                </div>
+            </div>
         </div>
     </div>
     <!-- ekka mobile Menu End -->
 </header>
 <!-- Header End  -->
+
+<style>
+    .category-horizontal-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+    
+    .category-item {
+        margin-right: 25px;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    
+    .category-item a {
+        font-weight: 500;
+        font-size: 16px;
+        color: #444;
+        transition: all 0.3s;
+        padding: 5px 0;
+        display: block;
+    }
+    
+    .category-item.active a {
+        color: #3474d4;
+        position: relative;
+    }
+    
+    .category-item.active a:after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #3474d4;
+    }
+    
+    .subcategory-vertical-container {
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #f5f5f5;
+        border-radius: 5px;
+        padding: 15px;
+        background-color: #fff;
+    }
+    
+    .subcategory-list {
+        display: none;
+    }
+    
+    .subcategory-list.active {
+        display: block;
+    }
+    
+    .category-title {
+        color: #333;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 10px;
+    }
+    
+    .category-title:after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 2px;
+        background-color: #3474d4;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .subcategory-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 0;
+    }
+    
+    .subcategory-item {
+        margin-bottom: 12px;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .subcategory-item a {
+        font-size: 14px;
+        color: #666;
+        transition: all 0.3s;
+        display: block;
+        padding: 5px 0;
+    }
+    
+    .subcategory-item a:hover {
+        color: #3474d4;
+        text-decoration: none;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+    
+    .no-subcategories {
+        padding: 10px;
+        color: #999;
+        text-align: center;
+    }
+
+    .subcategory-vertical-container::-webkit-scrollbar {
+        width: 5px;
+    }
+    
+    .subcategory-vertical-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .subcategory-vertical-container::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 10px;
+    }
+    
+    .subcategory-vertical-container::-webkit-scrollbar-thumb:hover {
+        background: #ccc;
+    }
+</style>
+
+{% block jsblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof jQuery !== 'undefined') {
+            jQuery('#mobile-chat-toggle').on('click', function(e) {
+                e.preventDefault();
+                jQuery('.ec-side-cart.ec-mobile-menu').removeClass('ec-open');
+                if (jQuery('#chat-widget-toggle').length) {
+                    jQuery('#chat-widget-toggle').trigger('click');
+                }
+            });
+            
+            jQuery('.category-item').hover(function() {
+                var categoryId = jQuery(this).data('category');
+                jQuery('.category-item').removeClass('active');
+                jQuery(this).addClass('active');
+                jQuery('.subcategory-list').removeClass('active').hide();
+                jQuery('#subcategory-' + categoryId).addClass('active').fadeIn(200);
+            });
+            
+            if (jQuery('.category-item').length > 0) {
+                jQuery('.category-item:first').addClass('active');
+                var firstCategoryId = jQuery('.category-item:first').data('category');
+                jQuery('#subcategory-' + firstCategoryId).addClass('active').show();
+            }
+            
+            jQuery('.category-item').on('click', function(e) {
+                if (jQuery(window).width() < 992) {
+                    e.preventDefault();
+                    var categoryId = jQuery(this).data('category');
+                    jQuery('.category-item').removeClass('active');
+                    jQuery(this).addClass('active');
+                    jQuery('.subcategory-list').removeClass('active').hide();
+                    jQuery('#subcategory-' + categoryId).addClass('active').fadeIn(200);
+                }
+            });
+        } else {
+            console.error('jQuery không được tải. Vui lòng kiểm tra lại thứ tự tải script.');
+        }
+    });
+</script>
+{% endblock %}

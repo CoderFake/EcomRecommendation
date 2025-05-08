@@ -76,7 +76,7 @@
                                             {# Adjust counter to reflect current page number #}
                                             <td><span class="ec-sub-cat-count" title="Variation Number">{{ page_obj.start_index|add:forloop.counter0 }}</span></td>
                                             <td>
-                                                {# Assuming first image or a default if none #}
+                                            
                                                 {% with variation.product.images.first as img %}
                                                     {% if img %}
                                                         <img class="cat-thumb" src="{{ img.image_url }}" alt="Product Image"/>
@@ -84,8 +84,7 @@
                                                         <img class="cat-thumb" src="{% static 'webapp/assets/images/product-image/default.jpg' %}" alt="Default Product Image"/> {# Placeholder default image #}
                                                     {% endif %}
                                                 {% endwith %}
-                                                {# Corrected product link assumption - needs verification #}
-                                                <a href="{% url 'product_detail' variation.product.category_main.slug variation.product.sub_category.slug variation.product.slug %}">{{ variation.product.product_name }}</a>
+                                                <a href="{{variation.product.category_main.slug}}{{variation.product.sub_category.slug}}/{{variation.product.slug}}">{{ variation.product.product_name }}</a>
                                             </td>
                                             <td>{{ variation.variation_category }}</td> {# Display variation category #}
                                             <td>{{ variation.variation_value }}</td>
@@ -163,6 +162,6 @@
                     </div>
                 </div>
             </div>
-        </div> <!-- End Content -->
+        </div>
     </div>
 {% endblock %}

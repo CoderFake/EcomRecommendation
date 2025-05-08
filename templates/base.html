@@ -34,12 +34,181 @@
     <link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}"/>
     <link rel="stylesheet" href="{% static 'webapp/assets/css/responsive.css' %}"/>
 
+    <!-- Chat Widget Style -->
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/chat-widget.css' %}" />
+
     {% block extra_head %}
 
     {% endblock %}
     <style>
         body {
             font-family: 'Nunito';
+        }
+        
+        /* Chat widget styles */
+        .chat-widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .chat-widget-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #ff919c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .chat-widget-button:hover {
+            background-color: #ff919c;
+            transform: scale(1.05);
+        }
+        
+        .chat-widget-icon {
+            color: white;
+            font-size: 24px;
+        }
+        
+        .chat-widget-popup {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            height: 450px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-widget-header {
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-widget-header h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .chat-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .chat-widget-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-widget-input-area {
+            padding: 10px;
+            border-top: 1px solid #eee;
+            display: flex;
+        }
+        
+        .chat-widget-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        
+        .chat-widget-send-btn {
+            background-color: #ff919c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .chat-widget-message {
+            max-width: 85%;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 15px;
+            word-break: break-word;
+        }
+        
+        .chat-widget-message.user {
+            align-self: flex-end;
+            background-color: #ff919c;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .chat-widget-message.bot {
+            align-self: flex-start;
+            background-color: #f0f2f5;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-widget-open .chat-widget-popup {
+            display: flex;
+        }
+        
+        .chat-widget-loading {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #f0f2f5;
+            border-radius: 15px;
+            align-self: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .chat-widget-loading span {
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background-color: #888;
+            border-radius: 50%;
+            display: inline-block;
+            animation: chat-loading 1.4s infinite ease-in-out both;
+        }
+        
+        .chat-widget-loading span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        
+        .chat-widget-loading span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+        
+        @keyframes chat-loading {
+            0%, 80%, 100% { 
+                transform: scale(0);
+            } 
+            40% { 
+                transform: scale(1.0);
+            }
         }
     </style>
 
@@ -141,17 +310,17 @@
                            src="{% static 'webapp/assets/images/icons/menu.svg' %}" class="svg_img header_svg" alt="" /></a>
                </div>
                <div class="ec-nav-panel-icons">
-                   <a href="#ec-side-cart" class="toggle-cart ec-header-btn ec-side-toggle"><img
+                   <a href="{% url 'cart' %}" class="ec-header-btn"><img
                            src="{% static 'webapp/assets/images/icons/cart.svg' %}" class="svg_img header_svg" alt="" /><span
-                           class="ec-cart-noti ec-header-count cart-count-lable">3</span></a>
+                           class="ec-cart-noti ec-header-count cart-count-lable">{{cart_count}}</span></a>
                </div>
                <div class="ec-nav-panel-icons">
                    <a href="{% url 'index' %}" class="ec-header-btn"><img src="{% static 'webapp/assets/images/icons/home.svg' %}"
                            class="svg_img header_svg" alt="icon" /></a>
                </div>
                <div class="ec-nav-panel-icons">
-                   <a href="wishlist.html" class="ec-header-btn"><img src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
-                           class="svg_img header_svg" alt="icon" /><span class="ec-cart-noti">4</span></a>
+                   <a href="{% url 'wishlist' %}" class="ec-header-btn"><img src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
+                           class="svg_img header_svg" alt="icon" /><span class="ec-cart-noti wishlist-count">{% if request.user.is_authenticated %}{{ request.user.wishlist_set.count }}{% else %}0{% endif %}</span></a>
                </div>
                <div class="ec-nav-panel-icons">
 {#                <a href="{% url 'login' %}" class="ec-header-btn"><img src="{% static 'webapp/assets/images/icons/user.svg' %}"#}
@@ -191,54 +360,15 @@
 
    <!-- Cart Floating Button -->
    <div class="ec-cart-float">
-       <a href="#ec-side-cart" class="ec-header-btn ec-side-toggle">
+       <a href="{% url 'cart' %}" class="ec-header-btn">
            <div class="header-icon"><img src="{% static 'webapp/assets/images/icons/cart.svg' %}" class="svg_img header_svg" alt="" /></div>
-           <span class="ec-cart-count cart-count-lable">3</span>
+           <span class="ec-cart-count cart-count-lable">{{cart_count}}</span>
        </a>
    </div>
 <!-- Cart Floating Button end -->
 
 <!-- Vendor JS -->
 <script src="{% static 'webapp/assets/js/vendor/jquery-3.5.1.min.js' %}"></script>
-<script type="text/javascript">
-    let username = null;
-    let date_joined = null;
-    $.ajax({
-        method: 'GET',
-        url: '{% url 'account_infor' %}',
-        dataType: 'json',
-        success: function (response){
-            if(response.username !== "none"){
-                console.log(response);
-                username = response.username;
-                date_joined = response.date_joined;
-            }
-        }
-        
-    });
-    (function (d, t) {
-        var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
-        v.onload = function () {
-            window.voiceflow.chat.load({
-                verify: {projectID: '{{ id_chat }}' },
-                url: 'https://general-runtime.voiceflow.com',
-                versionID: 'development',
-                launch: {
-                    event: {
-                        type: "launch",
-                        payload: {
-                            username: username,
-                            date_joined: date_joined
-                        }
-                    }
-                }
-            });
-        }
-        v.src = "https://cdn.voiceflow.com/widget/bundle.mjs";
-        v.type = "text/javascript";
-        s.parentNode.insertBefore(v, s);
-    })(document, 'script');
-</script>
 <script src="{% static 'webapp/assets/js/vendor/popper.min.js' %}"></script>
 <script src="{% static 'webapp/assets/js/vendor/bootstrap.min.js' %}"></script>
 <script src="{% static 'webapp/assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
@@ -256,11 +386,7 @@
 <script src="{% static 'webapp/assets/js/plugins/owl.carousel.min.js' %}"></script>
 <script src="{% static 'webapp/assets/js/plugins/infiniteslidev2.js' %}"></script>
 <script src="{% static 'webapp/assets/js/plugins/click-to-call.js' %}"></script>
-<script src="{% static 'webapp/assets/swiper/swiper-bundle.min.js' %}"></script>
-
-
-
-<script>
+<script src="{% static 'webapp/assets/swiper/swiper-bundle.min.js' %}"></script><script>
     function googleTranslateElementInit() {
         new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
     }
@@ -291,6 +417,259 @@
     })
 </script>
 
+<!-- Chat Widget -->
+<div class="chat-widget-container">
+    <div class="chat-widget-button" id="chat-widget-toggle">
+        <img src="{% static 'webapp/assets/images/icons/chat-bot.png' %}" alt="Chatbot" width="28" height="28" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" />
+    </div>
+    <div class="chat-widget-popup">
+        <div class="chat-widget-header">
+            <h4><img src="{% static 'webapp/assets/images/icons/chat-bot.png' %}" alt="Chatbot" width="24" height="24" style="margin-right: 8px;" />EKKA</h4>
+            <div>
+                <button class="chat-new-btn btn btn-outline-primary" id="chat-widget-new" title="New chat">New chat</button>
+                <button class="chat-close-btn text-danger" id="chat-widget-close">&times;</button>
+            </div>
+        </div>
+        <div class="chat-widget-messages" id="chat-widget-messages">
+        </div>
+        <div class="chat-widget-input-container">
+            <input type="text" class="chat-widget-input" id="chat-widget-input" placeholder="Type a message..." />
+            <button class="chat-widget-send-btn" id="chat-widget-send">
+                <i class="ec ec-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Chat widget variables
+        const $chatContainer = $('.chat-widget-container');
+        const $chatToggle = $('#chat-widget-toggle');
+        const $chatClose = $('#chat-widget-close');
+        const $chatNew = $('#chat-widget-new');
+        const $chatInput = $('#chat-widget-input');
+        const $chatSend = $('#chat-widget-send');
+        const $chatMessages = $('#chat-widget-messages');
+
+        let chatId = localStorage.getItem('chatWidgetId');
+
+        let isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        let lastAuthStatus = isAuthenticated;
+        
+        function checkAuthStatus() {
+            $.ajax({
+                url: '/chatbot/check_auth',
+                type: 'GET',
+                success: function(response) {
+                    const newAuthStatus = response.is_authenticated;
+
+                    if (newAuthStatus !== lastAuthStatus) {
+                        lastAuthStatus = newAuthStatus;
+                        
+                        if (!newAuthStatus) {
+                            createNewChat();
+                        } else if (chatId) {
+                            $.ajax({
+                                url: '/chatbot/update_session',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    chat_id: chatId
+                                })
+                            });
+                        }
+                    }
+                }
+            });
+        }
+        setInterval(checkAuthStatus, 30000);
+        
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            $chatContainer.addClass('mobile-device');
+            
+            $chatInput.on('focus', function() {
+                setTimeout(function() {
+                    scrollToBottom();
+                }, 300);
+            });
+        }
+        
+        function loadInitialMessage() {
+            $.ajax({
+                url: '/chatbot/get_initial_message',
+                type: 'GET',
+                success: function(response) {
+                    $chatMessages.empty();
+                    addMessage(response.message, 'bot');
+                    chatId = response.chat_id;
+                    localStorage.setItem('chatWidgetId', chatId);
+                },
+                error: function() {
+                    const message = "Hello! I'm EKKA, your shopping assistant. How can I help you today?";
+                    $chatMessages.empty();
+                    addMessage(message, 'bot');
+                }
+            });
+        }
+        
+        function createNewChat() {
+            localStorage.removeItem('chatWidgetId');
+            chatId = null;
+            
+            $.ajax({
+                url: '/chatbot/new_chat',
+                type: 'GET',
+                success: function(response) {
+                    $chatMessages.empty();
+                    addMessage(response.message, 'bot');
+                    chatId = response.chat_id;
+                    localStorage.setItem('chatWidgetId', chatId);
+                },
+                error: function() {
+                    const message = "Hello! I'm EKKA, your shopping assistant. How can I help you today?";
+                    $chatMessages.empty();
+                    addMessage(message, 'bot');
+                }
+            });
+        }
+        
+        function loadChatHistory() {
+            if (!chatId) {
+                loadInitialMessage();
+                return;
+            }
+            
+            $.ajax({
+                url: '/chatbot/history/' + chatId,
+                type: 'GET',
+                success: function(response) {
+                    $chatMessages.empty();
+                    
+                    if (response.messages && response.messages.length > 0) {
+                        response.messages.forEach(msg => {
+                            addMessage(msg.content, msg.sender);
+                        });
+                        
+                        scrollToBottom();
+                    } else {
+                        loadInitialMessage();
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 404) {
+                        createNewChat();
+                    } else {
+                        loadInitialMessage();
+                    }
+                }
+            });
+        }
+        
+        function toggleChat() {
+            $chatContainer.toggleClass('chat-widget-open');
+            if ($chatContainer.hasClass('chat-widget-open')) {
+                $chatInput.focus();
+                
+                checkAuthStatus();
+                
+                if ($chatMessages.children().length === 0) {
+                    loadChatHistory();
+                }
+            }
+        }
+        
+        if (isMobile) {
+            $chatToggle.on('touchend', function(e) {
+                e.preventDefault();
+                toggleChat();
+            });
+            
+            $chatClose.on('touchend', function(e) {
+                e.preventDefault();
+                $chatContainer.removeClass('chat-widget-open');
+            });
+            
+            $chatNew.on('touchend', function(e) {
+                e.preventDefault();
+                createNewChat();
+            });
+            
+            $chatSend.on('touchend', function(e) {
+                e.preventDefault();
+                sendMessage();
+            });
+        } else {
+            $chatToggle.on('click', toggleChat);
+            $chatClose.on('click', function() {
+                $chatContainer.removeClass('chat-widget-open');
+            });
+            $chatNew.on('click', createNewChat);
+            $chatSend.on('click', sendMessage);
+        }
+        
+        $chatInput.on('keypress', function(e) {
+            if (e.which === 13) {
+                sendMessage();
+                return false;
+            }
+        });
+        
+        function sendMessage() {
+            const message = $chatInput.val().trim();
+            if (!message) return;
+            
+            addMessage(message, 'user');
+            $chatInput.val('').focus();
+            
+            const $loading = $('<div class="chat-widget-loading"><span></span><span></span><span></span></div>');
+            $chatMessages.append($loading);
+            scrollToBottom();
+            
+            $.ajax({
+                url: '/chatbot/generate',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    query: message,
+                    chat_id: chatId
+                }),
+                success: function(response) {
+                    $loading.remove();
+                    addMessage(response.response, 'bot');
+                    
+                    if (response.chat_id) {
+                        chatId = response.chat_id;
+                        localStorage.setItem('chatWidgetId', chatId);
+                    }
+                    
+                    scrollToBottom();
+                },
+                error: function(xhr, status, error) {
+                    $loading.remove();
+                    let errorMsg = 'Sorry, an error occurred while processing your request. Please try again later.';
+                    addMessage(errorMsg, 'bot');
+                    console.error('Chat error:', error);
+                    
+                    scrollToBottom();
+                }
+            });
+        }
+        
+        function addMessage(text, type) {
+            const $message = $('<div class="chat-widget-message"></div>').addClass(type).text(text);
+            $chatMessages.append($message);
+            scrollToBottom();
+        }
+        
+        function scrollToBottom() {
+            $chatMessages.scrollTop($chatMessages[0].scrollHeight);
+        }
+    });
+</script>
+
 <!-- Main Js -->
 <script src="{% static 'webapp/assets/js/vendor/index.js' %}"></script>
 <script src="{% static 'webapp/assets/js/main.js' %}"></script>
@@ -298,9 +677,66 @@
 
 {% block jsblock %}
 {% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Swiper !== 'undefined') {
+            const checkAndInitSwiper = function(selector, options) {
+                const elements = document.querySelectorAll(selector);
+                if (elements.length > 0) {
+                    elements.forEach(function(element) {
+                        if (!element.swiper) {
+                            try {
+                                new Swiper(element, options || {});
+                            } catch (error) {
+                                console.error('Lỗi khởi tạo Swiper:', error);
+                            }
+                        }
+                    });
+                }
+            };
+
+            setTimeout(function() {
+                checkAndInitSwiper('.ec-slider.swiper-container', {
+                    loop: true,
+                    speed: 2000,
+                    effect: 'slide',
+                    autoplay: {
+                        delay: 7000,
+                        disableOnInteraction: false
+                    },
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev'
+                    }
+                });
+
+                checkAndInitSwiper('.single-product-slider', {
+                    slidesPerView: 4,
+                    spaceBetween: 20,
+                    speed: 1500,
+                    loop: true,
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev'
+                    },
+                    breakpoints: {
+                        0: { slidesPerView: 1 },
+                        478: { slidesPerView: 1 },
+                        576: { slidesPerView: 2 },
+                        768: { slidesPerView: 3 },
+                        992: { slidesPerView: 3 },
+                        1024: { slidesPerView: 4 },
+                        1200: { slidesPerView: 4 }
+                    }
+                });
+            }, 500);
+        }
+    });
+</script>
 </body>
 </html>
-
-
-
-

@@ -1,5 +1,3 @@
-
-
 from pathlib import Path
 import os
 from decouple import config
@@ -18,8 +16,6 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
-
 
 # Application definition
 
@@ -183,3 +179,5 @@ VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
 VNPAY_API_URL = 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction'
 VNPAY_TMN_CODE = config('VNPAY_TMN_CODE')
 VNPAY_HASH_SECRET_KEY = config('VNPAY_HASH_SECRET_KEY')
+
+API_CHAT = config('API_CHAT', default='http://localhost:5000')

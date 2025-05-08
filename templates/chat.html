@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}"/>
+<style>
+    .chat-container {
+        max-width: 1000px;
+        margin: 30px auto;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .chat-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .chat-header h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+    
+    .chat-messages {
+        height: 500px;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .message {
+        margin-bottom: 15px;
+        max-width: 75%;
+        padding: 12px 15px;
+        border-radius: 20px;
+        line-height: 1.5;
+        position: relative;
+        word-wrap: break-word;
+    }
+    
+    .user-message {
+        align-self: flex-end;
+        background-color: #0d6efd;
+        color: white;
+        border-bottom-right-radius: 5px;
+    }
+    
+    .bot-message {
+        align-self: flex-start;
+        background-color: #f0f2f5;
+        color: #333;
+        border-bottom-left-radius: 5px;
+    }
+    
+    .message-time {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 5px;
+        text-align: right;
+    }
+    
+    .bot-message .message-time {
+        color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .chat-input {
+        display: flex;
+        padding: 15px;
+        background-color: #f0f2f5;
+        border-top: 1px solid #ddd;
+    }
+    
+    .chat-input textarea {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        margin-right: 10px;
+        resize: none;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+    
+    .chat-input textarea:focus {
+        border-color: #0d6efd;
+    }
+    
+    .send-btn {
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 0 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .send-btn:hover {
+        background-color: #0b5ed7;
+    }
+    
+    .send-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    
+    .loading {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        background-color: #f0f2f5;
+        border-radius: 20px;
+        align-self: flex-start;
+        margin-bottom: 15px;
+    }
+    
+    .loading-dots {
+        display: flex;
+    }
+    
+    .loading-dots span {
+        width: 8px;
+        height: 8px;
+        margin: 0 2px;
+        background-color: #888;
+        border-radius: 50%;
+        animation: dot-flashing 1s infinite alternate;
+    }
+    
+    .loading-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .loading-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes dot-flashing {
+        0% {
+            opacity: 0.2;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>EKKA</h2>
+                    <button id="clear-chat" class="btn btn-sm btn-light">Xóa trò chuyện</button>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <div class="bot-message message">
+                        <div>Xin chào! Tôi là trợ lý ảo EKKA. Tôi có thể giúp gì cho bạn?</div>
+                        <div class="message-time">Hôm nay, {{ current_time|time:"H:i" }}</div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <textarea id="user-input" placeholder="Nhập tin nhắn..." rows="1"></textarea>
+                    <button id="send-btn" class="send-btn">Gửi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jsblock %}
+<script>
+    $(document).ready(function() {
+        const messagesContainer = $('#chat-messages');
+        const userInput = $('#user-input');
+        const sendButton = $('#send-btn');
+        const clearChatButton = $('#clear-chat');
+        
+        userInput.on('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        userInput.on('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        sendButton.on('click', sendMessage);
+        
+        clearChatButton.on('click', function() {
+            if (confirm('Bạn có chắc muốn xóa tất cả trò chuyện?')) {
+                const welcomeMessage = messagesContainer.children().first();
+                messagesContainer.empty().append(welcomeMessage);
+                localStorage.removeItem('chatHistory');
+            }
+        });
+        
+        loadChatHistory();
+        
+        function sendMessage() {
+            const message = userInput.val().trim();
+            if (!message) return;
+            
+            userInput.prop('disabled', true);
+            sendButton.prop('disabled', true);
+            
+            const timestamp = new Date();
+            addMessage(message, 'user', timestamp);
+            userInput.val('').css('height', 'auto');
+            
+            const loadingElement = $('<div class="loading"><div class="loading-dots"><span></span><span></span><span></span></div></div>');
+            messagesContainer.append(loadingElement);
+            messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+            
+            const history = getChatHistory();
+            
+            $.ajax({
+                url: '/chatbot/generate',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    query: message,
+                    history_chat: history
+                }),
+                success: function(response) {
+                    loadingElement.remove();
+                    
+                    addMessage(response.response, 'bot', new Date());
+                    
+                    userInput.prop('disabled', false);
+                    sendButton.prop('disabled', false);
+                    userInput.focus();
+                },
+                error: function(xhr, status, error) {
+                    loadingElement.remove();
+                    
+                    addMessage("Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.", 'bot', new Date());
+                    
+                    userInput.prop('disabled', false);
+                    sendButton.prop('disabled', false);
+                    userInput.focus();
+                    
+                    console.error("Error:", error);
+                }
+            });
+        }
+        
+        function addMessage(text, sender, timestamp) {
+            const messageElement = $('<div class="message"></div>').addClass(sender === 'user' ? 'user-message' : 'bot-message');
+            messageElement.html(`<div>${text}</div><div class="message-time">${formatTime(timestamp)}</div>`);
+            messagesContainer.append(messageElement);
+            messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+            
+            saveChatHistory();
+        }
+        
+        function formatTime(date) {
+            return `Hôm nay, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+        function saveChatHistory() {
+            const messages = [];
+            messagesContainer.find('.message').each(function() {
+                const text = $(this).find('div:first').text();
+                const isUser = $(this).hasClass('user-message');
+                messages.push({
+                    text: text,
+                    sender: isUser ? 'user' : 'bot',
+                    timestamp: new Date().toISOString()
+                });
+            });
+            
+            localStorage.setItem('chatHistory', JSON.stringify(messages.slice(-10)));
+        }
+        
+        function loadChatHistory() {
+            const history = localStorage.getItem('chatHistory');
+            if (history) {
+                const messages = JSON.parse(history);
+                
+                const welcomeMessage = messagesContainer.children().first();
+                messagesContainer.empty().append(welcomeMessage);
+                
+                messages.forEach(msg => {
+                    if (msg.text !== welcomeMessage.find('div:first').text()) {
+                        const messageElement = $('<div class="message"></div>').addClass(msg.sender === 'user' ? 'user-message' : 'bot-message');
+                        messageElement.html(`<div>${msg.text}</div><div class="message-time">${formatTime(new Date(msg.timestamp))}</div>`);
+                        messagesContainer.append(messageElement);
+                    }
+                });
+                
+                messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+            }
+        }
+        
+        function getChatHistory() {
+            const history = [];
+            messagesContainer.find('.message').each(function() {
+                const text = $(this).find('div:first').text();
+                const isUser = $(this).hasClass('user-message');
+                if (isUser || history.length > 0) {
+                    history.push({
+                        text: text,
+                        sender: isUser ? 'user' : 'bot'
+                    });
+                }
+            });
+            
+            return history.slice(-10);
+        }
+    });
+</script>
+{% endblock %} 

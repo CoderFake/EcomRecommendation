@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="sticky-header-next-sec  ec-breadcrumb section-space-mb">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="row ec_breadcrumb_inner">
+                    <div class="col-md-6 col-sm-12">
+                        <h2 class="ec-breadcrumb-title">Điều Khoản & Điều Kiện</h2>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <!-- ec-breadcrumb-list start -->
+                        <ul class="ec-breadcrumb-list">
+                            <li class="ec-breadcrumb-item"><a href="{% url 'index' %}">Trang chủ</a></li>
+                            <li class="ec-breadcrumb-item active">Điều Khoản & Điều Kiện</li>
+                        </ul>
+                        <!-- ec-breadcrumb-list end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="ec-page-content section-space-p">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <div class="section-title">
+                    <h2 class="ec-bg-title">Điều Khoản & Điều Kiện</h2>
+                    <h2 class="ec-title">Điều Khoản & Điều Kiện</h2>
+                    <p class="sub-title mb-3">Cập nhật lần cuối: 01 tháng 05, 2023</p>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="ec-common-wrapper">
+                    <div class="ec-terms-wrapper">
+                        <div class="ec-terms-title">
+                            <h4>1. Giới thiệu</h4>
+                        </div>
+                        <div class="ec-terms-content">
+                            <p>Chào mừng bạn đến với EKKA Store.</p>
+                            <p>Các Điều khoản và Điều kiện này phác thảo các quy tắc và quy định cho việc sử dụng Trang web của EKKA Store, nằm tại ekka.com.</p>
+                            <p>Bằng cách truy cập trang web này, chúng tôi cho rằng bạn chấp nhận các điều khoản và điều kiện này. Vui lòng không tiếp tục sử dụng EKKA Store nếu bạn không đồng ý với tất cả các điều khoản và điều kiện được nêu trên trang này.</p>
+                        </div>
+                        <div class="ec-terms-title">
+                            <h4>2. Quyền sở hữu trí tuệ</h4>
+                        </div>
+                        <div class="ec-terms-content">
+                            <p>Trừ khi có quy định khác, EKKA Store và/hoặc bên cấp phép của nó sở hữu quyền sở hữu trí tuệ đối với tất cả tài liệu trên EKKA Store. Tất cả quyền sở hữu trí tuệ được bảo lưu. Bạn có thể truy cập tài liệu này từ EKKA Store cho mục đích sử dụng cá nhân của bạn theo các hạn chế được quy định trong các điều khoản và điều kiện này.</p>
+                            <p>Bạn không được:</p>
+                            <ul>
+                                <li>Xuất bản lại tài liệu từ EKKA Store</li>
+                                <li>Bán, cho thuê hoặc cấp phép phụ tài liệu từ EKKA Store</li>
+                                <li>Sao chép, nhân bản hoặc sao chép tài liệu từ EKKA Store</li>
+                                <li>Phân phối lại nội dung từ EKKA Store</li>
+                            </ul>
+                        </div>
+                        <div class="ec-terms-title">
+                            <h4>3. Hạn chế</h4>
+                        </div>
+                        <div class="ec-terms-content">
+                            <p>EKKA Store đảm bảo rằng thông tin trên Trang web của mình là đầy đủ và chính xác, nhưng đôi khi có thể có thông tin không chính xác, không đầy đủ, hoặc không cập nhật. EKKA Store không chịu trách nhiệm đối với bất kỳ tổn thất trực tiếp hoặc gián tiếp nào phát sinh từ việc truy cập hoặc sử dụng Trang web của nó.</p>
+                            <p>Từ trang web của chúng tôi, bạn có thể truy cập các trang web khác không nằm dưới sự kiểm soát của chúng tôi. Chúng tôi không thể chịu trách nhiệm về nội dung hoặc sự sẵn có của các trang web đó. Sự hiện diện của bất kỳ liên kết nào không nhất thiết ngụ ý sự chứng thực của chúng tôi đối với trang web.</p>
+                        </div>
+                        <div class="ec-terms-title">
+                            <h4>4. Quyền hủy bỏ</h4>
+                        </div>
+                        <div class="ec-terms-content">
+                            <p>Nếu vì bất kỳ lý do gì, bạn không hài lòng với bất kỳ sản phẩm hoặc dịch vụ nào của chúng tôi, bạn có thể hủy đơn hàng của mình trong vòng 7 ngày kể từ ngày giao hàng với các điều kiện sau:</p>
+                            <ul>
+                                <li>Sản phẩm phải còn nguyên vẹn và chưa được sử dụng</li>
+                                <li>Phải có hóa đơn gốc hoặc bằng chứng mua hàng</li>
+                                <li>Phải được gửi trả trong bao bì ban đầu</li>
+                            </ul>
+                        </div>
+                        <div class="ec-terms-title">
+                            <h4>5. Thay đổi điều khoản</h4>
+                        </div>
+                        <div class="ec-terms-content">
+                            <p>EKKA Store có quyền sửa đổi các điều khoản này bất cứ lúc nào. Bằng cách sử dụng trang web này, bạn đồng ý bị ràng buộc bởi phiên bản hiện tại của các Điều khoản và Điều kiện này.</p>
+                        </div>
+                        <div class="ec-terms-title">
+                            <h4>6. Luật điều chỉnh</h4>
+                        </div>
+                        <div class="ec-terms-content">
+                            <p>Bất kỳ tranh chấp nào phát sinh liên quan đến EKKA Store sẽ tuân theo luật pháp Việt Nam.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

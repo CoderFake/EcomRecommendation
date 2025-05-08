@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="sticky-header-next-sec  ec-breadcrumb section-space-mb">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="row ec_breadcrumb_inner">
+                    <div class="col-md-6 col-sm-12">
+                        <h2 class="ec-breadcrumb-title">Theo Dõi Đơn Hàng</h2>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <!-- ec-breadcrumb-list start -->
+                        <ul class="ec-breadcrumb-list">
+                            <li class="ec-breadcrumb-item"><a href="{% url 'index' %}">Trang chủ</a></li>
+                            <li class="ec-breadcrumb-item active">Theo Dõi Đơn Hàng</li>
+                        </ul>
+                        <!-- ec-breadcrumb-list end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="ec-page-content section-space-p">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <div class="section-title">
+                    <h2 class="ec-bg-title">Theo Dõi Đơn Hàng</h2>
+                    <h2 class="ec-title">Theo Dõi Đơn Hàng</h2>
+                    <p class="sub-title mb-3">Kiểm tra trạng thái đơn hàng của bạn</p>
+                </div>
+            </div>
+            <div class="ec-track-wrapper">
+                <div class="ec-track-container">
+                    <div class="ec-track-inner">
+                        <div class="card border shadow-0">
+                            <div class="card-body pb-0">
+                                <form class="row g-3" method="POST" action="#">
+                                    {% csrf_token %}
+                                    <div class="col-md-8">
+                                        <label class="form-label">Mã đơn hàng</label>
+                                        <input type="text" name="order_id" class="form-control" placeholder="Nhập mã đơn hàng của bạn">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" name="email" class="form-control" placeholder="Email đã sử dụng khi đặt hàng">
+                                    </div>
+                                    <div class="col-12 text-center mb-4">
+                                        <button type="submit" class="btn btn-primary rounded-3">Kiểm tra trạng thái</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ec-track-container mt-5 d-none" id="order-result">
+                    <div class="ec-track-inner">
+                        <div class="card border shadow-0">
+                            <div class="card-body">
+                                <h5 class="card-title">Thông tin đơn hàng #12345</h5>
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <p class="text-muted mb-1">Ngày đặt hàng</p>
+                                        <p>25/04/2023</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="text-muted mb-1">Trạng thái đơn hàng</p>
+                                        <p>Đang giao hàng</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="text-muted mb-1">Tổng cộng</p>
+                                        <p>1,250,000₫</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="text-muted mb-1">Dự kiến giao hàng</p>
+                                        <p>28/04/2023</p>
+                                    </div>
+                                </div>
+
+                                <div class="tracking-wrap">
+                                    <div class="step active">
+                                        <span class="icon"><i class="fa fa-check"></i></span>
+                                        <span class="text">Đã xác nhận đơn hàng</span>
+                                    </div>
+                                    <div class="step active">
+                                        <span class="icon"><i class="fa fa-check"></i></span>
+                                        <span class="text">Đang chuẩn bị hàng</span>
+                                    </div>
+                                    <div class="step active">
+                                        <span class="icon"><i class="fa fa-shipping-fast"></i></span>
+                                        <span class="text">Đang giao hàng</span>
+                                    </div>
+                                    <div class="step">
+                                        <span class="icon"><i class="fa fa-box"></i></span>
+                                        <span class="text">Đã giao hàng</span>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                                        <div>
+                                            <img src="{% static 'webapp/assets/images/product-image/1.jpg' %}" alt="Product" width="80" class="me-3">
+                                            <div class="d-inline-block align-middle">
+                                                <h6 class="mb-0">Áo phông nam cao cấp</h6>
+                                                <small class="text-muted">Size: L | Màu: Xanh</small>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="text-muted">1 x 450,000₫</span>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                                        <div>
+                                            <img src="{% static 'webapp/assets/images/product-image/2.jpg' %}" alt="Product" width="80" class="me-3">
+                                            <div class="d-inline-block align-middle">
+                                                <h6 class="mb-0">Giày thể thao nữ</h6>
+                                                <small class="text-muted">Size: 38 | Màu: Trắng</small>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="text-muted">1 x 800,000₫</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block jsblock %}
+<script>
+    $(document).ready(function() {
+        $("form").on("submit", function(e) {
+            e.preventDefault();
+            $("#order-result").removeClass("d-none");
+            $('html, body').animate({
+                scrollTop: $("#order-result").offset().top - 100
+            }, 1000);
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %} 

@@ -26,7 +26,7 @@ from accounts.views import upload_image_to_cloudflare
 from django.shortcuts import redirect
 from category.models import CategoryMain, SubCategory
 from category.forms import SubCategoryForm, CategoryMainForm
-from store.models import Product, Variation, VariationManager, FolderEvent
+from store.models import Product, Variation, VariationManager, FolderEvent, Wishlist
 from carts.forms import ProductForm
 from store.forms import variationForm
 from orders.forms import OrderForm, OrderUpdateForm
@@ -150,21 +150,19 @@ def user_infor(request):
 def user_list(request):
     if request.user.is_superuser:
         profile_list = UserProfile.objects.all().order_by('-user__date_joined')
-        paginator = Paginator(profile_list, 10) # Show 10 profiles per page.
+        paginator = Paginator(profile_list, 10) 
 
         page_number = request.GET.get('page')
         try:
             page_obj = paginator.get_page(page_number)
         except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
             page_obj = paginator.page(1)
         except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
             page_obj = paginator.page(paginator.num_pages)
 
         profile_user = UserProfile.objects.get(user__pk=request.user.id)
         context = {
-            'page_obj': page_obj, # Pass the page object
+            'page_obj': page_obj, 
             'profile_user': profile_user
         }
         return render(request, 'adminApp/users/user_list.html', context)
@@ -297,7 +295,7 @@ def get_user_acquisition(request):
 
         events = EventUser.objects.filter(
             event_timestamp__range=[start_date, end_date],
-            event_type__in=['view', 'cart', 'pay']  # Chỉ xử lý các sự kiện này
+            event_type__in=['view', 'cart', 'pay']  
         ).annotate(hour=ExtractHour('event_timestamp')).values('hour', 'event_type').annotate(count=Count('id')).order_by('hour')
 
         result = {
@@ -314,11 +312,6 @@ def get_user_acquisition(request):
     else:
         return HttpResponse('You are not authorized to view this page', status=403)
 
-
-# User based views ends here ##############################################################
-
-# Category based views ##############################################################
-
 @login_required(login_url='login')
 def main_category(request):
     if request.user.is_superuser:
@@ -332,7 +325,7 @@ def main_category(request):
                  messages.error(request, 'Failed to add main category. Please check the form.')
 
         main_list = CategoryMain.objects.all().order_by('category_name')
-        paginator = Paginator(main_list, 10) # Show 10 categories per page
+        paginator = Paginator(main_list, 10)
 
         page_number = request.GET.get('page')
         try:
@@ -387,8 +380,6 @@ def main_category_delete(request, pk):
     return HttpResponse('You are not authorized to view this page')
 
 
-# Sub Category based views ##############################################################
-
 @login_required(login_url='login')
 def sub_category(request):
     if request.user.is_superuser:
@@ -402,7 +393,7 @@ def sub_category(request):
                 messages.error(request, 'Failed to add sub category. Please check the form.')
 
         sub_list = SubCategory.objects.all().order_by('category__category_name', 'sub_category_name')
-        paginator = Paginator(sub_list, 10) # Show 10 sub categories per page
+        paginator = Paginator(sub_list, 10)
 
         page_number = request.GET.get('page')
         try:
@@ -414,7 +405,7 @@ def sub_category(request):
 
         form = SubCategoryForm()
         context = {
-            'page_obj': page_obj, # Pass the page object for sub categories
+            'page_obj': page_obj,
             'form': form,
         }
         return render(request, 'adminApp/Category/SubCategory.html', context)
@@ -451,13 +442,11 @@ def sub_category_delete(request, pk):
     return HttpResponse('You are not authorized to view this page')
 
 
-# Product based views ##############################################################
-
 @login_required(login_url='login')
 def product_list(request):
     if request.user.is_superuser:
-        product_list_all = Product.objects.all().order_by('-created_date') # Order by creation date
-        paginator = Paginator(product_list_all, 10) # Show 10 products per page
+        product_list_all = Product.objects.all().order_by('-created_date') 
+        paginator = Paginator(product_list_all, 10) 
 
         page_number = request.GET.get('page')
         try:
@@ -467,7 +456,7 @@ def product_list(request):
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
 
-        addProductForm = ProductForm() # Initialize form for adding new product
+        addProductForm = ProductForm() 
         if request.method == 'POST':
             form = ProductForm(request.POST, request.FILES)
             if form.is_valid():
@@ -476,10 +465,10 @@ def product_list(request):
                 return redirect('product_list')
             else:
                 messages.error(request, 'Failed to add product. Please check the form.')
-                addProductForm = form # Pass the invalid form back to template
+                addProductForm = form
 
         context = {
-            'page_obj': page_obj, # Pass the page object for products
+            'page_obj': page_obj,
             'addProduct': addProductForm,
         }
         return render(request, 'adminApp/Products/product_list.html', context)
@@ -519,13 +508,11 @@ def product_delete(request, pk):
     return HttpResponse('You are not authorized to view this page')
 
 
-# product variations based views ##############################################################
-
 @login_required(login_url='login')
 def add_variations(request):
     if request.user.is_superuser:
-        variation_list = Variation.objects.all().order_by('product__product_name', 'variation_category', 'variation_value')
-        paginator = Paginator(variation_list, 10) # Show 10 variations per page
+        variation_list = Variation.objects.all().order_by('Product__product_name', 'Variation_category', 'Variation_value')
+        paginator = Paginator(variation_list, 10) 
 
         page_number = request.GET.get('page')
         try:
@@ -535,22 +522,22 @@ def add_variations(request):
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
 
-        form = variationForm() # Initialize form for adding new variation
+        form = variationForm() 
         if request.method == 'POST':
             add_form = variationForm(request.POST, request.FILES)
             if add_form.is_valid():
                 add_form.save()
                 messages.success(request, 'Variation added successfully.')
-                return redirect('add_variations') # Redirect to clear POST data
+                return redirect('add_variations')
             else:
                  messages.error(request, 'Failed to add variation. Please check the form.')
-                 form = add_form # Pass the invalid form back to template
+                 form = add_form 
 
         context = {
-            'page_obj': page_obj, # Pass the page object for variations
+            'page_obj': page_obj, 
             'form': form,
         }
-        # Note: The template path seems inconsistent (AdminApp vs adminApp). Assuming 'adminApp' based on others.
+       
         return render(request, 'adminApp/Variations/add_variations.html', context)
     return HttpResponse('You are not authorized to view this page')
 
@@ -587,7 +574,6 @@ def delete_variations(request, pk):
     return HttpResponse('You are not authorized to view this page')
 
 
-# Orders based views ##############################################################
 MODEL_DIR = os.path.join(settings.BASE_DIR, 'static', 'adminapp', 'assets', 'img', 'logo')
 DOC_DIR = os.path.join(settings.BASE_DIR, 'static', 'doc')
 
@@ -644,7 +630,6 @@ def download_order_report(request):
             width=Inches(1.0))
         paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-        # Add store name
         store_name = cell.add_paragraph()
         run = store_name.add_run("EKKA Store")
         run.font.size = Pt(48)
@@ -652,7 +637,6 @@ def download_order_report(request):
         store_name.alignment = WD_ALIGN_PARAGRAPH.CENTER
         store_name.paragraph_format.space_before = Pt(12)
 
-        # Add report title and date
         title_para = doc.add_heading('Orders Overview Report', level=1)
         title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         for run in title_para.runs:
@@ -1096,23 +1080,153 @@ def order_list(request):
 @login_required(login_url='login')
 def order_update(request, pk):
     if request.user.is_superuser:
-        orders = Order.objects.get(pk=pk)
-        update_order = Order.objects.get(pk=pk)
-        form = OrderUpdateForm(instance=update_order)
+        order = Order.objects.get(pk=pk)
+        form = OrderUpdateForm(instance=order)
         if request.method == 'POST':
-            form = OrderUpdateForm(request.POST, instance=update_order)
+            form = OrderUpdateForm(request.POST, instance=order)
             if form.is_valid():
                 form.save()
                 return redirect('order_list')
             else:
                 print(form.errors)
-
         context = {
-            'orders': orders,
             'form': form,
+            'order': order,
         }
-        return render(request, 'adminApp/Orders/order_update.html', context)
+        return render(request, 'adminApp/orders/order_update.html', context)
     return HttpResponse('You are not authorized to view this page')
+
+
+@login_required(login_url='login')
+def user_profile_api(request, pk):
+
+    if request.user.is_superuser:
+        try:
+            user = Account.objects.get(pk=pk)
+            profile = UserProfile.objects.get(user=user)
+            
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'phone_number': user.phone_number,
+                'full_name': user.full_name,
+                'date_joined': user.date_joined,
+                'last_login': user.last_login,
+                'is_active': user.is_active,
+                'is_admin': user.is_admin,
+                'is_login': user.is_login,
+            }
+            
+            profile_data = {
+                'id': profile.id,
+                'date_of_birth': profile.date_of_birth,
+                'sex': profile.sex,
+                'road': profile.road,
+                'ward': profile.ward,
+                'district': profile.district,
+                'city': profile.city,
+                'ward_name': profile.ward_name(),
+                'district_name': profile.district_name(),
+                'city_name': profile.city_name(),
+                'full_address': profile.full_address(),
+                'profile_picture': profile.profile_picture,
+                'bio': profile.bio,
+            }
+            
+            orders = Order.objects.filter(user=user).order_by('-created_at')
+            orders_data = []
+            for order in orders:
+                order_items = OrderProduct.objects.filter(order=order)
+                items_data = []
+                for item in order_items:
+                    items_data.append({
+                        'product_name': item.product.product_name,
+                        'quantity': item.quantity,
+                        'price': float(item.product_price),
+                        'subtotal': float(item.product_price * item.quantity),
+                    })
+                
+                orders_data.append({
+                    'id': order.id,
+                    'order_number': order.order_number,
+                    'status': order.status,
+                    'created_at': order.created_at,
+                    'updated_at': order.updated_at,
+                    'total': float(order.order_total),
+                    'tax': float(order.tax),
+                    'items': items_data,
+                    'payment_method': order.payment.payment_method if hasattr(order, 'payment') else None,
+                    'payment_status': order.payment.status if hasattr(order, 'payment') else None,
+                })
+            
+            wishlist_items = Wishlist.objects.filter(user=user).order_by('-created_at')
+            wishlist_data = []
+            for item in wishlist_items:
+                wishlist_data.append({
+                    'id': item.id,
+                    'product_id': item.product.id,
+                    'product_name': item.product.product_name,
+                    'price': float(item.product.price),
+                    'image': item.product.images,
+                    'created_at': item.created_at,
+                })
+            
+            events = EventUser.objects.filter(user=user).order_by('-event_timestamp')
+            events_data = []
+            for event in events:
+                event_data = {
+                    'id': event.id,
+                    'event_type': event.event_type,
+                    'event_timestamp': event.event_timestamp,
+                    'frequency': event.frequency,
+                }
+                if event.product:
+                    event_data['product'] = {
+                        'id': event.product.id,
+                        'name': event.product.product_name,
+                    }
+                events_data.append(event_data)
+            
+            # Thống kê
+            view_count = EventUser.objects.filter(user=user, event_type='view').count()
+            cart_count = EventUser.objects.filter(user=user, event_type='cart').count()
+            pay_count = EventUser.objects.filter(user=user, event_type='pay').count()
+            login_count = EventUser.objects.filter(user=user, event_type='login').count()
+            
+            total_spent = sum(float(order.order_total) for order in orders)
+            
+            stats = {
+                'view_count': view_count,
+                'cart_count': cart_count,
+                'pay_count': pay_count,
+                'login_count': login_count,
+                'total_spent': total_spent,
+                'order_count': orders.count(),
+                'wishlist_count': wishlist_items.count(),
+                'last_view': events.filter(event_type='view').first().event_timestamp if events.filter(event_type='view').exists() else None,
+                'last_login': events.filter(event_type='login').first().event_timestamp if events.filter(event_type='login').exists() else None,
+            }
+            
+            response_data = {
+                'user': user_data,
+                'profile': profile_data,
+                'orders': orders_data,
+                'wishlist': wishlist_data,
+                'events': events_data,
+                'stats': stats,
+            }
+            
+            return JsonResponse(response_data)
+            
+        except Account.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except UserProfile.DoesNotExist:
+            return JsonResponse({'error': 'User profile not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'You are not authorized to access this information'}, status=403)
 
 
 AES_KEY = base64.urlsafe_b64decode(config('AES_KEY'))

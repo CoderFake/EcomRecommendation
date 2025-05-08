@@ -209,7 +209,7 @@
 
                                             {% else %}
                                             <div class="ec-single-wishlist">
-                                                <a class="ec-btn-group wishlist" title="Wishlist"><img
+                                                <a href="{% url 'add_to_wishlist' product.id %}" class="ec-btn-group wishlist add-to-wishlist" data-product-id="{{ product.id }}" title="Wishlist"><img
                                                         src="{% static 'webapp/assets/images/icons/wishlist.svg' %}"
                                                         class="svg_img pro_svg" alt="" /></a>
                                             </div>

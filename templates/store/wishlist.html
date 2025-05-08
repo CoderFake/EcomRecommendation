@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'webapp/assets/css/style.css' %}"/>
+    <style>
+        .empty-wishlist {
+            text-align: center;
+            padding: 50px 0;
+        }
+        
+        .empty-wishlist i {
+            font-size: 60px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .empty-wishlist h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .empty-wishlist p {
+            font-size: 16px;
+            color: #777;
+            margin-bottom: 20px;
+        }
+        
+        .wishlist-item {
+            position: relative;
+        }
+        
+        .remove-wishlist {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .remove-wishlist:hover {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="sticky-header-next-sec ec-breadcrumb section-space-mb">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="row ec_breadcrumb_inner">
+                    <div class="col-md-6 col-sm-12">
+                        <h2 class="ec-breadcrumb-title">Wishlist</h2>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <ul class="ec-breadcrumb-list">
+                            <li class="ec-breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                            <li class="ec-breadcrumb-item active">Wishlist</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="ec-page-content section-space-p">
+    <div class="container">
+        <div class="row">
+            {% if wishlist_items %}
+                {% for item in wishlist_items %}
+                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 mb-6 pro-gl-content">
+                    <div class="ec-product-inner wishlist-item">
+                        <div class="ec-pro-image-outer">
+                            <div class="ec-pro-image">
+                                <a href="{% url 'product_detail' item.product.category_main.slug item.product.sub_category.slug item.product.slug %}" class="image product-session">
+                                    {% for image in item.product.images.all %}
+                                        {% if image.image_type == "default" %}
+                                            <img class="main-image"
+                                                src="{{ image.image_url }}" alt="{{ item.product.product_name }}" />
+                                        {% endif %}
+                                        {% if image.image_type == "back" %}
+                                            <img class="hover-image"
+                                                src="{{ image.image_url }}" alt="{{ item.product.product_name }}" />
+                                        {% endif %}
+                                    {% endfor %}
+                                </a>
+                                <a href="{% url 'remove_from_wishlist' item.product.id %}" class="remove-wishlist" title="Remove from wishlist">
+                                    <i class="ecicon eci-times-circle"></i>
+                                </a>
+                                <div class="ec-pro-actions">
+                                    <a href="{% url 'add_cart' item.product.id %}" class="add-to-cart">
+                                        <img src="{% static 'webapp/assets/images/icons/cart.svg' %}" 
+                                        class="svg_img pro_svg" alt="" /> Add to Cart
+                                    </a>
+                                    <a href="{% url 'product_detail' item.product.category_main.slug item.product.sub_category.slug item.product.slug %}" class="ec-btn-group quickview product-session" data-link-action="quickview"
+                                        data-bs-toggle="modal" data-bs-target="#ec_quickview_modal">
+                                        <img src="{% static 'webapp/assets/images/icons/quickview.svg' %}"
+                                        class="svg_img pro_svg" alt="" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ec-pro-content">
+                            <h5 class="ec-pro-title">
+                                <a href="{% url 'product_detail' item.product.category_main.slug item.product.sub_category.slug item.product.slug %}" class="product-session">
+                                    {{ item.product.product_name }}
+                                </a>
+                            </h5>
+                            <div class="ec-pro-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= item.product.rating %}
+                                        <i class="ecicon eci-star fill"></i>
+                                    {% else %}
+                                        <i class="ecicon eci-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="ec-pro-list-desc">{{ item.product.short_desp }}</div>
+                            <span class="ec-price">
+                                {% if item.product.mrp_price > item.product.price %}
+                                <span class="old-price">${{ item.product.mrp_price }}</span>
+                                {% endif %}
+                                <span class="new-price">${{ item.product.price }}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-wishlist">
+                    <i class="ecicon eci-heart"></i>
+                    <h3>Your wishlist is empty</h3>
+                    <p>Add products to your wishlist to see them here</p>
+                    <a href="{% url 'store' %}" class="btn btn-primary rounded-3">Continue Shopping</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block jsblock %}
+<script>
+    $(document).ready(function() {
+        // Update wishlist count in header
+        function updateWishlistCount() {
+            $.ajax({
+                url: "{% url 'wishlist' %}",
+                type: "GET",
+                success: function(response) {
+                    $('.ec-header-count.wishlist-count').text(response.count);
+                }
+            });
+        }
+        
+        // Handle add/remove from wishlist with Ajax
+        $('.add-to-wishlist').on('click', function(e) {
+            e.preventDefault();
+            
+            var productId = $(this).data('product-id');
+            var url = "{% url 'add_to_wishlist' 0 %}".replace('0', productId);
+            
+            $.ajax({
+                url: url,
+                type: "GET",
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Show notification
+                        alert(response.message);
+                        // Update count
+                        $('.ec-header-count.wishlist-count').text(response.count);
+                    }
+                }
+            });
+        });
+        
+        // Handle remove from wishlist with Ajax
+        $('.remove-wishlist').on('click', function(e) {
+            e.preventDefault();
+            
+            var productId = $(this).data('product-id');
+            var url = $(this).attr('href');
+            var itemElement = $(this).closest('.wishlist-item').parent();
+            
+            $.ajax({
+                url: url,
+                type: "GET",
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Remove item from list
+                        itemElement.fadeOut(300, function() {
+                            $(this).remove();
+                            // If no products left, show empty message
+                            if ($('.wishlist-item').length === 0) {
+                                $('.row').html(`
+                                    <div class="empty-wishlist">
+                                        <i class="ecicon eci-heart"></i>
+                                        <h3>Your wishlist is empty</h3>
+                                        <p>Add products to your wishlist to see them here</p>
+                                        <a href="{% url 'store' %}" class="btn btn-primary rounded-3">Continue Shopping</a>
+                                    </div>
+                                `);
+                            }
+                        });
+                        
+                        // Update count
+                        $('.ec-header-count.wishlist-count').text(response.count);
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

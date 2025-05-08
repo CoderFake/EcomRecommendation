@@ -10,6 +10,13 @@ services:
       - .:/app
       - static_volume:/app/static
       - media_volume:/app/media
+    command: >
+      sh -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        python manage.py runserver 0.0.0.0:8000
+      "
     depends_on:
       - db
     environment:
@@ -27,6 +34,8 @@ services:
       - CL_ID=${CL_ID}
       - CL_API_TOKEN=${CL_API_TOKEN}
       - AES_KEY=${AES_KEY}
+    networks:
+      - ecom_network
 
   db:
     image: mysql:8.0
@@ -35,26 +44,24 @@ services:
       - "8336:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASS}
       - MYSQL_DATABASE=${DB_NAME}
       - MYSQL_USER=${DB_USERNAME}
       - MYSQL_PASSWORD=${DB_PASS}
     command: --default-authentication-plugin=mysql_native_password
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    ports:
-      - "8668:80"
-    depends_on:
-      - db
-    environment:
-      - PMA_HOST=db
-      - PMA_PORT=3306
-      - PMA_USER=${DB_USERNAME}
-      - PMA_PASSWORD=${DB_PASS}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecom_network
+networks:
+  ecom_network:
+    driver: bridge
 
 volumes:
   mysql_data:

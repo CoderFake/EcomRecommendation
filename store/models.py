@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
+from django.conf import settings
 
 from category.models import CategoryMain, SubCategory
 
@@ -91,3 +92,17 @@ class FolderEvent(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Wishlist'
+        verbose_name_plural = 'Wishlists'
+        unique_together = ('user', 'product')
+        
+    def __str__(self):
+        return f"{self.user.email}'s wishlist - {self.product.product_name}"

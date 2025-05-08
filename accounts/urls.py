@@ -9,7 +9,7 @@ urlpatterns = [
     path('logout', views.logout, name='logout'),
     path('home', include('homeApp.urls')),
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),
-    path('dashboard', views.dashboard, name='dashboard'),
+    path('orders', views.dashboard, name='dashboard'),
     path('user_profile', views.user_profile, name='edit_profile'),
     path('forgotPassword/', views.forgotPassword, name='forgotPassword'),
     path('resetpassword_validate/<uidb64>/<token>/', views.resetpassword_validate, name='resetpassword_validate'),

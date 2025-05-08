@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     default-libmysqlclient-dev \
     pkg-config \
+    libhdf5-dev \
+    libhdf5-serial-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -21,9 +23,3 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
-
-COPY docker/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-# Run the application
-CMD ["/app/entrypoint.sh"]

@@ -1,4 +1,7 @@
 {% extends "admin_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
 {% block content %}
     <!-- CONTENT WRAPPER -->
     <div class="ec-content-wrapper">
@@ -31,7 +34,7 @@
                                     </thead>
 
                                     <tbody>
-                                    {% for order in page_obj %} {# Changed orders to page_obj #}
+                                    {% for order in page_obj %} 
                                         <tr>
                                             <td>{{ order.id }}</td>
                                             <td>
@@ -49,7 +52,6 @@
                                                         {% if img %}
                                                             <img src="{{ img.image_url }}" height=30 width=30 style="border-radius:50%">
                                                         {% else %}
-                                                            {# Optional: Add a default image if none exists #}
                                                             <img src="{% static 'webapp/assets/images/product-image/default.jpg' %}" height=30 width=30 style="border-radius:50%">
                                                         {% endif %}
                                                     {% endwith %}
@@ -73,8 +75,6 @@
                                             </td>
                                         </tr>
                                     {% endfor %}
-
-
                                     </tbody>
                                 </table>
                             </div>
@@ -128,7 +128,6 @@
                     </div>
                 </div>
             </div>
-        </div> <!-- End Content -->
-    </div> <!-- End Content Wrapper -->
-
+        </div>
+    </div>
 {% endblock %}
